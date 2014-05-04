@@ -3,6 +3,8 @@
 
 #include<QIODevice>
 #include<QXmlStreamWriter>
+#include<vector>
+using std::vector;
 
 class ISerializible
 {
@@ -15,40 +17,28 @@ class GameState : public ISerializible
 {
 public:
     GameState() { }
+    GameState(const short**, const unsigned);
     GameState(QIODevice& f) { this->Deserialize(f); }
     virtual void Serialize(QIODevice&);
     virtual void Deserialize(QIODevice&);
-/*
-    void setBoard(QString& _board) { board = _board; }
-    void setCoordinates(int x, int y) { X = x; Y = y; }
-    void setSize(uint _width, uint _height) { width = _width; height = _height; }
-    void setScore(uint _score, uint _level, uint _lines, uint _count, uint _iter)
-        { score = _score; level = _level; lines = _lines; tetrominosCount = _count; freeFallIterations = _iter; }
-    void setNextTetromino(Tetromino*);
-    void setCurrentTetromino(Tetromino*);
 
-    QString getBoard() { return board; }
-    QVector<int> getCoordinates() { return QVector<int>({ X, Y }); }
-    QVector<uint> getSize() { return QVector<uint>({ width, height }); }
-    QVector<uint> getScore() { return QVector<uint>({ score, level, lines, tetrominosCount, freeFallIterations }); }
-    Tetromino* getNextTetromino();
-    Tetromino* getCurrentTetromino();
-*/
+    //void setBoard(const short _board[6][6]) : board {_board} { }
+    void setStepNum(const unsigned num) { stepNum = num; }
+
+    const vector<short>& getBoard() const { return board; }
+    const unsigned getStepNum() const { return stepNum; }
+
 private:
-    /*QString board;
-    int X, Y;
-    uint width, height;
-    uint score, level, lines, tetrominosCount, freeFallIterations;
-
-    int nextShape, nextColor, curShape, curColor;
-    QString nextBlocks, curBlocks;*/
+    unsigned width = 6, height = 6;
+    vector<short> board;
+    unsigned stepNum;
 };
 
 class IOriginator
 {
 public:
-    virtual GameState SaveState() = 0;
-    virtual void RestoreState(GameState&) = 0;
+    virtual GameState SaveGame() = 0;
+    virtual void RestoreGame(GameState&) = 0;
 };
 
 #endif // SERIALIZATION_H

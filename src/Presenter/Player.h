@@ -1,35 +1,39 @@
-/*
- *  Created on: 10 ����. 2013
- *      Author: Gasper
- */
-
 #ifndef PLAYER_H
 #define PLAYER_H
 
+#include <QObject>
 #include <string>
 #include <mutex>
-
 using std::string;
 using std::mutex;
 
-#include "Board.h"
+#include "Model/Board.h"
 
-class Player {
+class Player : public QObject {
+    Q_OBJECT
 public:
-	struct Step {
-		short i,j;
-		short quarter;
-		Board::RotateDirection direction;
-	};
-	Player(std::string _name = "Player");
+    Player(std::string _name = "Player");
 	virtual ~Player();
-	virtual Player::Step MakeStep();
 
 	string GetName() const;
 	void SetName(const string name);
 	int GetPlayerType();
+
 protected:
 	int playerType;
+
+protected slots:
+    // retranslate from View
+    virtual void stone_puted(int, int);
+    virtual void rotated(int);
+    virtual void leaved();
+
+signals:
+    // to Presenter
+    virtual void put_stone(int, int);
+    virtual void rotate(int);
+    virtual void leave();
+
 private:
 	string name;
 	mutex PlayerNameAccessMutex;

@@ -1,27 +1,25 @@
-/*
- * Board.h
- *
- *  Created on: 10 лист. 2013
- *      Author: Gasper
- */
-
 #ifndef BOARD_H
 #define BOARD_H
 
-class Board {
+#include "Model/serialization.h"
+
+class Board : public IOriginator {
 public:
 	enum RotateDirection { Left, Right };
 
 	Board();
-	virtual ~Board();
+    virtual ~Board() { }
 	bool putStone(short, short, short);
 	void Rotate(short, RotateDirection);
 	
-	//TODO: треба зробити один з них const
+    //TODO: треба зробити один з них const
 	short& operator()(short, short);
 	short* operator[](short);
 	
 	void Clear();
+
+    virtual GameState SaveGame();
+    virtual void RestoreGame(GameState&);
 
 private:
 	typedef short TheBoard[6][6];

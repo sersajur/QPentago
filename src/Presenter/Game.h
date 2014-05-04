@@ -1,51 +1,66 @@
-/*
- * Game.h
- *
- *  Created on: 10 лист. 2013
- *      Author: Gasper
- */
-
 #ifndef GAME_H
 #define GAME_H
 
-#include "UserInterface.h"
-#include "Board.h"
-#include "PlayerLocal.h"
-#include "PlayerNetwork.h"
-#include "Referee.h"
-#include "Network.h"
-#include "PentagoServer.h"
+//#include "UserInterface.h"
+//#include "PlayerLocal.h"
+//#include "PlayerNetwork.h"
+//#include "Network.h"
+//#include "PentagoServer.h"
 
-class Game {
+#include <QObject>
+#include <QFile>
+#include <string>
+using std::string;
+#include <vector>
+using std::vector;
+#include <memory>
+using std::unique_ptr;
+#include "Model/Board.h"
+#include "Model/Referee.h"
+#include "Presenter/Player.h"
+#include "iview.h"
+
+class Game : public QObject {
+    Q_OBJECT
 public:
-	enum PlayersNum {
-		Player1 = 0, Player2 = 1, PlayerBoth=-1
-	};
-	virtual ~Game();
-	static Game* GetInstance();
+    unique_ptr<IView> userInterface;
+    //Network network;
+    //bool mustShutdown;
 
-	//менюшка, тощо
-	void Run();
+    virtual ~Game() { }
+    static Game& GetInstance();
 
-	void SetPlayerName(PlayersNum playerNum, const string& name);
-	const Player* GetPlayer(PlayersNum who) const;
-	const Player* GetCurrentPlayer() const;
+    const unique_ptr<Player>& GetPlayer(unsigned who) const;
+    const unique_ptr<Player>& GetCurrentPlayer() const;
+    //void SetPlayerName(PlayersNum playerNum, const string& name);
+
+public slots:
+    // from View (main menu)
+    void new_game(int);
+    void save_game(string);
+    void load_game(string);
+    void join_game(string);
+    void host_game();
+    // from Player presenter
+    void put_stone(int, int);
+    void rotate(IView::quadrant, IView::turn);
+    void leave();
+
+signals:
+    // to View
+    void set_control_settings(IView::control_setting);
+    void draw_stone(int, int, IView::color);
+    void message(QString);
+
 private:
-	//а тут вже буде вся гра, аж поки не вийде назад в меню
-	void PlayGame();
+    vector<unique_ptr<Player>> players;
+    Board board;
+    Referee referee;
+    int currentPlayer;
+    //PentagoServer *server;
 
-	Player* players[2];
-	Referee referee;
-	PentagoServer *server;
-	static Game* instance;
-	PlayersNum currentPlayer;
-	Game();
-	Game(const Game&);
-public:
-	Network network;
-	Board board;
-	UserInterface userInterface;
-	bool mustShutdown;
+    Game();
+    Game(const Game&) = delete;
 };
 
 #endif /* GAME_H */

@@ -1,14 +1,7 @@
-/*
- *  Created on: 10 ����. 2013
- *      Author: Gasper
- */
 #include "Player.h"
 
-#ifdef DEBUG
-#include "Game.h"
-#include <iostream>
-#include <sstream>
-#endif
+Player::Player(std::string _name) : playerType{-1} { SetName(_name); }
+Player::~Player() { }
 
 std::string Player::GetName() const{
 	const_cast<mutex*>(&PlayerNameAccessMutex)->lock();
@@ -19,25 +12,22 @@ std::string Player::GetName() const{
 
 void Player::SetName(const string name) {
 	PlayerNameAccessMutex.lock();
-#ifdef DEBUG
-	Game::Instance()->userInterface.ShowDebugInfo(("Name set: "+name).c_str());
-#endif
 	this->name = name;
 	PlayerNameAccessMutex.unlock();
-}
-
-Player::Step Player::MakeStep() {
-	//virtual method
-	return Player::Step();
 }
 
 int Player::GetPlayerType() {
 	return playerType;
 }
 
-Player::Player(std::string _name) {
-	SetName(_name);
-	playerType = -1;
+void Player::stone_puted(int x, int y) {
+    emit put_stone(x, y);
 }
-Player::~Player() { }
 
+void Player::rotated(int direction){
+    emit rotate(direction);
+}
+
+void Player::leaved(){
+    emit leave();
+}
