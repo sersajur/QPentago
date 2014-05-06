@@ -5,6 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui
+QT       += widgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -13,8 +14,19 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+    graphicbutton.cpp \
+    graphicmenu.cpp \
+    view.cpp \
+    tester_.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += \
+    iview.h \
+    graphicbutton.h \
+    graphicmenu.h \
+    view.h \
+    tester_.h
 
-FORMS    += mainwindow.ui
+FORMS    +=
+
+RESOURCES += \
+    source.qrc

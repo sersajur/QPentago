@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Graphic_source/b_ground.png</file>
+        <file>Graphic_source/icon.png</file>
+    </qresource>
+</RCC>
