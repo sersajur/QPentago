@@ -17,14 +17,20 @@ SOURCES += main.cpp\
     graphicbutton.cpp \
     graphicmenu.cpp \
     view.cpp \
-    tester_.cpp
+    tester_.cpp \
+    graphicstone.cpp \
+    graphicquadrant.cpp \
+    graphicboard.cpp
 
 HEADERS  += \
     iview.h \
     graphicbutton.h \
     graphicmenu.h \
     view.h \
-    tester_.h
+    tester_.h \
+    graphicstone.h \
+    graphicquadrant.h \
+    graphicboard.h
 
 FORMS    +=
 

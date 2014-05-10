@@ -1,5 +1,8 @@
 #include "graphicmenu.h"
 #include <QGraphicsProxyWidget>
+#include <graphicquadrant.h>
+#include <QApplication>
+#define SAVEPATH  (QApplication::applicationDirPath()+"/Save/test")
 GraphicMenu::~GraphicMenu()
 {
     delete bt_New;
@@ -12,7 +15,6 @@ GraphicMenu::~GraphicMenu()
     delete bt_Back;
     delete bt_Join_ok;
     delete w_line_edit_IP;
-    delete main_menu_parent;
     delete new_menu_parent;
     delete load_menu_parent;
     delete join_menu_parent;
@@ -22,7 +24,7 @@ GraphicMenu::~GraphicMenu()
 GraphicMenu::GraphicMenu(qreal x, qreal y, qreal width, qreal height, QObject * parent):
     QGraphicsScene(x,y,width,height,parent)
 {//main
-    main_menu_parent = new QGraphicsRectItem();
+    main_menu_parent = addRect(-125,-200,250,400,Qt::NoPen,QBrush(Qt::gray,Qt::Dense4Pattern));
     main_menu_parent->setPos(0,0);
     bt_New = new GraphicButton(QString("New game"),main_menu_parent);
     bt_Load = new GraphicButton(QString("Load game"),main_menu_parent);
@@ -109,10 +111,12 @@ void GraphicMenu::on_Two_player_pressed()
 
 void GraphicMenu::on_Load_game_pressed()
 {
-    bt_Back->setParentItem(load_menu_parent);
-    removeItem(main_menu_parent);
-    addItem(load_menu_parent);
-    update();
+
+//    bt_Back->setParentItem(load_menu_parent); //uncomment, when user will be able to make a choice
+//    removeItem(main_menu_parent);
+//    addItem(load_menu_parent);
+//    update();
+   emit Load_game_selected(QString(SAVEPATH).toStdString());
 }
 
 void GraphicMenu::on_Join_game_pressed()

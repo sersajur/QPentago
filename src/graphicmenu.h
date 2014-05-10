@@ -5,7 +5,9 @@
 #include <QLineEdit>
 #include "graphicbutton.h"
 
-#define GS_WIDTH 8*GB_WIDTH
+#include"graphicstone.h"
+
+#define GS_WIDTH 10*GB_WIDTH
 #define GS_HEIGHT 15*GB_HEIGHT
 #define PENTAGO_DEFAULT_PORT 8082
 
@@ -25,12 +27,12 @@ private slots:
     void on_Join_ok_pressed();
     void on_Host_game_pressed();
     void on_Back_pressed();
-
 signals:
     void Exit_game_pressed();
     void New_game_selected(int player_count);
     void Join_game_selected(std::string host_address);
     void Host_game_selected(std::string host_port);
+    void Load_game_selected(std::string path);
 private:
     QGraphicsItem   *main_menu_parent,
                     *new_menu_parent,
