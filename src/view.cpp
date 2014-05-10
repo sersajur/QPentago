@@ -29,8 +29,6 @@ View::View(QWidget *parent):
 
     connect(board_scene, SIGNAL(message_sended(QString)), this, SLOT(on_msg_sended(QString)));
 
-    connect(this,SIGNAL(Put_stone(int,int)),this,SLOT(on_click_to_put(int,int)));//
-
     Set_control_settings(View::MENU);//it must be called in presenter after view constructing
 }
 

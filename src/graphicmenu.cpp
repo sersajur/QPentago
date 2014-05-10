@@ -87,7 +87,6 @@ GraphicMenu::GraphicMenu(qreal x, qreal y, qreal width, qreal height, QObject * 
 
     connect(bt_Back,SIGNAL(pressed()),this,SLOT(on_Back_pressed()));
 
-    addItem(main_menu_parent);
 }
 
 //SLOTS

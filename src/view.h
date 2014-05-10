@@ -31,7 +31,6 @@ private slots:
     void on_msg_sended(QString str);//QString -> toStdString
     void on_leave_game();
     void on_save_game(QString); //QString -> toStdString
-    void on_click_to_put(int i, int j){qDebug()<< i << ' ' << j;Draw_stone(i,j, ((i>j)?IView::BLACK:IView::WHITE));}//
 protected:
     void resizeEvent(QResizeEvent *event);
 private:

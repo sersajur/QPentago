@@ -17,7 +17,6 @@ SOURCES += main.cpp\
     graphicbutton.cpp \
     graphicmenu.cpp \
     view.cpp \
-    tester_.cpp \
     graphicstone.cpp \
     graphicquadrant.cpp \
     graphicboard.cpp
@@ -27,7 +26,6 @@ HEADERS  += \
     graphicbutton.h \
     graphicmenu.h \
     view.h \
-    tester_.h \
     graphicstone.h \
     graphicquadrant.h \
     graphicboard.h
