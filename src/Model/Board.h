@@ -22,8 +22,8 @@ public:
     virtual void RestoreGame(GameState&);
 
 private:
-	typedef short TheBoard[6][6];
-	TheBoard board;
+    typedef short TheBoard[6][6];
+    TheBoard board;
 	unsigned stepNum;
 };
 

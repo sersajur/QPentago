@@ -84,6 +84,8 @@ GraphicBoard::GraphicBoard(qreal x, qreal y, qreal width, qreal height, QObject 
     connect(this, SIGNAL(returned(int)),this, SLOT(on_returned(int)));
     connect(bt_leave, SIGNAL(pressed()),this,SIGNAL(leave_game()));
     connect(bt_send, SIGNAL(pressed()),this,SLOT(on_send_pressed()));
+    connect(bt_save, SIGNAL(pressed()),this,SLOT(on_save_pressed()));
+
     //---begin fucking irrationality
     _pos_animations.resize(_quadrants.size());
     _start_states.resize(_quadrants.size());
