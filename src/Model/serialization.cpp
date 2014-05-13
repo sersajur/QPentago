@@ -24,7 +24,7 @@ void GameState::Serialize(QIODevice& f) {
         stream.writeCharacters("\n        ");
         for (uint j = 0; j < width; j++)
         {
-            stream.writeCharacters(QString::number(this->board[i*width+j]));
+            stream.writeCharacters(QString::number(this->board[i*width+j]) + " ");
         }
     }
     stream.writeCharacters("\n    ");

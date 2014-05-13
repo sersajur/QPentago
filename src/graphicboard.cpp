@@ -3,7 +3,7 @@
 #include <QGraphicsItem>
 #include <QApplication>
 
-#define SAVEPATH  (QApplication::applicationDirPath()+"/Save/test")
+#define SAVEPATH  (QApplication::applicationDirPath()+"/Save/test.xml")
 
 GraphicBoard::~GraphicBoard()
 {
