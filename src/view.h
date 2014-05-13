@@ -12,10 +12,10 @@ class View: public QGraphicsView, public IView
 public:
     explicit View(QWidget* parent = 0);
     virtual ~View();
-public:
-    virtual void Set_control_settings(control_setting param);
-    virtual void Draw_stone(int row, int col, color c);
-    virtual void Show_message(std::string text);//todo
+public slots:
+    void Set_control_settings(IView::control_setting param);
+    void Draw_stone(int row, int col, IView::color c);
+    void Show_message(string text);//todo
 signals:
     void New_game(int player_count);
     void Save_game(std::string file_name);
@@ -23,7 +23,7 @@ signals:
     void Join_game(std::string join_connect_data);
     void Host_game(std::string host_connect_data);
     void Put_stone(int row, int col);
-    void Rotate(IView::quadrant,IView::turn);
+    void Rotate(IView::quadrant, IView::turn);
     void Leave();
 
     void Mesage_sended(std::string);//user type some message

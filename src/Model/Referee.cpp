@@ -35,6 +35,9 @@ winstatus Referee::WinnerIs(void) {
 
 //= Global search function, that initiates recursion search function on the main points (actualy, there are 8 such ones)
 winstatus Referee::UpdateWinState(Board b) {
+    _winState.WinStatus = NoOne;
+    _winState.winCombinations.clear();
+
 	_FindCombFromPoint(b, 0, _colCount-1);
 	_FindCombFromPoint(b, _rowCount-1, 0);
 	for(int i=0;i<_rowCount;i++)

@@ -19,16 +19,19 @@ using std::unique_ptr;
 #include "Model/Referee.h"
 #include "Presenter/Player.h"
 #include "iview.h"
+#include "view.h"
 
 class Game : public QObject {
     Q_OBJECT
 public:
-    unique_ptr<IView> userInterface;
+    IView* userInterface;
     //Network network;
     //bool mustShutdown;
 
     virtual ~Game() { }
     static Game& GetInstance();
+    void SetView(IView*);
+    IView* GetView() const { return userInterface; }
 
     const unique_ptr<Player>& GetPlayer(unsigned who) const;
     const unique_ptr<Player>& GetCurrentPlayer() const;
@@ -37,10 +40,10 @@ public:
 public slots:
     // from View (main menu)
     void new_game(int);
-    void save_game(string);
-    void load_game(string);
-    void join_game(string);
-    void host_game();
+    void save_game(std::string);
+    void load_game(std::string);
+    void join_game(std::string);
+    void host_game(std::string);
     // from Player presenter
     void put_stone(int, int);
     void rotate(IView::quadrant, IView::turn);
@@ -50,7 +53,7 @@ signals:
     // to View
     void set_control_settings(IView::control_setting);
     void draw_stone(int, int, IView::color);
-    void message(QString);
+    void message(string);
 
 private:
     vector<unique_ptr<Player>> players;
