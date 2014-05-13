@@ -39,7 +39,7 @@ void View::resizeEvent(QResizeEvent *event)// but now size is fixed
 }
 
 
-void View::Set_control_settings(control_setting param)
+void View::Set_control_settings(IView::control_setting param)
 {
     switch(param){
     case View::MENU:{
@@ -61,13 +61,13 @@ void View::Set_control_settings(control_setting param)
         break;
     }
 }
-void View::Draw_stone(int row, int col, color c)
+void View::Draw_stone(int row, int col, IView::color c)
 {
     board_scene->show_message("S<" + QString::number(row) + ','+QString::number(col)+'>'+((c==IView::BLACK)?": Black":": White"));
     board_scene->draw_stone(row, col, ((c==IView::BLACK)?Qt::black:Qt::white));
 }
 
-void View::Show_message(string text)
+void View::Show_message(std::string text)
 {
     board_scene->show_message(QString::fromStdString(text));
 }

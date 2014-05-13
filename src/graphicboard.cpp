@@ -185,7 +185,7 @@ void GraphicBoard::on_click_to_rotate(int num, int turn)
            _stones[i0+i][j0+j]->setPos(tmp_pos[i][j]);
     update();
     show_message("Q<"+QString::number(num)+">: "+((turn<0)?"Left":"Right"));
-    emit quadrant_rotated(IView::quadrant(num+1), IView::turn(((turn>0)?0:1)));
+    emit quadrant_rotated(IView::quadrant(num+1), IView::turn(((turn<0)?0:1)));
     _setGamePhase(GraphicBoard::WAIT_STONE); //actualy, here must be WAIT_SMTH, and WAIT_STONE must be emited by PRESENTER-->VIEW
 }
 

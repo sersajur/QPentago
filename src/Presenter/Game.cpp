@@ -6,6 +6,26 @@ Game& Game::GetInstance() {
     return _instance;
 }
 
+void Game::SetView(IView* view) {
+    userInterface = view;
+    View* v = dynamic_cast<View*>(userInterface);
+
+    // connect View to Presenter
+    connect(v, SIGNAL(New_game(int)), this, SLOT(new_game(int)));
+    connect(v, SIGNAL(Save_game(std::string)), this, SLOT(save_game(std::string)));
+    connect(v, SIGNAL(Load_game(std::string)), this, SLOT(load_game(std::string)));
+    connect(v, SIGNAL(Host_game(std::string)), this, SLOT(host_game(std::string)));
+    connect(v, SIGNAL(Join_game(std::string)), this, SLOT(join_game(std::string)));
+    connect(v, SIGNAL(Leave()), this, SLOT(leave()));
+    connect(v, SIGNAL(Put_stone(int,int)), this, SLOT(put_stone(int,int)));
+    connect(v, SIGNAL(Rotate(IView::quadrant,IView::turn)), this, SLOT(rotate(IView::quadrant,IView::turn)));
+
+    // connect Presenter to View
+    connect(this, SIGNAL(draw_stone(int,int,IView::color)),v,SLOT(Draw_stone(int,int,IView::color)));
+    connect(this, SIGNAL(set_control_settings(IView::control_setting)),v,SLOT(Set_control_settings(IView::control_setting)));
+    connect(this, SIGNAL(message(string)), v, SLOT(Show_message(string)));
+}
+
 const unique_ptr<Player>& Game::GetPlayer(unsigned who) const {
     if (who < players.size())
         return players[who];
@@ -17,13 +37,14 @@ const unique_ptr<Player>& Game::GetCurrentPlayer() const {
 }
 
 Game::Game() {
-    players.push_back(unique_ptr<Player>(new Player("Hello")));
-    players.push_back(unique_ptr<Player>(new Player("world!")));
+    players.push_back(unique_ptr<Player>(new Player("Player1")));
+    players.push_back(unique_ptr<Player>(new Player("Player2")));
     // init here
 }
 
 void Game::new_game(int){
     board.Clear();
+    emit set_control_settings(IView::control_setting::LOCAL_GAME);
 }
 
 void Game::save_game(string filename){
@@ -41,7 +62,7 @@ void Game::join_game(string){
 
 }
 
-void Game::host_game(){
+void Game::host_game(string){
 
 }
 
@@ -55,17 +76,25 @@ void Game::put_stone(int x, int y){
 
 void Game::rotate(IView::quadrant quadrant, IView::turn direction){
     // get the sender == currentPlayer
-    board.Rotate((short)quadrant, (Board::RotateDirection)direction);
-    if (currentPlayer > players.size()) currentPlayer = 0; else currentPlayer++;
+    board.Rotate((short)quadrant-1, (direction == IView::LEFT) ? Board::Left : Board::Right);
+    if (currentPlayer < players.size()-1) currentPlayer++; else currentPlayer = 0;
     if (referee.UpdateWinState(board) != NoOne)
-        emit message("Win!");
+        emit message(players[currentPlayer]->GetName() + " Win!");
+
+    /*string tmp = "\n";
+    for (int i = 0; i<6;i++){
+        for (int j = 0; j<6; j++)
+            tmp += std::to_string(board[i][j]) + " ";
+        tmp += "\n";
+    }
+    emit message(tmp);*/
 }
 
 void Game::leave(){
     // get the sender == currentPlayer
     if (currentPlayer > players.size()) currentPlayer = 0; else currentPlayer++;
     if (players.size() == 1)
-        emit message("Win!");
+        emit message(players[currentPlayer]->GetName() + "Win!");
 }
 
 /*void Game::TempTestReferee() {
