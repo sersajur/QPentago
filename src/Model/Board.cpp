@@ -67,7 +67,7 @@ Board::Board() {
 	Clear();
 }
 
-GameState Board::SaveGame() { return GameState((const short**)board, stepNum); }
+GameState Board::SaveGame() { return GameState(&board, stepNum); }
 
 void Board::RestoreGame(GameState& gs){
     for (short i = 0; i < 6; i++)

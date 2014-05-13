@@ -56,6 +56,11 @@ void Game::load_game(string filename){
     QFile in(filename.c_str());
     GameState gs(in);
     board.RestoreGame(gs);
+    for (int i = 0; i<6;i++)
+        for (int j = 0; j<6; j++)
+            if (board[i][j]!=0)
+                emit draw_stone(i, j, (IView::color)(board[i][j] > 0 ? 0 : 1));
+    emit set_control_settings(IView::control_setting::LOCAL_GAME);
 }
 
 void Game::join_game(string){

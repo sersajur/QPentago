@@ -17,7 +17,7 @@ class GameState : public ISerializible
 {
 public:
     GameState() { }
-    GameState(const short**, const unsigned);
+    GameState(short (*)[6][6], const unsigned);
     GameState(QIODevice& f) { this->Deserialize(f); }
     virtual void Serialize(QIODevice&);
     virtual void Deserialize(QIODevice&);

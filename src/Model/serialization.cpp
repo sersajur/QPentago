@@ -1,11 +1,11 @@
 #include "serialization.h"
 #include <QStringList>
 
-GameState::GameState(const short** _board, const unsigned num) : stepNum{num} {
+GameState::GameState(short (*_board)[6][6], const unsigned num) : stepNum{num} {
     board.clear();
     for (int i = 0; i < height; i++)
         for (int j = 0; j < width; j++)
-            board.push_back(_board[i][j]);
+            board.push_back((*_board)[i][j]);
 }
 
 void GameState::Serialize(QIODevice& f) {
