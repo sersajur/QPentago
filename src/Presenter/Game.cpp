@@ -72,7 +72,7 @@ void Game::host_game(string){
 void Game::put_stone(int x, int y){
     // get the sender == currentPlayer
     if (board.putStone(x, y, currentPlayer))
-        emit draw_stone(x, y, (IView::color)currentPlayer);
+        emit draw_stone(x, y, currentPlayer ? IView::BLACK : IView::WHITE);
     else
         emit message("This cell is already occupied.");
 }
