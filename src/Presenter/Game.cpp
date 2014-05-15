@@ -59,7 +59,7 @@ void Game::load_game(string filename){
     for (int i = 0; i<6;i++)
         for (int j = 0; j<6; j++)
             if (board[i][j]!=0)
-                emit draw_stone(i, j, (IView::color)(board[i][j] > 0 ? 0 : 1));
+                emit draw_stone(i, j, (board[i][j] > 0) ? IView::BLACK : IView::WHITE);
     emit set_control_settings(IView::control_setting::LOCAL_GAME);
 }
 

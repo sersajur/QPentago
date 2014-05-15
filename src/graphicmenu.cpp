@@ -2,7 +2,7 @@
 #include <QGraphicsProxyWidget>
 #include <graphicquadrant.h>
 #include <QApplication>
-#define SAVEPATH  (QApplication::applicationDirPath()+"/Save/test")
+#define SAVEPATH  (QApplication::applicationDirPath()+"/Save/test.xml")
 GraphicMenu::~GraphicMenu()
 {
     delete bt_New;

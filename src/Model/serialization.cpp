@@ -3,8 +3,8 @@
 
 GameState::GameState(short (*_board)[6][6], const unsigned num) : stepNum{num} {
     board.clear();
-    for (int i = 0; i < height; i++)
-        for (int j = 0; j < width; j++)
+    for (uint i = 0; i < height; i++)
+        for (uint j = 0; j < width; j++)
             board.push_back((*_board)[i][j]);
 }
 
@@ -48,9 +48,9 @@ void GameState::Deserialize(QIODevice& f) {
                 this->height = stream.attributes().value("Height").toInt();
                 this->width = stream.attributes().value("Width").toInt();
                 this->stepNum = stream.attributes().value("StepsPerformed").toInt();
-                QString tmp = stream.readElementText().simplified().split(" ").join("");
+                QStringList tmp = stream.readElementText().simplified().split(" ");
                 board.clear();
-                for (int i = 0; i < height*width; i++)
+                for (uint i = 0; i < height*width; i++)
                     this->board.push_back(QString(tmp[i]).toShort());
             }
         }
