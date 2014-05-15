@@ -100,12 +100,16 @@ void GraphicMenu::on_New_game_pressed()
 
 void GraphicMenu::on_One_player_pressed()
 {
+    emit game_go_to_start();
     emit New_game_selected(1);
+    on_Back_pressed();
 }
 
 void GraphicMenu::on_Two_player_pressed()
 {
+    emit game_go_to_start();
     emit New_game_selected(2);
+    on_Back_pressed();
 }
 
 void GraphicMenu::on_Load_game_pressed()
@@ -115,7 +119,8 @@ void GraphicMenu::on_Load_game_pressed()
 //    removeItem(main_menu_parent);
 //    addItem(load_menu_parent);
 //    update();
-   emit Load_game_selected(QString(SAVEPATH).toStdString());
+    emit game_go_to_start();
+    emit Load_game_selected(QString(SAVEPATH).toStdString());
 }
 
 void GraphicMenu::on_Join_game_pressed()
@@ -129,11 +134,14 @@ void GraphicMenu::on_Join_game_pressed()
 
 void GraphicMenu::on_Join_ok_pressed()
 {
+    emit game_go_to_start();
     emit Join_game_selected(QString(QString::number(PENTAGO_DEFAULT_PORT) + ":" + w_line_edit_IP->text()).toStdString());
+    on_Back_pressed();
 }
 
 void GraphicMenu::on_Host_game_pressed()
 {
+    emit game_go_to_start();
     emit Host_game_selected(QString::number(PENTAGO_DEFAULT_PORT).toStdString());
 }
 

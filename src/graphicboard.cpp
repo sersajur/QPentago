@@ -109,7 +109,7 @@ GraphicBoard::GraphicBoard(qreal x, qreal y, qreal width, qreal height, QObject 
     }
     //---end fucking irrationality
 
-    _setGamePhase(GraphicBoard::GamePhase(WAIT_STONE));
+    setGamePhase(GraphicBoard::GamePhase(WAIT_STONE));
 }
 
 void GraphicBoard::enable_save(bool b)
@@ -132,14 +132,19 @@ void GraphicBoard::on_send_pressed()
 
 void GraphicBoard::on_save_pressed()
 {
-    show_message("Saving game...");
-    emit save_game(SAVEPATH);
+    if(_phase == WAIT_ROTATION){
+        show_message("You should finish your turn at first");
+    }else
+    {
+        show_message("Saving game...");
+        emit save_game(SAVEPATH);
+    }
 }
 
 void GraphicBoard::draw_stone(int i, int j, QColor col_fill)
 {
     _stones[i][j]->Fill(col_fill);
-    _setGamePhase(WAIT_ROTATION);
+    setGamePhase(WAIT_ROTATION);
     update();
 }
 
@@ -188,7 +193,7 @@ void GraphicBoard::on_click_to_rotate(int num, int turn)
     update();
     show_message("Q<"+QString::number(num)+">: "+((turn<0)?"Left":"Right"));
     emit quadrant_rotated(IView::quadrant(num+1), IView::turn(((turn<0)?0:1)));
-    _setGamePhase(GraphicBoard::WAIT_STONE); //actualy, here must be WAIT_SMTH, and WAIT_STONE must be emited by PRESENTER-->VIEW
+    setGamePhase(GraphicBoard::WAIT_STONE); //actualy, here must be WAIT_SMTH, and WAIT_STONE must be emited by PRESENTER-->VIEW
 }
 
 void GraphicBoard::on_returned(int num)//repair it
@@ -199,7 +204,20 @@ void GraphicBoard::on_returned(int num)//repair it
     _machine.stop();
 }
 
-void GraphicBoard::_setGamePhase(GamePhase phase)
+void GraphicBoard::clean_board()
+{
+    for(int i = 0; i < _stones.size(); i++)
+        for(int j = 0; j < _stones[0].size(); j++)
+            _stones[i][j]->Empty();
+}
+
+void GraphicBoard::clean_log()
+{
+    message_output.clear();
+    message_input.clear();
+}
+
+void GraphicBoard::setGamePhase(GamePhase phase)
 {
     switch(phase){
     case GraphicBoard::WAIT_STONE:
@@ -208,6 +226,8 @@ void GraphicBoard::_setGamePhase(GamePhase phase)
         for(int i = 0; i < _stones.size(); i++)
             for(int j = 0; j < _stones[0].size(); j++)
                 _stones[i][j]->setAcceptedMouseButtons(Qt::LeftButton);
+
+       // bt_save->setEnabled(true);
         break;
     case GraphicBoard::WAIT_ROTATION:
         for(int i = 0; i < _quadrants.size(); i++)
@@ -215,6 +235,7 @@ void GraphicBoard::_setGamePhase(GamePhase phase)
         for(int i = 0; i < _stones.size(); i++)
             for(int j = 0; j < _stones[0].size(); j++)
                 _stones[i][j]->setAcceptedMouseButtons(Qt::NoButton);
+        //bt_save->setEnabled(false);
         break;
     case GraphicBoard::WAIT_SMTH://disable hall board abilities
         for(int i = 0; i < _quadrants.size(); i++)
@@ -231,4 +252,5 @@ void GraphicBoard::_setGamePhase(GamePhase phase)
                 _stones[i][j]->setAcceptedMouseButtons(Qt::LeftButton);
         break;
     }
+    _phase = phase;
 }

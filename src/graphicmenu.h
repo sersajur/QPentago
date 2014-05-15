@@ -33,6 +33,7 @@ signals:
     void Join_game_selected(std::string host_address);
     void Host_game_selected(std::string host_port);
     void Load_game_selected(std::string path);
+    void game_go_to_start();
 private:
     QGraphicsItem   *main_menu_parent,
                     *new_menu_parent,

@@ -24,6 +24,7 @@ public:
     void draw_stone(int i, int j, QColor col_fill);
     void show_message(const QString& text);
     void enable_save(bool b);
+    void setGamePhase(GamePhase phase);
 signals:
     void Stone_clicked(int row, int col);
     void quadrant_clicked_to_rotate(int num, int turn);
@@ -40,8 +41,10 @@ private slots:
     void on_returned(int num);
     void on_send_pressed();
     void on_save_pressed();
+    void clean_board();
+    void clean_log();
 private:
-    void _setGamePhase(GamePhase phase);
+
 private:
     QVector<GraphicQuadrant*> _quadrants;
     QVector<QVector<GraphicStone*> > _stones;
@@ -60,6 +63,7 @@ private:
                   *bt_save,
                   *bt_send;
 
+    GamePhase  _phase;
 };
 
 #endif // GRAPHICBOARD_H

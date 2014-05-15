@@ -29,6 +29,8 @@ View::View(QWidget *parent):
 
     connect(board_scene, SIGNAL(message_sended(QString)), this, SLOT(on_msg_sended(QString)));
 
+    connect(menu_scene, SIGNAL(game_go_to_start()),board_scene, SLOT(clean_board()));
+    connect(menu_scene, SIGNAL(game_go_to_start()),board_scene, SLOT(clean_log()));
     Set_control_settings(View::MENU);//it must be called in presenter after view constructing
 }
 
@@ -50,12 +52,14 @@ void View::Set_control_settings(IView::control_setting param)
     case View::LOCAL_GAME:{
         setScene(board_scene);
         board_scene->enable_save(true);
+        board_scene->setGamePhase(GraphicBoard::WAIT_STONE);
         break;}
     case View::NETWORK_GAME:{
         QPixmap menu_bg(":/Graphic_source/b_ground_game.jpg");
         setBackgroundBrush(menu_bg.scaled(GS_WIDTH,GS_HEIGHT,Qt::IgnoreAspectRatio,Qt::SmoothTransformation));
         setScene(board_scene);
         board_scene->enable_save(false);
+        board_scene->setGamePhase(GraphicBoard::WAIT_STONE);//
         break;}
     default:
         break;
