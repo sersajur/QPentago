@@ -6,8 +6,12 @@ Game& Game::GetInstance() {
     return _instance;
 }
 
-void Game::SetView(IView* view) {
-    userInterface = view;
+Game::Game() {
+    players.push_back(unique_ptr<Player>(new Player("Player 1")));
+    players.push_back(unique_ptr<Player>(new Player("Player 2")));
+
+    // init View here
+    userInterface = new View();
     View* v = dynamic_cast<View*>(userInterface);
 
     // connect View to Presenter
@@ -33,13 +37,7 @@ const unique_ptr<Player>& Game::GetPlayer(unsigned who) const {
 }
 
 const unique_ptr<Player>& Game::GetCurrentPlayer() const {
-	return players[currentPlayer];
-}
-
-Game::Game() {
-    players.push_back(unique_ptr<Player>(new Player("Player1")));
-    players.push_back(unique_ptr<Player>(new Player("Player2")));
-    // init here
+    return players[currentPlayer];
 }
 
 void Game::new_game(int){

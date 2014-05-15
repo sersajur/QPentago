@@ -30,8 +30,7 @@ public:
 
     virtual ~Game() { }
     static Game& GetInstance();
-    void SetView(IView*);
-    IView* GetView() const { return userInterface; }
+    void Show() { dynamic_cast<View*>(userInterface)->show(); }
 
     const unique_ptr<Player>& GetPlayer(unsigned who) const;
     const unique_ptr<Player>& GetCurrentPlayer() const;
