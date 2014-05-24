@@ -42,6 +42,7 @@ const unique_ptr<Player>& Game::GetCurrentPlayer() const {
 
 void Game::new_game(int){
     board.Clear();
+    currentPlayer = 0;
     emit set_control_settings(IView::control_setting::LOCAL_GAME);
 }
 

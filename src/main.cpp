@@ -7,8 +7,7 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    Game& game = Game::GetInstance();
-    game.Show();
+    Game::GetInstance().Show();
 
     return a.exec();
 }
