@@ -28,7 +28,7 @@ QPainterPath GraphicButton::shape() const
 
 }
 
-void GraphicButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void GraphicButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget*)
 {
     bool down = option->state & QStyle::State_Sunken;
     QRectF r = boundingRect();
@@ -49,13 +49,13 @@ void GraphicButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *opt
     painter->drawText(boundingRect(),_caption,Qt::AlignHCenter|Qt::AlignVCenter);
 }
 
-void GraphicButton::mousePressEvent(QGraphicsSceneMouseEvent *event)
+void GraphicButton::mousePressEvent(QGraphicsSceneMouseEvent*)
 {
     emit pressed();
     update();
 }
 
-void GraphicButton::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+void GraphicButton::mouseReleaseEvent(QGraphicsSceneMouseEvent*)
 {
     update();
 }

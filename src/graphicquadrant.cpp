@@ -15,10 +15,10 @@ GraphicQuadrant::GraphicQuadrant()
 }
 
 GraphicQuadrant::GraphicQuadrant(qreal x, qreal y, qreal length, QPointF vector, int num, QGraphicsItem* parent):
+    _duration(0),
     _vec(vector),
     _num(num),
     _length(length),
-    _duration(0),
     _virgin_pos(x,y)
 {
     switch(num){
@@ -70,7 +70,7 @@ QPainterPath GraphicQuadrant::shape() const
     return path;
 }
 
-void GraphicQuadrant::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void GraphicQuadrant::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget*)
 {
     painter->setBrush(QColor(204,0,31));
     painter->drawPath(shape());
