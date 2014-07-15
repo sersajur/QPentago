@@ -2,8 +2,8 @@
 #define VIEW_H
 #include "iview.h"
 #include <QGraphicsView>
-#include "graphicmenu.h"
-#include "graphicboard.h"
+#include "View/graphicmenu.h"
+#include "View/graphicboard.h"
 #include "qdebug.h"
 
 class View: public QGraphicsView, public IView

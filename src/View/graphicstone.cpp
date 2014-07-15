@@ -1,7 +1,8 @@
 #include "graphicstone.h"
+#include "graphicboard.h"
+
 #include <QStyleOptionGraphicsItem>
 #include <QPainter>
-#include <graphicboard.h>
 
 GraphicStone::GraphicStone(QGraphicsItem* parent):
     QGraphicsWidget(parent),

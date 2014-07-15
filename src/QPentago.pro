@@ -19,12 +19,12 @@ SOURCES += main.cpp\
     Model/serialization.cpp \
     Presenter/Game.cpp \
     Presenter/Player.cpp \
-    graphicbutton.cpp \
-    graphicmenu.cpp \
+    View/graphicbutton.cpp \
+    View/graphicmenu.cpp \
     view.cpp \
-    graphicstone.cpp \
-    graphicquadrant.cpp \
-    graphicboard.cpp
+    View/graphicstone.cpp \
+    View/graphicquadrant.cpp \
+    View/graphicboard.cpp
 
 HEADERS  += \
     Model/Board.h \
@@ -33,12 +33,12 @@ HEADERS  += \
     Presenter/Game.h \
     Presenter/Player.h \
     iview.h \
-    graphicbutton.h \
-    graphicmenu.h \
+    View/graphicbutton.h \
+    View/graphicmenu.h \
     view.h \
-    graphicstone.h \
-    graphicquadrant.h \
-    graphicboard.h
+    View/graphicstone.h \
+    View/graphicquadrant.h \
+    View/graphicboard.h
 
 RESOURCES += \
-    source.qrc
+    View/source.qrc
