@@ -19,9 +19,9 @@ GraphicStone::GraphicStone(const QColor& default_col, int i, int j, qreal radius
     _default_color(default_col),
     _fill_color(default_col),
     _fill_flag(false),
-    _radius(radius),
     _i(i),
-    _j(j)
+    _j(j),
+    _radius(radius)
 {
     setAcceptHoverEvents(true);
     setCacheMode(DeviceCoordinateCache);
@@ -66,7 +66,7 @@ QPainterPath GraphicStone::shape() const
     return path;
 }
 
-void GraphicStone::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void GraphicStone::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget*)
 {
     QRectF r = boundingRect();
     QRadialGradient grad(r.center(),r.height(),r.topLeft());
@@ -84,7 +84,7 @@ void GraphicStone::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     }
 }
 
-void GraphicStone::mousePressEvent(QGraphicsSceneMouseEvent *event)
+void GraphicStone::mousePressEvent(QGraphicsSceneMouseEvent*)
 {
     GraphicBoard* scene_parent = dynamic_cast<GraphicBoard*>(scene()); //dependence on GraphicBoard
     emit scene_parent->Stone_clicked(_i,_j);

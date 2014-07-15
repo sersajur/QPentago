@@ -26,7 +26,7 @@ public:
     void setStepNum(const unsigned num) { stepNum = num; }
 
     const vector<short>& getBoard() const { return board; }
-    const unsigned getStepNum() const { return stepNum; }
+    unsigned getStepNum() const { return stepNum; }
 
 private:
     unsigned width = 6, height = 6;

@@ -30,9 +30,9 @@ protected slots:
 
 signals:
     // to Presenter
-    virtual void put_stone(int, int);
-    virtual void rotate(int);
-    virtual void leave();
+    void put_stone(int, int);
+    void rotate(int);
+    void leave();
 
 private:
 	string name;

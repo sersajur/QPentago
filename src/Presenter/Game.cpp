@@ -31,9 +31,10 @@ Game::Game() {
 }
 
 const unique_ptr<Player>& Game::GetPlayer(unsigned who) const {
+    static const unique_ptr<Player> null_player(nullptr);
     if (who < players.size())
         return players[who];
-    return unique_ptr<Player>(nullptr);
+    return null_player;
 }
 
 const unique_ptr<Player>& Game::GetCurrentPlayer() const {
@@ -81,7 +82,7 @@ void Game::put_stone(int x, int y){
 void Game::rotate(IView::quadrant quadrant, IView::turn direction){
     // get the sender == currentPlayer
     board.Rotate((short)quadrant-1, (direction == IView::LEFT) ? Board::Left : Board::Right);
-    if (currentPlayer < players.size()-1) currentPlayer++; else currentPlayer = 0;
+    if (currentPlayer < decltype(currentPlayer)(players.size()-1)) currentPlayer++; else currentPlayer = 0;
     if (referee.UpdateWinState(board) != NoOne)
         emit message(players[currentPlayer]->GetName() + " Win!");
 
@@ -96,7 +97,7 @@ void Game::rotate(IView::quadrant quadrant, IView::turn direction){
 
 void Game::leave(){
     // get the sender == currentPlayer
-    if (currentPlayer > players.size()) currentPlayer = 0; else currentPlayer++;
+    if (currentPlayer > decltype(currentPlayer)(players.size())) currentPlayer = 0; else currentPlayer++;
     if (players.size() == 1)
         emit message(players[currentPlayer]->GetName() + "Win!");
 }
