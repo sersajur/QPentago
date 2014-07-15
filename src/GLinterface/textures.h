@@ -23,15 +23,18 @@ struct point_base {
 
 typedef point_base<GLint> point;
 
-struct Texture2DInfo {
-  GLint texture;
-  int width, height;
-  Texture2DInfo(): texture(0), width(0), height(0) {}
-  Texture2DInfo(GLuint t, int w, int h): texture(t), width(w), height(h) {}
-};
+class Textures2DHolder;
 
 class Texture2D
 {
+  struct Texture2DInfo {
+    GLint texture;
+    int width, height;
+    Texture2DInfo(): texture(0), width(0), height(0) {}
+    Texture2DInfo(GLuint t, int w, int h): texture(t), width(w), height(h) {}
+  };
+  friend class Textures2DHolder;
+
   Texture2DInfo info;
   QString filename;
   GLdouble crop[4][2];

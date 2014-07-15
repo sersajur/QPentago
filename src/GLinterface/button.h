@@ -1,6 +1,13 @@
 #ifndef BUTTON_H
 #define BUTTON_H
 
+#if !defined(HAVE_GLES)
+#include <GL/gl.h>
+#include "GL/glu.h"
+#else
+#include <GLES/gl.h>
+#endif
+
 #include "renderobject.h"
 #include "textures.h"
 #include "fontkeeperbase.h"
@@ -9,8 +16,6 @@
 
 #include <utility>
 #include <functional>
-
-class QGLWidget;
 
 class Button: public RenderObject, public FontKeeperBase<Button>
 {

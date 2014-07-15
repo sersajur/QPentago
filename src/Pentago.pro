@@ -21,7 +21,8 @@ SOURCES += main.cpp\
     GLinterface/menu.cpp \
     GLinterface/textedit.cpp \
     GLinterface/stone.cpp \
-    GLinterface/pentagoboard.cpp
+    GLinterface/pentagoboard.cpp \
+    GLinterface/radiogroup.cpp
 
 
 HEADERS  += glview.h \
@@ -38,7 +39,8 @@ HEADERS  += glview.h \
     GLinterface/stone.h \
     GLinterface/pentagoboard.h \
     iview.h \
-    tests.h
+    tests.h \
+    GLinterface/radiogroup.h
 
 RESOURCES += \
     GLinterface/GLgraphics.qrc

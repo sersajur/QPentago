@@ -4,16 +4,16 @@
 #include <QtOpenGL>
 #include <QImage>
 
-namespace Textures2DHolder {
+class Textures2DHolder {
   struct AllInfo {
-    Texture2DInfo info;
+    Texture2D::Texture2DInfo info;
     int count;
   };
 
   static std::mutex m;
   static std::map<QString,AllInfo> textures_list;
-
-  static Texture2DInfo loadTexture(const QString& filename, QGLContext* context) {
+public:
+  static Texture2D::Texture2DInfo loadTexture(const QString& filename, QGLContext* context) {
     AllInfo texture;
     if (filename!="") {
       std::lock_guard<std::mutex> lg(m);
@@ -22,7 +22,7 @@ namespace Textures2DHolder {
         textures_list[filename].count++;
       }catch(std::out_of_range&) {
         QImage im(filename);
-        texture.info = Texture2DInfo(context->bindTexture(im), im.width(), im.height());
+        texture.info = Texture2D::Texture2DInfo(context->bindTexture(im), im.width(), im.height());
         texture.count = 1;
         textures_list[filename] = texture;
       }
@@ -42,7 +42,10 @@ namespace Textures2DHolder {
 
     }
   }
-}
+};
+
+std::mutex Textures2DHolder::m;
+std::map<QString,Textures2DHolder::AllInfo> Textures2DHolder::textures_list;
 
 Tcontext* Texture2D::context;
 
