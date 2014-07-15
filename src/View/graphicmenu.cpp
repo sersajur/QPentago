@@ -1,6 +1,7 @@
 #include "graphicmenu.h"
+#include "graphicquadrant.h"
+
 #include <QGraphicsProxyWidget>
-#include <graphicquadrant.h>
 #include <QApplication>
 #define SAVEPATH  (QApplication::applicationDirPath()+"/Save/test.xml")
 GraphicMenu::~GraphicMenu()
