@@ -11,23 +11,23 @@ Game::Game() {
     players.push_back(unique_ptr<Player>(new Player("Player 2")));
 
     // init View here
-    userInterface = new View();
-    View* v = dynamic_cast<View*>(userInterface);
+    userInterface = shared_ptr<IView>(new View());
+    shared_ptr<View> v = std::dynamic_pointer_cast<View>(userInterface);
 
     // connect View to Presenter
-    connect(v, SIGNAL(New_game(int)), this, SLOT(new_game(int)));
-    connect(v, SIGNAL(Save_game(std::string)), this, SLOT(save_game(std::string)));
-    connect(v, SIGNAL(Load_game(std::string)), this, SLOT(load_game(std::string)));
-    connect(v, SIGNAL(Host_game(std::string)), this, SLOT(host_game(std::string)));
-    connect(v, SIGNAL(Join_game(std::string)), this, SLOT(join_game(std::string)));
-    connect(v, SIGNAL(Leave()), this, SLOT(leave()));
-    connect(v, SIGNAL(Put_stone(int,int)), this, SLOT(put_stone(int,int)));
-    connect(v, SIGNAL(Rotate(IView::quadrant,IView::turn)), this, SLOT(rotate(IView::quadrant,IView::turn)));
+    connect(v.get(), SIGNAL(New_game(int)), this, SLOT(new_game(int)));
+    connect(v.get(), SIGNAL(Save_game(std::string)), this, SLOT(save_game(std::string)));
+    connect(v.get(), SIGNAL(Load_game(std::string)), this, SLOT(load_game(std::string)));
+    connect(v.get(), SIGNAL(Host_game(std::string)), this, SLOT(host_game(std::string)));
+    connect(v.get(), SIGNAL(Join_game(std::string)), this, SLOT(join_game(std::string)));
+    connect(v.get(), SIGNAL(Leave()), this, SLOT(leave()));
+    connect(v.get(), SIGNAL(Put_stone(int,int)), this, SLOT(put_stone(int,int)));
+    connect(v.get(), SIGNAL(Rotate(IView::quadrant,IView::turn)), this, SLOT(rotate(IView::quadrant,IView::turn)));
 
     // connect Presenter to View
-    connect(this, SIGNAL(draw_stone(int,int,IView::color)),v,SLOT(Draw_stone(int,int,IView::color)));
-    connect(this, SIGNAL(set_control_settings(IView::control_setting)),v,SLOT(Set_control_settings(IView::control_setting)));
-    connect(this, SIGNAL(message(string)), v, SLOT(Show_message(string)));
+    connect(this, SIGNAL(draw_stone(int,int,IView::color)),v.get(),SLOT(Draw_stone(int,int,IView::color)));
+    connect(this, SIGNAL(set_control_settings(IView::control_setting)),v.get(),SLOT(Set_control_settings(IView::control_setting)));
+    connect(this, SIGNAL(message(string)), v.get(), SLOT(Show_message(string)));
 }
 
 const unique_ptr<Player>& Game::GetPlayer(unsigned who) const {

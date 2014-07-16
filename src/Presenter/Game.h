@@ -15,6 +15,7 @@ using std::string;
 using std::vector;
 #include <memory>
 using std::unique_ptr;
+using std::shared_ptr;
 #include "Model/Board.h"
 #include "Model/Referee.h"
 #include "Presenter/Player.h"
@@ -24,13 +25,13 @@ using std::unique_ptr;
 class Game : public QObject {
     Q_OBJECT
 public:
-    IView* userInterface;
+    shared_ptr<IView> userInterface;
     //Network network;
     //bool mustShutdown;
 
     virtual ~Game() { }
     static Game& GetInstance();
-    void Show() { dynamic_cast<View*>(userInterface)->show(); }
+    void Show() { std::dynamic_pointer_cast<View>(userInterface)->show(); }
 
     const unique_ptr<Player>& GetPlayer(unsigned who) const;
     const unique_ptr<Player>& GetCurrentPlayer() const;
@@ -58,7 +59,7 @@ private:
     vector<unique_ptr<Player>> players;
     Board board;
     Referee referee;
-    int currentPlayer;
+    unsigned currentPlayer;
     //PentagoServer *server;
 
     Game();
