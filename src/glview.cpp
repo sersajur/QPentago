@@ -20,6 +20,7 @@
 #include "GLinterface/renderobject.h"
 #include "GLinterface/menu.h"
 #include "GLinterface/pentagoboard.h"
+#include "GLinterface/radiogroup.h"
 
 #include <vector>
 #include <stack>
@@ -353,9 +354,9 @@ protected:
     }
 
     void buildMenus() {
-      Texture2D texture_button(":/graphics/button_menu.jpg");
+      Texture2D texture_button(":/graphics/background_button.jpg");
       Texture2D texture_menu(":/graphics/dots.png");
-      Texture2D texture_screwed_background(":/graphics/screwed_background.jpg");
+      Texture2D texture_label(":/graphics/background_label.jpg");
       main_menu.setPos(200,150);
       main_menu.setSize(624,724);
       main_menu
@@ -456,7 +457,7 @@ protected:
       menu_join_game
           .setTexture(texture_menu)
           .addObject(Label(L"Enter Host IP:",0,280, QFont("Snap ITC", 32, 40, false))
-                    .setBackground(texture_screwed_background)
+                    .setBackground(texture_label)
                     )
           .addObject(TextEdit(0,360,512,80,texture_button).setMaxTextLength(1024).setText(L"localhost"))
           .addObject(Button(0,450,512,100,L"Connect",texture_button))
@@ -470,16 +471,19 @@ protected:
       menu_host_game.setSize(804,724);
       menu_host_game
           .setTexture(texture_menu)
-          .addObject(Label(L"Enter game name:",0,180,QFont("Snap ITC", 32, 40, false))
-                     .setBackground(texture_screwed_background)
-                     )
+          .addObject(Label(L"Game name:",0,180,QFont("Snap ITC", 32, 40, false)).setBackground(texture_label))
           .addObject(TextEdit(0,250,710,80,texture_button).setMaxTextLength(512).setText(L"New game"))
-
-          .addObject(Button(400,771,400,100,L"Back",texture_button).setClickCallBack(
+          .addObject(Label(L"Game password:",0,350,QFont("Snap ITC", 32, 40, false)).setBackground(texture_label))
+          .addObject(Label(L"(empty if none)",0,405,QFont("Snap ITC", 20, 40, false)).setBackground(texture_label))
+          .addObject(TextEdit(0,455,710,80,texture_button).setMaxTextLength(512).setText(L""))
+          .addObject(RadioGroup(164,661,286).setFont(QFont("Snap ITC", 32, 40, false))
+                     .setList({L"Pentago", L"Pentago XL"}))
+          .addObject(Button(490,631,370,100,L"Start",texture_button))
+          .addObject(Button(490,741,370,100,L"Cancel",texture_button).setClickCallBack(
                        [&]() {
                            this->goMenuBack();
                          }))
-          .setKeyCallBack(Qt::Key_Escape,MenuItemClicker(0));
+          .setKeyCallBack(Qt::Key_Escape,MenuItemClicker(7));
     }
 
     void goMenuBack() {

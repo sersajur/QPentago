@@ -17,6 +17,7 @@ public:
     AllInfo texture;
     if (filename!="") {
       std::lock_guard<std::mutex> lg(m);
+      (void)lg;
       try {
         texture = textures_list.at(filename);
         textures_list[filename].count++;

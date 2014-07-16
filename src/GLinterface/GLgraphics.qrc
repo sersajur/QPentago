@@ -1,10 +1,10 @@
 <RCC>
     <qresource prefix="/">
         <file>graphics/background.jpg</file>
-        <file>graphics/button_menu.jpg</file>
+        <file>graphics/background_button.jpg</file>
         <file>graphics/dots.png</file>
         <file>graphics/glass_blurred.jpg</file>
-        <file>graphics/screwed_background.jpg</file>
+        <file>graphics/background_label.jpg</file>
         <file>graphics/stone.png</file>
     </qresource>
 </RCC>

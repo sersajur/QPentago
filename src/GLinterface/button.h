@@ -77,7 +77,7 @@ private:
 
   //4 two dimensional points
   //left_top, right_top, right_bottom, left_bottom
-  GLRectangleCoord<GLint,2> pos;
+  GLRectangleCoord<GLint> pos;
 
   Label text;
 

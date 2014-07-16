@@ -11,6 +11,7 @@
 #include "textures.h"
 #include "fontkeeper.h"
 #include "GLRectangleCoord.h"
+#include "label.h"
 
 #include <string>
 #include <vector>
@@ -25,8 +26,7 @@ public:
          GLint x_left_top = 0,
          GLint y_left_top = 0,
          GLint width = 0,
-         GLint height = 0,
-         const Texture2D& texture = Texture2D());
+         const Texture2D& background = Texture2D());
 
   RadioGroup& setWidth(GLint width);
   RadioGroup& setList(const str_array& list);
@@ -60,9 +60,25 @@ public:
   virtual void keyRelease(int key, KeyboardModifier mod) override;
 
   virtual ~RadioGroup() { }
+protected:
+  virtual void fontChanged() override;
 private:
-  GLRectangleCoord pos;
-  Texture2D texture;
+  GLRectangleCoord<GLint> pos;
+  Texture2D texture_background;
+
+  Texture2D texture_radio[3];
+  //texture_radio[int(false)] -- "not selected" texture
+  //texture_radio[int(true)]  -- "selected" texture
+  //texture_radio[2]          -- "pressed" (mouse down) texture
+
+  bool active;
+  bool pressed;
+
+  int selected_index;
+  int hovered_index;
+
+  std::vector<Label> items;
+
 };
 
 #endif // RADIOGROUP_H
