@@ -10,13 +10,21 @@
 #include <vector>
 #include <memory>
 #include <functional>
-#include <unordered_map>
+#include <map>
 
 class GLMenu;
 class GLMenuItemClicker;
 
-//function return true if next this key must not be used as char iput at the same event
-using  MenuKeyCallBack = bool(int key, KeyboardModifier mod,GLMenu& menu);
+struct MenuHotkey {
+  int key;
+  KeyboardModifier mod;
+  bool operator<(const MenuHotkey& right) const {
+    return std::tie(key,mod)<std::tie(right.key,right.mod);
+  }
+};
+
+//function return true if this key must not be used as char iput at the same event
+using  MenuKeyCallBack = std::function<bool(int key, KeyboardModifier mod,GLMenu& menu)>;
 
 class GLMenu: public GLRenderObject
 {
@@ -27,7 +35,7 @@ public:
        int height = 0,
        const GLTexture2D& texture = GLTexture2D());
 
-  GLMenu& setKeyCallBack(int key, const std::function<MenuKeyCallBack>& call_back);
+  GLMenu& setKeyCallBack(int key, KeyboardModifier mod, const MenuKeyCallBack& call_back);
 
   GLMenu& setSize(int width, int height);
   GLMenu& setTexture(const GLTexture2D& texture);
@@ -63,12 +71,12 @@ public:
   virtual int width() const override { return pos.width(); }
 
 
-  virtual void keyPress(int key, bool repeat, KeyboardModifier mod, bool &skip_char_input) override;
+  virtual void keyPress(int key, bool repeat, KeyboardModifier mod, bool &skip_char_input, bool &lock_active) override;
   virtual void keyRelease(int key, KeyboardModifier mod) override;
   virtual void charInput(int unicode_key) override;
 
 private:
-  std::unordered_map<int,std::function<MenuKeyCallBack>> key_call_backs;
+  std::map<MenuHotkey,MenuKeyCallBack> key_call_backs;
 
   friend class GLMenuItemClicker;
   GLTexture2D texture;
@@ -95,22 +103,21 @@ GLMenu& GLMenu::addObject(const RenderObjectType& object) {
   return *this;
 }
 
-//just tittle adaptor
-//it can press any item in menu
+//just little adaptor
+//it can press any item in menu (basically designed for buttons)
 class GLMenuItemClicker {
   unsigned index;
-  KeyboardModifier modifier;
 public:
-  GLMenuItemClicker(unsigned item_index, KeyboardModifier mod): index(item_index), modifier(mod) {
+  GLMenuItemClicker(unsigned item_index): index(item_index) {
 
   }
-
-  bool operator() (int key, KeyboardModifier mod, GLMenu& menu) {
-    (void)key;
-    if (index<menu.menu_objects.size() && mod==modifier) {
+  //key,modifier,menu
+  bool operator() (int, KeyboardModifier, GLMenu& menu) {
+    if (index<menu.menu_objects.size()) {
         auto& o = menu.menu_objects[index];
         o->click(o->posX()+o->width()/2,o->posY()+o->height()/2);
       }
+    return true;
   }
 };
 

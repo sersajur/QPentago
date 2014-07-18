@@ -11,8 +11,8 @@ GLMenu::GLMenu(int x_getLeft_getTop,
   setTexture(texture);
 }
 
-GLMenu& GLMenu::setKeyCallBack(int key, const std::function<MenuKeyCallBack>& call_back) {
-  key_call_backs[key] = call_back;
+GLMenu& GLMenu::setKeyCallBack(int key, KeyboardModifier mod, const MenuKeyCallBack &call_back) {
+  key_call_backs[MenuHotkey{key,mod}] = call_back;
   return *this;
 }
 
@@ -153,15 +153,26 @@ void GLMenu::setPos(int x, int y) {
   pos.setPos(x,y);
 }
 
-void GLMenu::keyPress(int key, bool repeat, KeyboardModifier mod, bool &skip_char_input) {
-  if(key_call_backs.find(key)!=key_call_backs.end()) {
-      skip_char_input = key_call_backs[key](key,mod,*this);
+void GLMenu::keyPress(int key, bool repeat, KeyboardModifier mod, bool &skip_char_input, bool &lock_active) {
+  if(key_call_backs.find(MenuHotkey{key,mod})!=key_call_backs.end()) {
+      skip_char_input = key_call_backs[MenuHotkey{key,mod}](key,mod,*this);
     }
   if (mod == MD_NONE || mod == MD_SHIFT) {
     if (key==Qt::Key_Tab) key = Qt::Key_Down; else
     //Shift+Tab
     if (key==Qt::Key_Backtab) key = Qt::Key_Up;
   }
+
+  for (auto& o: menu_objects) {
+      if(o->isActive()) {
+          bool skip = false;
+          o->keyPress(key,repeat,mod,skip,lock_active);
+          skip_char_input |= skip;
+          break;
+        }
+    }
+
+  if(lock_active && !(mod&MD_CONTROL)) return;
 
   unsigned find_count = menu_objects.size();
   if(!find_count) return;
@@ -177,7 +188,7 @@ void GLMenu::keyPress(int key, bool repeat, KeyboardModifier mod, bool &skip_cha
         find_count--;
       } while(find_count && !(menu_objects[index]->canBeActive()));
       setActiveIndex(index);
-      skip_char_input = true;
+      skip_char_input |= true;
       break;
     case Qt::Key_Up:
       find_count = menu_objects.size();
@@ -190,14 +201,8 @@ void GLMenu::keyPress(int key, bool repeat, KeyboardModifier mod, bool &skip_cha
         find_count--;
       } while(find_count && !(menu_objects[index]->canBeActive()));
       setActiveIndex(index);
+      skip_char_input |= true;
       break;
-    default:
-      for (auto& o: menu_objects) {
-          if(o->isActive()) {
-              o->keyPress(key,repeat,mod,skip_char_input);
-              break;
-            }
-        }
   }
 }
 

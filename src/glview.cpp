@@ -258,7 +258,8 @@ protected:
       for(auto o: current_objects) {
         if (o->isActive()) {
           bool skip_char_input = false;
-          o->keyPress(e->key(),e->isAutoRepeat(),KeyboardModifier(int(e->modifiers())), skip_char_input);
+          bool ignore = false;
+          o->keyPress(e->key(),e->isAutoRepeat(),KeyboardModifier(int(e->modifiers())), skip_char_input, ignore);
           if(e->text().length()!=0 && !skip_char_input)
             o->charInput(e->text()[0].unicode());
         }
@@ -398,7 +399,7 @@ protected:
                            this->close();
                          })
           )
-          .setKeyCallBack(Qt::Key_Escape,GLMenuItemClicker(4, MD_NONE));
+          .setKeyCallBack(Qt::Key_Escape,MD_NONE,GLMenuItemClicker(4));
 
       menu_new_game.setPos(200,260);
       menu_new_game.setSize(624,504);
@@ -418,7 +419,7 @@ protected:
                        [&]() {
                            this->goMenuBack();
                          }))
-          .setKeyCallBack(Qt::Key_Escape,GLMenuItemClicker(2, MD_NONE));
+          .setKeyCallBack(Qt::Key_Escape,MD_NONE,GLMenuItemClicker(2));
 
       menu_n_players.setPos(200,220);
       menu_n_players.setSize(624,585);
@@ -440,7 +441,7 @@ protected:
                        [&]() {
                            this->goMenuBack();
                          }))
-          .setKeyCallBack(Qt::Key_Escape,GLMenuItemClicker(3, MD_NONE));
+          .setKeyCallBack(Qt::Key_Escape,MD_NONE,GLMenuItemClicker(3));
 
       menu_load_game.setPos(200,260);
       menu_load_game.setSize(624,504);
@@ -451,7 +452,7 @@ protected:
                        [&]() {
                            this->goMenuBack();
                          }))
-          .setKeyCallBack(Qt::Key_Escape,GLMenuItemClicker(1, MD_NONE));
+          .setKeyCallBack(Qt::Key_Escape,MD_NONE,GLMenuItemClicker(1));
 
       menu_save_game.setPos(200,260);
       menu_save_game.setSize(624,504);
@@ -462,7 +463,7 @@ protected:
                        [&]() {
                            this->goMenuBack();
                          }))
-          .setKeyCallBack(Qt::Key_Escape,GLMenuItemClicker(1, MD_NONE));
+          .setKeyCallBack(Qt::Key_Escape,MD_NONE,GLMenuItemClicker(1));
 
 
 
@@ -479,7 +480,7 @@ protected:
                        [&]() {
                            this->goMenuBack();
                          }))
-          .setKeyCallBack(Qt::Key_Escape,GLMenuItemClicker(3, MD_NONE));
+          .setKeyCallBack(Qt::Key_Escape,MD_NONE,GLMenuItemClicker(3));
 
       menu_host_game.setPos(110,150);
       menu_host_game.setSize(804,724);
@@ -492,13 +493,13 @@ protected:
           .addObject(GLTextEdit(0,455,710,80,texture_button).setMaxTextLength(512).setText(L""))
           .addObject(GLRadioGroup(134,661,340,texture_label).setFont(QFont("Snap ITC", 32, 40, false))
                      .setItems({L"Pentago", L"Pentago XL",L"test"
-                               }))
+                               }).setSelectedIndex(0))
           .addObject(GLButton(490,631,370,100,L"Start",texture_button))
           .addObject(GLButton(490,741,370,100,L"Cancel",texture_button).setClickCallBack(
                        [&]() {
                            this->goMenuBack();
                          }))
-          .setKeyCallBack(Qt::Key_Escape,GLMenuItemClicker(7, MD_NONE));
+          .setKeyCallBack(Qt::Key_Escape,MD_NONE,GLMenuItemClicker(7));
     }
 
     void goMenuBack() {

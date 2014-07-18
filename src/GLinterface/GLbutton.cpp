@@ -193,8 +193,9 @@ GLint GLButton::width() const {
   return pos.width();
 }
 
-void GLButton::keyPress(int key, bool repeat, KeyboardModifier mod, bool &skip_char_input) {
-  skip_char_input = false;
+void GLButton::keyPress(int key, bool repeat, KeyboardModifier mod, bool &skip_char_input, bool &lock_active) {
+  skip_char_input=false;
+  lock_active = pressed;
   if(!repeat) {
       if((mod==MD_NONE) && (key==Qt::Key_Return)) {
           mouseDown(pos.posXcenter(),pos.posYcenter());

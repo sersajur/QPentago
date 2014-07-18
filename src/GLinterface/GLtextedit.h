@@ -7,11 +7,30 @@
 #include "GLRectangleCoord.h"
 #include "GLfontkeeperbase.h"
 
+
+#include <map>
+#include <functional>
+#include <tuple>
+
 #ifndef HAVE_GLES
 #include "GL/gl.h"
 #else
 #include "GLES/gl.h"
 #endif
+
+class GLTextEdit;
+
+struct TextEditHotKey {
+  int key;
+  KeyboardModifier mod;
+  bool operator<(const TextEditHotKey& right) const {
+    return std::tie(key,mod)<std::tie(right.key,right.mod);
+  }
+};
+
+//function return true if this key must not be used as char iput at the same event
+//if hotkey is registered, regular keyPress for this GLTextEdit will NOT be called
+using  TextEditKeyCallBack = std::function<bool(int key, KeyboardModifier mod, GLTextEdit& menu)>;
 
 class GLTextEdit : public GLRenderObject, public GLFontKeeperBase<GLTextEdit>
 {
@@ -34,6 +53,8 @@ public:
     GLTextEdit& setText(const string& text);
     GLTextEdit& setTexture(const GLTexture2D& background);
 
+    GLTextEdit& setKeyCallBack(int key, KeyboardModifier mod, const TextEditKeyCallBack& call_back);
+
     virtual void draw() const override;
 
     virtual void setActive(bool active) override;
@@ -53,7 +74,7 @@ public:
     virtual int height() const override;
     virtual int width() const override;
 
-    virtual void keyPress(int key, bool repeat, KeyboardModifier mod, bool &skip_char_input) override;
+    virtual void keyPress(int key, bool repeat, KeyboardModifier mod, bool &skip_char_input, bool &lock_active) override;
     virtual void keyRelease(int key, KeyboardModifier mod) override;
     virtual void charInput(int unicode_key) override;
 
@@ -80,6 +101,8 @@ private:
     int cur_pos;
     int max_width;
     //position in the render world
+
+    std::map<TextEditHotKey,TextEditKeyCallBack> key_call_backs;
 };
 
 #endif // TEXTEDIT_H

@@ -179,11 +179,14 @@ int GLRadioGroup::width() const {
   return pos.width();
 }
 
-void GLRadioGroup::keyPress(int key, bool repeat, KeyboardModifier mod, bool &skip_char_input) {
+void GLRadioGroup::keyPress(int key, bool repeat, KeyboardModifier mod, bool &skip_char_input, bool &lock_active) {
   (void)key;
   (void)repeat;
   (void)mod;
   (void)skip_char_input;
+  (void)lock_active;
+
+
   //TODO
 }
 

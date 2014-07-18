@@ -342,9 +342,10 @@ public:
     return pos.width();
   }
 
-  void keyPress(int key, bool repeat, KeyboardModifier mod, bool &skip_char_input) override {
+  void keyPress(int key, bool repeat, KeyboardModifier mod, bool &skip_char_input, bool &lock_active) override {
     (void)repeat;
     (void)skip_char_input;
+    (void)lock_active;
     if (mod == MD_NONE) {
         (void)key;
       }
@@ -579,9 +580,10 @@ public:
     return pos.width();
   }
 
-  virtual void keyPress(int key, bool repeat, KeyboardModifier mod, bool &skip_char_input) override {
+  virtual void keyPress(int key, bool repeat, KeyboardModifier mod, bool &skip_char_input, bool &lock_active) override {
     (void)repeat;
-    skip_char_input=true;
+    (void)skip_char_input;
+    (void)lock_active;//may be useful in the future
     if(mod == MD_NONE) {
         BoardQuadrant& a_q = quadrants[active_x][active_y];
         switch(key) {
@@ -802,8 +804,8 @@ int  PentagoBoard::width() const {
   return impl->width();
 }
 
-void PentagoBoard::keyPress(int key, bool repeat, KeyboardModifier mod, bool &skip_char_input) {
-  impl->keyPress(key,repeat,mod,skip_char_input);
+void PentagoBoard::keyPress(int key, bool repeat, KeyboardModifier mod, bool &skip_char_input, bool &lock_active) {
+  impl->keyPress(key,repeat,mod,skip_char_input,lock_active);
 }
 
 void PentagoBoard::keyRelease(int key, KeyboardModifier mod) {

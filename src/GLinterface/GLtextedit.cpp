@@ -82,6 +82,11 @@ GLTextEdit& GLTextEdit::setTexture(const GLTexture2D& bckgrnd) {
   return *this;
 }
 
+GLTextEdit& GLTextEdit::setKeyCallBack(int key, KeyboardModifier mod, const TextEditKeyCallBack& call_back) {
+  key_call_backs[TextEditHotKey{key,mod}]=call_back;
+  return *this;
+}
+
 void GLTextEdit::draw() const {
   glColor4f(1,1,1,1);
   background.draw(pos.glCoords(),pos.dimension);
@@ -195,8 +200,13 @@ int  GLTextEdit::width() const {
   return pos.width();
 }
 
-void GLTextEdit::keyPress(int key, bool repeat, KeyboardModifier mod, bool &skip_char_input) {
-  skip_char_input=false;
+void GLTextEdit::keyPress(int key, bool repeat, KeyboardModifier mod, bool &skip_char_input, bool &lock_active) {
+  (void)repeat;
+  lock_active = false;
+  if(key_call_backs.find(TextEditHotKey{key,mod})!=key_call_backs.end()) {
+      skip_char_input=key_call_backs[TextEditHotKey{key,mod}](key,mod,*this);
+      return;
+    }
   if (mod == MD_NONE) {
       switch(key) {
         case Qt::Key_Backspace: {
@@ -230,7 +240,6 @@ void GLTextEdit::keyPress(int key, bool repeat, KeyboardModifier mod, bool &skip
           }
         }
     }
-  (void)repeat;
 }
 
 void GLTextEdit::keyRelease(int key, KeyboardModifier mod) {
