@@ -63,7 +63,7 @@ public:
   virtual int height() const override;
   virtual int width() const override;
 
-  virtual void keyPress(int key, bool repeat, KeyboardModifier mod) override;
+  virtual void keyPress(int key, bool repeat, KeyboardModifier mod, bool &skip_char_input) override;
   virtual void keyRelease(int key, KeyboardModifier mod) override;
 
 private:

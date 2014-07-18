@@ -15,7 +15,8 @@
 class GLMenu;
 class GLMenuItemClicker;
 
-using  MenuKeyCallBack = void(int key, GLMenu& menu);
+//function return true if next this key must not be used as char iput at the same event
+using  MenuKeyCallBack = bool(int key, KeyboardModifier mod,GLMenu& menu);
 
 class GLMenu: public GLRenderObject
 {
@@ -62,7 +63,7 @@ public:
   virtual int width() const override { return pos.width(); }
 
 
-  virtual void keyPress(int key, bool repeat, KeyboardModifier mod) override;
+  virtual void keyPress(int key, bool repeat, KeyboardModifier mod, bool &skip_char_input) override;
   virtual void keyRelease(int key, KeyboardModifier mod) override;
   virtual void charInput(int unicode_key) override;
 
@@ -98,13 +99,15 @@ GLMenu& GLMenu::addObject(const RenderObjectType& object) {
 //it can press any item in menu
 class GLMenuItemClicker {
   unsigned index;
+  KeyboardModifier modifier;
 public:
-  GLMenuItemClicker(unsigned item_index) {
-    index = item_index;
+  GLMenuItemClicker(unsigned item_index, KeyboardModifier mod): index(item_index), modifier(mod) {
+
   }
-  void operator() (int key, GLMenu& menu) {
+
+  bool operator() (int key, KeyboardModifier mod, GLMenu& menu) {
     (void)key;
-    if (index<menu.menu_objects.size()) {
+    if (index<menu.menu_objects.size() && mod==modifier) {
         auto& o = menu.menu_objects[index];
         o->click(o->posX()+o->width()/2,o->posY()+o->height()/2);
       }

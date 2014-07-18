@@ -195,7 +195,8 @@ int  GLTextEdit::width() const {
   return pos.width();
 }
 
-void GLTextEdit::keyPress(int key, bool repeat, KeyboardModifier mod) {
+void GLTextEdit::keyPress(int key, bool repeat, KeyboardModifier mod, bool &skip_char_input) {
+  skip_char_input=false;
   if (mod == MD_NONE) {
       switch(key) {
         case Qt::Key_Backspace: {

@@ -193,11 +193,8 @@ GLint GLButton::width() const {
   return pos.width();
 }
 
-void GLButton::keyPress(int key, bool repeat, KeyboardModifier mod) {
-  qDebug() << "keyPress";
-  qDebug() << "key =" << key;
-  qDebug() << "repeat =" << repeat;
-  qDebug() << "mod =" << mod;
+void GLButton::keyPress(int key, bool repeat, KeyboardModifier mod, bool &skip_char_input) {
+  skip_char_input = false;
   if(!repeat) {
       if((mod==MD_NONE) && (key==Qt::Key_Return)) {
           mouseDown(pos.posXcenter(),pos.posYcenter());
@@ -206,10 +203,6 @@ void GLButton::keyPress(int key, bool repeat, KeyboardModifier mod) {
 }
 
 void GLButton::keyRelease(int key, KeyboardModifier mod) {
-  qDebug() << "keyRelease";
-  qDebug() << "key =" << key;
-  qDebug() << "mod =" << mod;
-
   (void)mod;
   if(key==Qt::Key_Return) {
     mouseUp(pos.posXcenter(),pos.posYcenter());

@@ -31,7 +31,7 @@ public:
   virtual int height() const = 0;
   virtual int width() const = 0;
 
-  virtual void keyPress(int key, bool repeat, KeyboardModifier mod) { (void)repeat;(void)key;(void)mod; }
+  virtual void keyPress(int key, bool repeat, KeyboardModifier mod, bool &skip_char_input) { (void)repeat;(void)key;(void)mod; (void)skip_char_input; }
   virtual void keyRelease(int key, KeyboardModifier mod) { (void)key;(void)mod; }
   virtual void charInput(int unicode_key) { (void)unicode_key; }
 
