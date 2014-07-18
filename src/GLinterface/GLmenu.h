@@ -42,9 +42,9 @@ public:
 
   virtual void draw() const override;
 
-  virtual void setActive(bool active) override { this->active=active; }
-  virtual bool isActive() const override { return active; }
-  virtual bool canBeActive() const override { return true; }
+  virtual void setActive(bool active) override;
+  virtual bool isActive() const override;
+  virtual bool canBeActive() const override;
 
   virtual void click(int x, int y) override;
   virtual void mouseDown(int x, int y) override;

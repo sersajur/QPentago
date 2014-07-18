@@ -238,7 +238,7 @@ void GLTextEdit::keyRelease(int key, KeyboardModifier mod) {
 }
 
 void GLTextEdit::charInput(int unicode_key) {
-  if (iswprint(unicode_key)) {
+  if (iswprint(unicode_key)&&unicode_key!='\t') {
     if (max_width>0 && int(text.getText().size())>=max_width) {
         // TODO: Beep here
         return;

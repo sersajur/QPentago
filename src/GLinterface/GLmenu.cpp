@@ -40,6 +40,18 @@ std::shared_ptr<RenderObjectChild> GLMenu::getMenuObject(unsigned index, RenderO
     return std::dynamic_pointer_cast<RenderObjectChild>(menu_objects[index]);
 }
 
+void GLMenu::setActive(bool active) {
+  this->active=active;
+}
+
+bool GLMenu::isActive() const {
+  return active;
+}
+
+bool GLMenu::canBeActive() const {
+  return true;
+}
+
 void GLMenu::draw() const {
 
   GLdouble sx = pos.width(),sy = pos.height();
@@ -113,6 +125,7 @@ void GLMenu::mouseUp(int x, int y) {
 }
 
 void GLMenu::hover(int x, int y) {
+  setActive(true);
   for(size_t i=0; i<menu_objects.size(); i++) {
     if (menu_objects[i]->underMouse(x,y)) {
       menu_objects[i]->hover(x,y);
@@ -129,11 +142,7 @@ void GLMenu::hover(int x, int y) {
 }
 
 void GLMenu::unHover() {
-//  for(auto o: menu_objects) {
-//    if (!o->isActive())
-//      o->unHover();
-//  }
-  //Do I really need this ? ...
+  setActive(false);
 }
 
 bool GLMenu::underMouse(int x, int y) const {
@@ -148,7 +157,7 @@ void GLMenu::keyPress(int key, bool repeat, KeyboardModifier mod) {
   if(key_call_backs.find(key)!=key_call_backs.end()) {
       key_call_backs[key](key,*this);
     }
-  if (mod == MD_NONE) {
+  if (mod == MD_NONE || mod == MD_SHIFT) {
     if (key==Qt::Key_Tab) key = Qt::Key_Down; else
     //Shift+Tab
     if (key==Qt::Key_Backtab) key = Qt::Key_Up;

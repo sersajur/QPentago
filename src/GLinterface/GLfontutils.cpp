@@ -77,6 +77,7 @@ void GLfontImpl::allocateTexture()
     textures.push_back(texture);
 }
 
+//a lot of troubles if character is '\t'
 CharData &GLfontImpl::createCharacter(QChar c)
 {
     ushort unicodeC = c.unicode();
@@ -113,10 +114,6 @@ CharData &GLfontImpl::createCharacter(QChar c)
     character.textureId = texture;
     character.width = width;
     character.height = height;
-//    character.s[0] = static_cast<GLfloat>(xOffset) / TEXTURE_SIZE;
-//    character.t[0] = static_cast<GLfloat>(yOffset) / TEXTURE_SIZE;
-//    character.s[1] = static_cast<GLfloat>(xOffset + width) / TEXTURE_SIZE;
-//    character.t[1] = static_cast<GLfloat>(yOffset + height) / TEXTURE_SIZE;
 
     character.pos.setLeft(  static_cast<GLfloat>(xOffset) / TEXTURE_SIZE);
     character.pos.setBottom(static_cast<GLfloat>(yOffset) / TEXTURE_SIZE);

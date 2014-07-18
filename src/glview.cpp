@@ -64,11 +64,14 @@ private:
   #endif
 
     GLRenderObject* clicked_object;
+    GLRenderObject* hovered_object;
 
 public:
 
-    GLviewImpl(GLview * gl_parent=0): parent(gl_parent) {
-      clicked_object = nullptr;
+    GLviewImpl(GLview * gl_parent=0):
+        parent(gl_parent),
+        clicked_object(nullptr),
+        hovered_object(nullptr) {
       setWindowIcon(QIcon(":/window/pentago.ico"));
       setMouseTracking(true);
       QDesktopWidget desktop;
@@ -221,9 +224,15 @@ protected:
         } else {
             for(auto o: current_objects) {
                 if(o->underMouse(m_w.x,m_w.y)) {
+                    if(hovered_object) {
+                        if(hovered_object!=o) {
+                            hovered_object->unHover();
+                            o->hover(m_w.x,m_w.y);
+                            hovered_object=o;
+                          }
+                      }
                     o->hover(m_w.x,m_w.y);
-                  } else {
-                    o->unHover();
+                    hovered_object=o;
                   }
               }
           }
@@ -246,7 +255,6 @@ protected:
 
 
     virtual void keyPressEvent(QKeyEvent * e) override {
-
       for(auto o: current_objects) {
         if (o->isActive()) {
           o->keyPress(e->key(),e->isAutoRepeat(),KeyboardModifier(int(e->modifiers())));
@@ -254,9 +262,11 @@ protected:
             o->charInput(e->text()[0].unicode());
         }
       }
+
+#ifdef QT_DEBUG
       glMatrixMode( GL_PROJECTION );
       switch(e->key()) {
-    #ifdef QT_DEBUG
+
         case Qt::Key_T: {
             glRotatef(angle+0.1*(count/10), 1,1,0);
             count++;
@@ -266,7 +276,6 @@ protected:
             count=0;
             break;
           }
-    #endif
         case Qt::Key_A: {
             glRotatef(0.5, 1,0,0);
             break;
@@ -286,6 +295,7 @@ protected:
           }
         }
         glMatrixMode( GL_MODELVIEW );
+#endif //QT_DEBUG
         updateGL();
     }
 
@@ -480,7 +490,8 @@ protected:
           .addObject(GLLabel(L"(empty if none)",0,405,QFont("Snap ITC", 20, 40, false)).setBackground(texture_label))
           .addObject(GLTextEdit(0,455,710,80,texture_button).setMaxTextLength(512).setText(L""))
           .addObject(GLRadioGroup(134,661,340,texture_label).setFont(QFont("Snap ITC", 32, 40, false))
-                     .setItems({L"Pentago", L"Pentago XL",L"test",L"test2"}))
+                     .setItems({L"Pentago", L"Pentago XL",L"test"
+                               }))
           .addObject(GLButton(490,631,370,100,L"Start",texture_button))
           .addObject(GLButton(490,741,370,100,L"Cancel",texture_button).setClickCallBack(
                        [&]() {

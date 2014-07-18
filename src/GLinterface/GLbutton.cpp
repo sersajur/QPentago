@@ -86,8 +86,10 @@ void GLButton::resetTextPos() {
 
 }
 
-void GLButton::setActive(bool active) {
-  this->active = active;
+void GLButton::setActive(bool new_active) {
+  active = new_active;
+  if(!new_active)
+    hovered = false;
 }
 
 GLButton& GLButton::setPressed(bool pressed) {
@@ -150,7 +152,7 @@ void GLButton::mouseDown(GLint x, GLint y) {
 void GLButton::mouseUp(GLint x, GLint y) {
   if (pressed && underMouse(x,y)) {
     setPressed(false);//order is important
-    click(x,y);//
+    click(x,y);       //
   }
   setPressed(false);
 }
@@ -163,7 +165,6 @@ void GLButton::hover(GLint x, GLint y) {
 }
 
 void GLButton::unHover() {
-  hovered = false;
   setActive(false);
 }
 
