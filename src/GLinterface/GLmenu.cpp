@@ -157,11 +157,6 @@ void GLMenu::keyPress(int key, bool repeat, KeyboardModifier mod, bool &skip_cha
   if(key_call_backs.find(MenuHotkey{key,mod})!=key_call_backs.end()) {
       skip_char_input = key_call_backs[MenuHotkey{key,mod}](key,mod,*this);
     }
-  if (mod == MD_NONE || mod == MD_SHIFT) {
-    if (key==Qt::Key_Tab) key = Qt::Key_Down; else
-    //Shift+Tab
-    if (key==Qt::Key_Backtab) key = Qt::Key_Up;
-  }
 
   for (auto& o: menu_objects) {
       if(o->isActive()) {
@@ -173,6 +168,12 @@ void GLMenu::keyPress(int key, bool repeat, KeyboardModifier mod, bool &skip_cha
     }
 
   if(lock_active && !(mod&MD_CONTROL)) return;
+
+  if (mod == MD_NONE || mod&(MD_SHIFT | MD_CONTROL)) {
+    if (key==Qt::Key_Tab) key = Qt::Key_Down; else
+    //Shift+Tab
+    if (key==Qt::Key_Backtab) key = Qt::Key_Up;
+  }
 
   unsigned find_count = menu_objects.size();
   if(!find_count) return;

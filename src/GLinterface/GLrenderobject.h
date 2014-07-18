@@ -3,7 +3,7 @@
 
 #include <Qt>
 
-enum KeyboardModifier {MD_NONE = Qt::NoModifier,/*No modifier key is pressed*/
+enum KeyboardModifier { MD_NONE = Qt::NoModifier,/*No modifier key is pressed*/
                         MD_SHIFT = Qt::ShiftModifier,/*Key "Shift" is pressed*/
                         MD_CONTROL = Qt::ControlModifier,/*Key "Control" is pressed*/
                         MD_ALT = Qt::AltModifier,/*Key "Alt" is pressed*/

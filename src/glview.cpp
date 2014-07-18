@@ -491,7 +491,7 @@ protected:
           .addObject(GLLabel(L"Game password:",0,350,QFont("Snap ITC", 32, 40, false)).setBackground(texture_label))
           .addObject(GLLabel(L"(empty if none)",0,405,QFont("Snap ITC", 20, 40, false)).setBackground(texture_label))
           .addObject(GLTextEdit(0,455,710,80,texture_button).setMaxTextLength(512).setText(L""))
-          .addObject(GLRadioGroup(134,661,340,texture_label).setFont(QFont("Snap ITC", 32, 40, false))
+          .addObject(GLRadioGroup(134,661,340,texture_button).setFont(QFont("Snap ITC", 32, 40, false))
                      .setItems({L"Pentago", L"Pentago XL",L"test"
                                }).setSelectedIndex(0))
           .addObject(GLButton(490,631,370,100,L"Start",texture_button))

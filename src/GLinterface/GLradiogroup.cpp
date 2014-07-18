@@ -106,6 +106,7 @@ void GLRadioGroup::setActive(bool new_active) {
     } else {
       active = new_active && (items.size()>0);
       hovered_index = (!active*-1) | (active*hovered_index);
+      pressed_index = (!active*-1) | (active*pressed_index);
     }
 }
 
@@ -180,18 +181,46 @@ int GLRadioGroup::width() const {
 }
 
 void GLRadioGroup::keyPress(int key, bool repeat, KeyboardModifier mod, bool &skip_char_input, bool &lock_active) {
-  (void)key;
   (void)repeat;
   (void)mod;
   (void)skip_char_input;
-  (void)lock_active;
-
-
-  //TODO
+  lock_active = false;
+  switch(key){
+    case Qt::Key_Down: {
+        if(++hovered_index==decltype(hovered_index)(items.size())) {
+            hovered_index = std::min(0,decltype(hovered_index)(items.size())-1);
+          } else {
+            lock_active = true;
+          }
+        break;
+      }
+    case Qt::Key_Up: {
+        if(--hovered_index==-1) {
+            hovered_index = items.size()-1;
+          } else {
+            lock_active = true;
+          }
+        break;
+      }
+    case Qt::Key_Return:
+    case Qt::Key_Space: {
+        pressed_index = hovered_index;
+//        lock_active = true;//not sure does it must be here
+      }
+    }
 }
 
 void GLRadioGroup::keyRelease(int key, KeyboardModifier mod) {
-  (void)key;
   (void)mod;
-  //TODO
+  switch(key){
+    case Qt::Key_Return:
+    case Qt::Key_Space: {
+        if (pressed_index == hovered_index) {
+            if(selected_index!=pressed_index) {
+                setSelectedIndex(pressed_index);
+              }
+          }
+      }
+    }
+  pressed_index = -1;
 }
