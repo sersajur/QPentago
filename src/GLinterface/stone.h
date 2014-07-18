@@ -1,9 +1,9 @@
 #ifndef STONE_H
 #define STONE_H
 
-#include "renderobject.h"
+#include "GLrenderobject.h"
 #include "GLRectangleCoord.h"
-#include "textures.h"
+#include "GLtextures.h"
 
 #include <functional>
 
@@ -13,13 +13,13 @@
 #include <GLES/gl.h>
 #endif
 
-class Stone: public RenderObject
+class Stone: public GLRenderObject
 {
 public:
   Stone(GLint x_left_top = 0,
         GLint y_left_top = 0,
         GLint radius = 0,
-        const Texture2D& texture = Texture2D());
+        const GLTexture2D& texture = GLTexture2D());
 
   Stone& setSize(int width, int height);
 
@@ -29,7 +29,7 @@ public:
   Stone& setColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
   const GLfloat* getColor() const;
 
-  Stone& setTexture(const Texture2D& texture = Texture2D());
+  Stone& setTexture(const GLTexture2D& texture = GLTexture2D());
 
   Stone& setClickCallBack(const std::function<void()>& call_back);
 
@@ -60,7 +60,7 @@ private:
   GLfloat color[4];
 
   GLRectangleCoord<GLint,2> pos;
-  Texture2D texture;
+  GLTexture2D texture;
 
   std::function<void()> click_call_back;
 };

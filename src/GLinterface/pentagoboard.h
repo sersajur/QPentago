@@ -1,7 +1,7 @@
 #ifndef BOARD_H
 #define BOARD_H
 
-#include "renderobject.h"
+#include "GLrenderobject.h"
 
 #include <memory>
 #include <functional>
@@ -17,7 +17,7 @@ using StoneSetCallBack = void(int pos_x, int pos_y);
 
 class PentagoBoardImpl;
 
-class PentagoBoard: public RenderObject
+class PentagoBoard: public GLRenderObject
 {
 public:
   PentagoBoard(GLint x_left_top = 0,

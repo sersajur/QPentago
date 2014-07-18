@@ -14,33 +14,33 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         glview.cpp \
-    GLinterface/textures.cpp \
-    GLinterface/button.cpp \
-    GLinterface/label.cpp \
     GLinterface/GLfontutils.cpp \
-    GLinterface/menu.cpp \
-    GLinterface/textedit.cpp \
-    GLinterface/stone.cpp \
+    GLinterface/GLbutton.cpp \
+    GLinterface/GLmenu.cpp \
+    GLinterface/GLradiogroup.cpp \
     GLinterface/pentagoboard.cpp \
-    GLinterface/radiogroup.cpp
+    GLinterface/stone.cpp \
+    GLinterface/GLtextedit.cpp \
+    GLinterface/GLtextures.cpp \
+    GLinterface/Glabel.cpp
 
 
 HEADERS  += glview.h \
-    GLinterface/textures.h \
-    GLinterface/renderobject.h \
-    GLinterface/button.h \
-    GLinterface/label.h \
     GLinterface/GLfontutils.h \
-    GLinterface/menu.h \
-    GLinterface/fontkeeper.h \
-    GLinterface/fontkeeperbase.h \
-    GLinterface/textedit.h \
     GLinterface/GLRectangleCoord.h \
-    GLinterface/stone.h \
-    GLinterface/pentagoboard.h \
     iview.h \
     tests.h \
-    GLinterface/radiogroup.h
+    GLinterface/GLbutton.h \
+    GLinterface/GLfontkeeper.h \
+    GLinterface/GLfontkeeperbase.h \
+    GLinterface/GLmenu.h \
+    GLinterface/GLradiogroup.h \
+    GLinterface/GLrenderobject.h \
+    GLinterface/GLtextures.h \
+    GLinterface/stone.h \
+    GLinterface/GLtextedit.h \
+    GLinterface/pentagoboard.h \
+    GLinterface/GLlabel.h
 
 RESOURCES += \
     GLinterface/GLgraphics.qrc

@@ -1,32 +1,32 @@
-#include "menu.h"
+#include "GLmenu.h"
 #include <type_traits>
 
-Menu::Menu(int x_getLeft_getTop,
+GLMenu::GLMenu(int x_getLeft_getTop,
            int y_getLeft_getTop,
            int width,
            int height,
-           const Texture2D& texture): active_index(0), active(true) {
+           const GLTexture2D& texture): active_index(0), active(true) {
   setPos(x_getLeft_getTop,y_getLeft_getTop);
   setSize(width, height);
   setTexture(texture);
 }
 
-Menu& Menu::setKeyCallBack(int key, const std::function<MenuKeyCallBack>& call_back) {
+GLMenu& GLMenu::setKeyCallBack(int key, const std::function<MenuKeyCallBack>& call_back) {
   key_call_backs[key] = call_back;
   return *this;
 }
 
-Menu& Menu::setSize(int width, int height) {
+GLMenu& GLMenu::setSize(int width, int height) {
   pos.setSize(width,height);
   return *this;
 }
 
-Menu& Menu::setTexture(const Texture2D &texture) {
+GLMenu& GLMenu::setTexture(const GLTexture2D &texture) {
   this->texture = texture;
   return *this;
 }
 
-Menu& Menu::setActiveIndex(int index) {
+GLMenu& GLMenu::setActiveIndex(int index) {
   if(menu_objects[index]->canBeActive()) {
     menu_objects[active_index]->setActive(false);
     menu_objects[index]->setActive(true);
@@ -36,11 +36,11 @@ Menu& Menu::setActiveIndex(int index) {
 }
 
 template<typename RenderObjectChild>
-std::shared_ptr<RenderObjectChild> Menu::getMenuObject(unsigned index, RenderObjectChild object_type) {
+std::shared_ptr<RenderObjectChild> GLMenu::getMenuObject(unsigned index, RenderObjectChild object_type) {
     return std::dynamic_pointer_cast<RenderObjectChild>(menu_objects[index]);
 }
 
-void Menu::draw() const {
+void GLMenu::draw() const {
 
   GLdouble sx = pos.width(),sy = pos.height();
   GLdouble cro1 = 0.01, cro2=4*cro1;
@@ -91,14 +91,14 @@ void Menu::draw() const {
   }
 }
 
-void Menu::click(int x, int y) {
+void GLMenu::click(int x, int y) {
   for(auto o: menu_objects) {
     if (o->underMouse(x,y))
       o->click(x,y);
   }
 }
 
-void Menu::mouseDown(int x, int y) {
+void GLMenu::mouseDown(int x, int y) {
   for(auto o: menu_objects) {
     if(o->underMouse(x,y)) {
       o->mouseDown(x,y);
@@ -106,13 +106,13 @@ void Menu::mouseDown(int x, int y) {
   }
 }
 
-void Menu::mouseUp(int x, int y) {
+void GLMenu::mouseUp(int x, int y) {
   for(auto o: menu_objects) {
     o->mouseUp(x,y);
   }
 }
 
-void Menu::hover(int x, int y) {
+void GLMenu::hover(int x, int y) {
   for(size_t i=0; i<menu_objects.size(); i++) {
     if (menu_objects[i]->underMouse(x,y)) {
       menu_objects[i]->hover(x,y);
@@ -128,7 +128,7 @@ void Menu::hover(int x, int y) {
   }
 }
 
-void Menu::unHover() {
+void GLMenu::unHover() {
 //  for(auto o: menu_objects) {
 //    if (!o->isActive())
 //      o->unHover();
@@ -136,15 +136,15 @@ void Menu::unHover() {
   //Do I really need this ? ...
 }
 
-bool Menu::underMouse(int x, int y) const {
+bool GLMenu::underMouse(int x, int y) const {
   return pos.posInRect(x,y);
 }
 
-void Menu::setPos(int x, int y) {
+void GLMenu::setPos(int x, int y) {
   pos.setPos(x,y);
 }
 
-void Menu::keyPress(int key, bool repeat, KeyboardModifier mod) {
+void GLMenu::keyPress(int key, bool repeat, KeyboardModifier mod) {
   if(key_call_backs.find(key)!=key_call_backs.end()) {
       key_call_backs[key](key,*this);
     }
@@ -192,7 +192,7 @@ void Menu::keyPress(int key, bool repeat, KeyboardModifier mod) {
 }
 
 
-void Menu::keyRelease(int key, KeyboardModifier mod) {
+void GLMenu::keyRelease(int key, KeyboardModifier mod) {
   for (auto& o: menu_objects) {
       if(o->isActive()) {
           o->keyRelease(key,mod);
@@ -201,7 +201,7 @@ void Menu::keyRelease(int key, KeyboardModifier mod) {
     }
 }
 
-void Menu::charInput(int unicode_key) {
+void GLMenu::charInput(int unicode_key) {
   for (auto& o: menu_objects) {
       if(o->isActive()) {
           o->charInput(unicode_key);

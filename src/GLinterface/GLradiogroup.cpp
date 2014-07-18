@@ -1,127 +1,192 @@
-#include "radiogroup.h"
+#include "GLradiogroup.h"
 
-RadioGroup::RadioGroup(
+#include <stdexcept>
+
+GLTexture2D GLRadioGroup::texture_blurr;
+
+GLRadioGroup::GLRadioGroup(
       GLint x_left_top,
       GLint y_left_top,
       GLint width,
-      const Texture2D& background):
+      const GLTexture2D& background):
     texture_background(background),
-    texture_radio({Texture2D(":/graphics/radio.png"),
-                   Texture2D(":/graphics/radio_checked.png"),
-                   Texture2D(":/graphics/radio_pressed.png")}),
+    texture_radio({GLTexture2D(":/graphics/radio.png"),
+                   GLTexture2D(":/graphics/radio_checked.png"),
+                   GLTexture2D(":/graphics/radio_pressed.png")}),
     active(false),
-    pressed(false),
+    pressed_index(-1),
     selected_index(-1),
-    hovered_index(-1) {
+    hovered_index(-1),
+    item_height(10) {
   setPos(x_left_top,y_left_top);
   setWidth(width);
 }
 
-RadioGroup& RadioGroup::setWidth(GLint width) {
-  (void)width;//TODO
+GLRadioGroup& GLRadioGroup::setWidth(GLint width) {
+  pos.setSize(width,pos.height());
   return *this;
 }
 
-RadioGroup& RadioGroup::setList(const str_array& list) {
-  (void)list;//TODO
+GLRadioGroup& GLRadioGroup::setItems(const str_array& items_list) {
+  setSelectedIndex(-1);
+  items.clear();
+  for(auto& item: items_list) {
+      items.push_back(GLLabel(item,0,0,getFont()));
+    }
+  pos.setSize(pos.width(),item_height*items.size());
+  setPos(posX(),posY());//repos Labels
   return *this;
 }
 
-RadioGroup& RadioGroup::setSelectedIndex(int index) {
-  selected_index = index;
+GLRadioGroup& GLRadioGroup::setSelectedChangedCallBack(const RadioGroupSelectedChangedCallBack& call_back) {
+  selected_changed_call_back = call_back;
   return *this;
 }
 
-int RadioGroup::getItemCount() const {
+GLRadioGroup& GLRadioGroup::setSelectedIndex(int index) {
+  if(index<int(items.size())) {
+      int old_index = selected_index;
+      selected_index = index;
+      if(selected_changed_call_back) {
+          selected_changed_call_back(old_index,selected_index);
+        }
+    }
+  else
+    throw std::out_of_range("GLRadioGroup::setSelectedIndex: new selected index out or range");
+  return *this;
+}
+
+int GLRadioGroup::getItemCount() const {
   return items.size();
 }
 
-string RadioGroup::getItem(int index) const {
+const string& GLRadioGroup::getItem(int index) const {
   return items.at(index).getText();
 }
 
-int RadioGroup::getSelectedIndex() const {
+int GLRadioGroup::getSelectedIndex() const {
   return selected_index;
 }
 
-string RadioGroup::getSelectedItem() const {
-  return selected_index>=0?items[selected_index].getText():L"";
+const string& GLRadioGroup::getSelectedItem() const {
+  static const string empty = L"";
+  return selected_index>=0?items[selected_index].getText():empty;
 }
 
-void RadioGroup::fontChanged() {
-
+void GLRadioGroup::fontChanged() {
+  item_height = getFontMetrics().height();
+  for(auto&i:items) {
+      i.setFont(getFont());
+    }
 }
 
-void RadioGroup::draw() const {
-  //TODO
+void GLRadioGroup::draw() const {
+  glColor4f(1,1,1,1);
+  texture_background.draw(pos.glCoords(),pos.dimension);
+  if(hovered_index>=0) {
+      decltype(pos) bluer_pos(pos.getLeft(),pos.getTop()+hovered_index*item_height,
+                              pos.width(),item_height);
+      glColor4f(1,1,1,.33);
+      texture_blurr.draw(bluer_pos.glCoords(),bluer_pos.dimension);
+    }
+  glColor4f(1,1,1,1);
+  decltype(pos) chord(pos.getLeft(),pos.getBottom()-item_height,
+                      item_height,item_height);
+  for(int i=items.size()-1; i>=0; --i) {
+      texture_radio[((selected_index==i)&(pressed_index!=i))+(pressed_index==i)*2].draw(chord.glCoords(),chord.dimension);
+      items[i].drawCroped(pos.getLeft(),pos.getRight());
+      chord.setPos(chord.posX(),chord.posY()-item_height);
+    }
 }
 
-void RadioGroup::setActive(bool new_active) {
-  if(!active && items.size()>0) {
+void GLRadioGroup::setActive(bool new_active) {
+  if(new_active && items.size()>0) {
       hovered_index = 0;
       active = true;
     } else {
       active = new_active && (items.size()>0);
-      hovered_index = (-1*!active) + active*hovered_index;
+      hovered_index = (!active*-1) | (active*hovered_index);
     }
 }
 
-bool RadioGroup::isActive() const {
+bool GLRadioGroup::isActive() const {
   return active;
 }
 
-void RadioGroup::click(int x, int y) {
-  (void)x;(void)y; //TODO
+void GLRadioGroup::click(int x, int y) {
+  if(underMouse(x,y)) {
+      int new_index = std::trunc((y-pos.getTop())/item_height);
+      if(selected_index!=new_index){
+          setSelectedIndex(new_index);
+        }
+    }
 }
 
-void RadioGroup::mouseDown(int x, int y) {
-  (void)x;(void)y; //TODO
+void GLRadioGroup::mouseDown(int x, int y) {
+  if(underMouse(x,y)) {
+      pressed_index=std::trunc((y-pos.getTop())/item_height);
+    }
 }
 
-void RadioGroup::mouseUp(int x, int y) {
-  (void)x;(void)y; //TODO
+void GLRadioGroup::mouseUp(int x, int y) {
+  if(underMouse(x,y)) {
+      if(pressed_index==std::trunc((y-pos.getTop())/item_height)) {
+          click(x,y);
+        }
+    }
+  pressed_index=-1;
 }
 
-void RadioGroup::hover(int x, int y) {
-  (void)x;(void)y; //TODO
+void GLRadioGroup::hover(int x, int y) {
+  if(underMouse(x,y)) {
+      setActive(true);
+      hovered_index=std::trunc((y-pos.getTop())/item_height);
+    }
 }
 
-void RadioGroup::unHover() {
-  //TODO
+void GLRadioGroup::unHover() {
+  setActive(false);
 }
 
-bool RadioGroup::underMouse(int x, int y) const {
+bool GLRadioGroup::underMouse(int x, int y) const {
   return pos.posInRect(x,y);
 }
 
-void RadioGroup::setPos(int x, int y) {
-  (void)x;(void)y; //TODO
+void GLRadioGroup::setPos(int x, int y) {
+  pos.setPos(x,y);
+
+  int pos_x = x+item_height;
+  int pos_y = y;
+  for(auto&i:items) {
+      i.setPos(pos_x,pos_y);
+      pos_y+=item_height;
+    }
 }
 
-int RadioGroup::posX() const {
+int GLRadioGroup::posX() const {
   return pos.posX();
 }
 
-int RadioGroup::posY() const {
+int GLRadioGroup::posY() const {
   return pos.posY();
 }
 
-int RadioGroup::height() const {
+int GLRadioGroup::height() const {
   return pos.height();
 }
 
-int RadioGroup::width() const {
+int GLRadioGroup::width() const {
   return pos.width();
 }
 
-void RadioGroup::keyPress(int key, bool repeat, KeyboardModifier mod) {
+void GLRadioGroup::keyPress(int key, bool repeat, KeyboardModifier mod) {
   (void)key;
   (void)repeat;
   (void)mod;
   //TODO
 }
 
-void RadioGroup::keyRelease(int key, KeyboardModifier mod) {
+void GLRadioGroup::keyRelease(int key, KeyboardModifier mod) {
   (void)key;
   (void)mod;
   //TODO

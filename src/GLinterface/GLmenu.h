@@ -1,8 +1,8 @@
 #ifndef MENU_H
 #define MENU_H
 
-#include "renderobject.h"
-#include "textures.h"
+#include "GLrenderobject.h"
+#include "GLtextures.h"
 #include "GLRectangleCoord.h"
 
 #include <utility>
@@ -12,30 +12,30 @@
 #include <functional>
 #include <unordered_map>
 
-class Menu;
-class MenuItemClicker;
+class GLMenu;
+class GLMenuItemClicker;
 
-using  MenuKeyCallBack = void(int key, Menu& menu);
+using  MenuKeyCallBack = void(int key, GLMenu& menu);
 
-class Menu: public RenderObject
+class GLMenu: public GLRenderObject
 {
 public:
-  Menu(int x_left_top = 0,
+  GLMenu(int x_left_top = 0,
        int y_left_top = 0,
        int width = 0,
        int height = 0,
-       const Texture2D& texture = Texture2D());
+       const GLTexture2D& texture = GLTexture2D());
 
-  Menu& setKeyCallBack(int key, const std::function<MenuKeyCallBack>& call_back);
+  GLMenu& setKeyCallBack(int key, const std::function<MenuKeyCallBack>& call_back);
 
-  Menu& setSize(int width, int height);
-  Menu& setTexture(const Texture2D& texture);
+  GLMenu& setSize(int width, int height);
+  GLMenu& setTexture(const GLTexture2D& texture);
 
   int getActiveIndex() const { return active_index; }
-  Menu& setActiveIndex(int index);
+  GLMenu& setActiveIndex(int index);
 
   template<typename ObjectType>
-  Menu& addObject(const ObjectType& object);
+  GLMenu& addObject(const ObjectType& object);
 
   template<typename RenderObjectChild>
   std::shared_ptr<RenderObjectChild> getMenuObject(unsigned index, RenderObjectChild object_type);
@@ -69,21 +69,21 @@ public:
 private:
   std::unordered_map<int,std::function<MenuKeyCallBack>> key_call_backs;
 
-  friend class MenuItemClicker;
-  Texture2D texture;
+  friend class GLMenuItemClicker;
+  GLTexture2D texture;
   GLRectangleCoord<GLint> pos;
 
   size_t active_index;
-  std::vector<std::shared_ptr<RenderObject>> menu_objects;
+  std::vector<std::shared_ptr<GLRenderObject>> menu_objects;
 
   bool active;
 };
 
 
 template<typename RenderObjectType>
-Menu& Menu::addObject(const RenderObjectType& object) {
-  static_assert(std::is_base_of<RenderObject,RenderObjectType>::value,"RenderObject must be a base of \"object\"");
-  menu_objects.push_back(std::shared_ptr<RenderObject>(new RenderObjectType(object)));
+GLMenu& GLMenu::addObject(const RenderObjectType& object) {
+  static_assert(std::is_base_of<GLRenderObject,RenderObjectType>::value,"GLRenderObject must be a base of \"object\"");
+  menu_objects.push_back(std::shared_ptr<GLRenderObject>(new RenderObjectType(object)));
   if(menu_objects.size()) {
     if(!menu_objects[active_index]->isActive()) {
         setActiveIndex(menu_objects.size()-1);
@@ -96,13 +96,13 @@ Menu& Menu::addObject(const RenderObjectType& object) {
 
 //just tittle adaptor
 //it can press any item in menu
-class MenuItemClicker {
+class GLMenuItemClicker {
   unsigned index;
 public:
-  MenuItemClicker(unsigned item_index) {
+  GLMenuItemClicker(unsigned item_index) {
     index = item_index;
   }
-  void operator() (int key, Menu& menu) {
+  void operator() (int key, GLMenu& menu) {
     (void)key;
     if (index<menu.menu_objects.size()) {
         auto& o = menu.menu_objects[index];

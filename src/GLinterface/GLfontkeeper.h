@@ -1,16 +1,16 @@
 #ifndef FONTKEEPER_H
 #define FONTKEEPER_H
 
-#include "fontkeeperbase.h"
+#include "GLfontkeeperbase.h"
 #include "GLfontutils.h"
 
 #include <memory>
 
 template<typename Keeper>
-class FontKeeper: public FontKeeperBase<Keeper>
+class GLFontKeeper: public GLFontKeeperBase<Keeper>
 {
 public:
-    FontKeeper(const QFont& font = QFont());
+    GLFontKeeper(const QFont& font = QFont());
 
     virtual Keeper& setFont(const QFont& font) override final;
     virtual const QFont& getFont() const override final;
@@ -31,7 +31,7 @@ protected:
 
 
 template<typename Keeper>
-FontKeeper<Keeper>::FontKeeper(const QFont &font):
+GLFontKeeper<Keeper>::GLFontKeeper(const QFont &font):
       text_font(new glutils::GLfont(QFont(font))) {
     font_color[0] = 0;
     font_color[1] = 0;
@@ -40,18 +40,18 @@ FontKeeper<Keeper>::FontKeeper(const QFont &font):
 }
 
 template<typename Keeper>
-Keeper& FontKeeper<Keeper>::setFont(const QFont& font) {
+Keeper& GLFontKeeper<Keeper>::setFont(const QFont& font) {
     text_font.reset(new glutils::GLfont(QFont(font)));
     fontChanged();
     return dynamic_cast<Keeper&>(*this);
 }
 
 template<typename Keeper>
-const QFont& FontKeeper<Keeper>::getFont() const {
+const QFont& GLFontKeeper<Keeper>::getFont() const {
     return text_font->font();
 }
 template<typename Keeper>
-Keeper& FontKeeper<Keeper>::setFontColor4i(GLint red, GLint green, GLint blue, GLint alpha) {
+Keeper& GLFontKeeper<Keeper>::setFontColor4i(GLint red, GLint green, GLint blue, GLint alpha) {
     font_color[0] = red;
     font_color[1] = green;
     font_color[2] = blue;
@@ -60,12 +60,12 @@ Keeper& FontKeeper<Keeper>::setFontColor4i(GLint red, GLint green, GLint blue, G
 }
 
 template<typename Keeper>
-const GLint* FontKeeper<Keeper>::getFontColor() const {
+const GLint* GLFontKeeper<Keeper>::getFontColor() const {
     return font_color;
 }
 
 template<typename Keeper>
-const QFontMetrics& FontKeeper<Keeper>::getFontMetrics() const {
+const QFontMetrics& GLFontKeeper<Keeper>::getFontMetrics() const {
     return text_font->fontMetrics();
 }
 

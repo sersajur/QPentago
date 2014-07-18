@@ -9,7 +9,7 @@
 #include <climits>
 
 template<typename Keeper>
-class FontKeeperBase
+class GLFontKeeperBase
 {
 public:  
   virtual Keeper& setFont(const QFont& font) = 0;
@@ -27,7 +27,7 @@ public:
 
   virtual const GLint* getFontColor() const = 0;
 
-  virtual ~FontKeeperBase() {}
+  virtual ~GLFontKeeperBase() {}
 };
 
 #endif // FONTKEEPERBASE_H

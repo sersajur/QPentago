@@ -8,40 +8,42 @@
 #include <GLES/gl.h>
 #endif
 
-#include "renderobject.h"
-#include "textures.h"
-#include "fontkeeperbase.h"
+#include "GLrenderobject.h"
+#include "GLtextures.h"
+#include "GLfontkeeperbase.h"
 #include "GLRectangleCoord.h"
-#include "label.h"
+#include "GLlabel.h"
 
 #include <utility>
 #include <functional>
 
-class Button: public RenderObject, public FontKeeperBase<Button>
+using ButtonClickCallBack=std::function<void()>;
+
+class GLButton: public GLRenderObject, public GLFontKeeperBase<GLButton>
 {
 public:
-  Button(GLint x_left_top = 0,
+  GLButton(GLint x_left_top = 0,
          GLint y_left_top = 0,
          GLint width = 0,
          GLint height = 0,
          const string &caption = L"Button",
-         const Texture2D& texture = Texture2D());
+         const GLTexture2D& texture = GLTexture2D());
 
-  Button& setTexture(const Texture2D& texture);
-  Button& setCaption(const string& caption);
-  Button& setClickCallBack(const std::function<void()>& call_back);
-  Button& setSize(GLint width, GLint height);
+  GLButton& setTexture(const GLTexture2D& texture);
+  GLButton& setCaption(const string& caption);
+  GLButton& setClickCallBack(const ButtonClickCallBack& call_back);
+  GLButton& setSize(GLint width, GLint height);
 
-  virtual Button& setFont(const QFont& font) override;
+  virtual GLButton& setFont(const QFont& font) override;
   virtual const QFont& getFont() const override;
 
-  virtual Button& setFontColor4i(GLint red, GLint green, GLint blue, GLint alpha) override;
+  virtual GLButton& setFontColor4i(GLint red, GLint green, GLint blue, GLint alpha) override;
 
   virtual const GLint* getFontColor() const override;
 
   bool isPressed() const { return pressed; }
 protected:
-  Button& setPressed(bool pressed);
+  GLButton& setPressed(bool pressed);
 public:
 
   virtual void draw() const override;
@@ -68,20 +70,20 @@ public:
   virtual void keyPress(int key, bool repeat, KeyboardModifier mod) override;
   virtual void keyRelease(int key, KeyboardModifier mod) override;
 
-  static Texture2D texture_blurr;
+  static GLTexture2D texture_blurr;
 
 private:
   //calculate and set position of text
   void resetTextPos();
-  Texture2D texture;
+  GLTexture2D texture;
 
   //4 two dimensional points
   //left_top, right_top, right_bottom, left_bottom
   GLRectangleCoord<GLint> pos;
 
-  Label text;
+  GLLabel text;
 
-  std::function<void()> click_call_back;
+  ButtonClickCallBack click_call_back;
 
   bool active;
   bool hovered;

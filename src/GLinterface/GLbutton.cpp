@@ -1,17 +1,17 @@
-#include "button.h"
+#include "GLbutton.h"
 
 #include <QGLWidget>
 
 #include <climits>
 
-Texture2D Button::texture_blurr;
+GLTexture2D GLButton::texture_blurr;
 
-Button::Button(GLint x_left_top,
+GLButton::GLButton(GLint x_left_top,
                GLint y_left_top,
                GLint width,
                GLint height,
                const string &caption,
-               const Texture2D& texture):
+               const GLTexture2D& texture):
     pos(x_left_top, y_left_top),
     text(caption),
     active(false),
@@ -25,23 +25,23 @@ Button::Button(GLint x_left_top,
   setFont(QFont("Snap ITC", height/2, 40, false));
 }
 
-Button& Button::setTexture(const Texture2D& texture) {
+GLButton& GLButton::setTexture(const GLTexture2D& texture) {
   this->texture = texture;
   return *this;
 }
 
-Button& Button::setCaption(const string& text) {
+GLButton& GLButton::setCaption(const string& text) {
   this->text.setText(text);
   resetTextPos();
   return *this;
 }
 
-Button& Button::setClickCallBack(const std::function<void()>& call_back) {
+GLButton& GLButton::setClickCallBack(const ButtonClickCallBack &call_back) {
   click_call_back = call_back;
   return *this;
 }
 
-Button& Button::setSize(GLint width,GLint  height) {
+GLButton& GLButton::setSize(GLint width,GLint  height) {
   pos.setSize(width,height);
   QFont font = text.getFont();
   height = abs(height);
@@ -54,31 +54,31 @@ Button& Button::setSize(GLint width,GLint  height) {
 }
 
 
-//From FontFeeperBase<Button>
+//From FontFeeperBase<GLButton>
 //
-Button& Button::setFont(const QFont& font) {
+GLButton& GLButton::setFont(const QFont& font) {
     text.setFont(font);
     resetTextPos();
     return *this;
 }
 
-const QFont& Button::getFont() const {
+const QFont& GLButton::getFont() const {
     return text.getFont();
 }
 
-Button& Button::setFontColor4i(GLint red, GLint green, GLint blue, GLint alpha) {
+GLButton& GLButton::setFontColor4i(GLint red, GLint green, GLint blue, GLint alpha) {
     alpha_color_bak = alpha;
     text.setFontColor4i(red,green,blue,alpha);
     return *this;
 }
 
-const GLint* Button::getFontColor() const {
+const GLint* GLButton::getFontColor() const {
     return text.getFontColor();
 }
 //
 //
 
-void Button::resetTextPos() {
+void GLButton::resetTextPos() {
   //allign center:
   //TODO: make possible allign left or right
   text.setPos(pos.posXcenter()-text.width()/2,
@@ -86,11 +86,11 @@ void Button::resetTextPos() {
 
 }
 
-void Button::setActive(bool active) {
+void GLButton::setActive(bool active) {
   this->active = active;
 }
 
-Button& Button::setPressed(bool pressed) {
+GLButton& GLButton::setPressed(bool pressed) {
   if(this->pressed!=pressed) {
     this->pressed = pressed;
     const GLint* color = text.getFontColor();
@@ -106,7 +106,7 @@ Button& Button::setPressed(bool pressed) {
 
 
 
-void Button::draw() const {
+void GLButton::draw() const {
   decltype(pos) work_pos = pos;
   GLint dx = 0;
   GLint dy = 0;
@@ -128,26 +128,26 @@ void Button::draw() const {
     work_pos.setLeft(work_pos.getLeft()+dx);
     work_pos.setRight(work_pos.getRight()-dx);
 
-    glColor4f(1,1,1,.23);//transparent
+    glColor4f(1,1,1,.33);//transparent
     texture_blurr.draw(work_pos.glCoords(),work_pos.dimension);
   }
-  text.draw();
+  text.drawCroped(pos.getLeft(),pos.getRight());
 }
 
-void Button::click(GLint x, GLint y) {
+void GLButton::click(GLint x, GLint y) {
   if(click_call_back)
     click_call_back();
   (void)x;
   (void)y;
 }
 
-void Button::mouseDown(GLint x, GLint y) {
+void GLButton::mouseDown(GLint x, GLint y) {
   setPressed(true);
   (void)x;
   (void)y;
 }
 
-void Button::mouseUp(GLint x, GLint y) {
+void GLButton::mouseUp(GLint x, GLint y) {
   if (pressed && underMouse(x,y)) {
     setPressed(false);//order is important
     click(x,y);//
@@ -155,51 +155,60 @@ void Button::mouseUp(GLint x, GLint y) {
   setPressed(false);
 }
 
-void Button::hover(GLint x, GLint y) {
+void GLButton::hover(GLint x, GLint y) {
   hovered = true;
   setActive(true);
   (void)x;
   (void)y;
 }
 
-void Button::unHover() {
+void GLButton::unHover() {
   hovered = false;
   setActive(false);
 }
 
-bool Button::underMouse(GLint x, GLint y) const {
+bool GLButton::underMouse(GLint x, GLint y) const {
   return pos.posInRect(x,y);
 }
 
-void Button::setPos(GLint x, GLint y) {
+void GLButton::setPos(GLint x, GLint y) {
   pos.setPos(x,y);
   resetTextPos();
 }
 
-GLint Button::posX() const {
+GLint GLButton::posX() const {
   return pos.posX();
 }
 
-GLint Button::posY() const {
+GLint GLButton::posY() const {
   return pos.posY();
 }
 
-GLint Button::height() const {
+GLint GLButton::height() const {
   return pos.height();
 }
 
-GLint Button::width() const {
+GLint GLButton::width() const {
   return pos.width();
 }
 
-void Button::keyPress(int key, bool repeat, KeyboardModifier mod) {
-  (void)repeat;
-  if((mod==MD_NONE) && (key==Qt::Key_Return)) {
-    mouseDown(pos.posXcenter(),pos.posYcenter());
-  }
+void GLButton::keyPress(int key, bool repeat, KeyboardModifier mod) {
+  qDebug() << "keyPress";
+  qDebug() << "key =" << key;
+  qDebug() << "repeat =" << repeat;
+  qDebug() << "mod =" << mod;
+  if(!repeat) {
+      if((mod==MD_NONE) && (key==Qt::Key_Return)) {
+          mouseDown(pos.posXcenter(),pos.posYcenter());
+      }
+    }
 }
 
-void Button::keyRelease(int key, KeyboardModifier mod) {
+void GLButton::keyRelease(int key, KeyboardModifier mod) {
+  qDebug() << "keyRelease";
+  qDebug() << "key =" << key;
+  qDebug() << "mod =" << mod;
+
   (void)mod;
   if(key==Qt::Key_Return) {
     mouseUp(pos.posXcenter(),pos.posYcenter());

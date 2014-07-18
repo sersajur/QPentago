@@ -13,14 +13,15 @@
 #endif
 
 
-#include "GLinterface/button.h"
-#include "GLinterface/label.h"
-#include "GLinterface/textedit.h"
-#include "GLinterface/textures.h"
-#include "GLinterface/renderobject.h"
-#include "GLinterface/menu.h"
+#include "GLinterface/GLbutton.h"
+#include "GLinterface/GLlabel.h"
+#include "GLinterface/GLtextedit.h"
+#include "GLinterface/GLtextures.h"
+#include "GLinterface/GLrenderobject.h"
+#include "GLinterface/GLmenu.h"
+#include "GLinterface/GLradiogroup.h"
+
 #include "GLinterface/pentagoboard.h"
-#include "GLinterface/radiogroup.h"
 
 #include <vector>
 #include <stack>
@@ -36,23 +37,23 @@ private:
     GLview * parent;
 
     int  width, height;
-    Texture2D texture_menu_background;
+    GLTexture2D texture_menu_background;
 
-    Menu main_menu;
-    Menu menu_new_game;
-    Menu menu_n_players;
+    GLMenu main_menu;
+    GLMenu menu_new_game;
+    GLMenu menu_n_players;
 
-    Menu menu_load_game;
-    Menu menu_save_game;
+    GLMenu menu_load_game;
+    GLMenu menu_save_game;
 
-    Menu menu_join_game;
-    Menu menu_host_game;
+    GLMenu menu_join_game;
+    GLMenu menu_host_game;
 
     std::shared_ptr<PentagoBoard> board;
 
-    std::vector<RenderObject*> current_objects;
+    std::vector<GLRenderObject*> current_objects;
 
-    std::stack<std::vector<RenderObject*>> view_history;
+    std::stack<std::vector<GLRenderObject*>> view_history;
 
     int m_x, m_y;//mouse window coordinates
     Point3D m_w;//mouse world coordinates
@@ -62,7 +63,7 @@ private:
     int count;
   #endif
 
-    RenderObject* clicked_object;
+    GLRenderObject* clicked_object;
 
 public:
 
@@ -94,7 +95,8 @@ public:
     GLviewImpl& operator=(GLviewImpl&&) = delete;
 
     virtual ~GLviewImpl() {
-      Button::texture_blurr.release();//kind of bugfix
+      GLButton::texture_blurr.release();//kind of bugfix
+      GLRadioGroup::texture_blurr.release();
     }
 
     void setParent(GLview * gl_parent) {
@@ -107,7 +109,7 @@ protected:
 
 //QGLWidget:
     virtual void initializeGL() override {
-      Texture2D::setContext(this->context());
+      GLTexture2D::setContext(this->context());
       qDebug() << "GL version: " << (char*)glGetString(GL_VERSION) << endl;
 
       glEnable(GL_TEXTURE_2D);
@@ -116,7 +118,8 @@ protected:
       glEnableClientState(GL_VERTEX_ARRAY);
       glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-      Button::texture_blurr.load(":/graphics/glass_blurred.jpg");
+      GLButton::texture_blurr.load(":/graphics/glass_blurred.jpg");
+      GLRadioGroup::texture_blurr.load(":/graphics/glass_blurred.jpg");
       texture_menu_background.load(":/graphics/background.jpg");
 
       buildMenus();
@@ -302,7 +305,7 @@ protected:
 
 protected:
 
-    void drawBackground(const Texture2D& texture) {
+    void drawBackground(const GLTexture2D& texture) {
       glMatrixMode( GL_PROJECTION );
       glPushMatrix();
       glLoadIdentity();
@@ -354,101 +357,101 @@ protected:
     }
 
     void buildMenus() {
-      Texture2D texture_button(":/graphics/background_button.jpg");
-      Texture2D texture_menu(":/graphics/dots.png");
-      Texture2D texture_label(":/graphics/background_label.jpg");
+      GLTexture2D texture_button(":/graphics/background_button.jpg");
+      GLTexture2D texture_menu(":/graphics/dots.png");
+      GLTexture2D texture_label(":/graphics/background_label.jpg");
       main_menu.setPos(200,150);
       main_menu.setSize(624,724);
       main_menu
           .setTexture(texture_menu)
-          .addObject(Button(0,206,512,100,L"New game",texture_button).setClickCallBack(
+          .addObject(GLButton(0,206,512,100,L"New game",texture_button).setClickCallBack(
                        [&]() {
                            goToMenu(menu_new_game);
                        }))
-          .addObject(Button(0,316,512,100,L"Load game",texture_button).setClickCallBack(
+          .addObject(GLButton(0,316,512,100,L"Load game",texture_button).setClickCallBack(
                        [&]() {
                            parent->Request_get_saves_list();
                            parent->Request_enter_game_layout(GAME_LAYOUT::LOAD_GAME);
                        }))
-          .addObject(Button(0,426,512,100,L"Join game",texture_button).setClickCallBack(
+          .addObject(GLButton(0,426,512,100,L"Join game",texture_button).setClickCallBack(
                        [&]() {
                            parent->Request_get_hosts_list();
                            parent->Request_enter_game_layout(GAME_LAYOUT::JOIN_GAME);
                        }))
-          .addObject(Button(0,536,512,100,L"Host game",texture_button).setClickCallBack(
+          .addObject(GLButton(0,536,512,100,L"Host game",texture_button).setClickCallBack(
                        [&]() {
                            goToMenu(menu_host_game);
                        }))
-          .addObject(Button(0,746,512,100,L"Exit",texture_button).setClickCallBack(
+          .addObject(GLButton(0,746,512,100,L"Exit",texture_button).setClickCallBack(
                        [&]() {
                            this->close();
                          })
           )
-          .setKeyCallBack(Qt::Key_Escape,MenuItemClicker(4));
+          .setKeyCallBack(Qt::Key_Escape,GLMenuItemClicker(4));
 
       menu_new_game.setPos(200,260);
       menu_new_game.setSize(624,504);
       menu_new_game
           .setTexture(texture_menu)
-          .addObject(Button(0,311,512,100,L"Pentago",texture_button).setClickCallBack(
+          .addObject(GLButton(0,311,512,100,L"Pentago",texture_button).setClickCallBack(
                        [&](){
                            parent->Request_set_game_mode(GAME_MODE::MODE_PENTAGO);
                            parent->Request_enter_game_layout(GAME_LAYOUT::LOBBY);
                         }))
-          .addObject(Button(0,421,512,100,L"Pentago XL",texture_button).setClickCallBack(
+          .addObject(GLButton(0,421,512,100,L"Pentago XL",texture_button).setClickCallBack(
                        [&]() {
                            parent->Request_set_game_mode(GAME_MODE::MODE_PENTAGO_XL);
                            goToMenu(menu_n_players);
                         }))
-          .addObject(Button(0,631,512,100,L"Back",texture_button).setClickCallBack(
+          .addObject(GLButton(0,631,512,100,L"Back",texture_button).setClickCallBack(
                        [&]() {
                            this->goMenuBack();
                          }))
-          .setKeyCallBack(Qt::Key_Escape,MenuItemClicker(2));
+          .setKeyCallBack(Qt::Key_Escape,GLMenuItemClicker(2));
 
       menu_n_players.setPos(200,220);
       menu_n_players.setSize(624,585);
       menu_n_players
           .setTexture(texture_menu)
-          .addObject(Button(0,271,512,100,L"2 players",texture_button).setClickCallBack(
+          .addObject(GLButton(0,271,512,100,L"2 players",texture_button).setClickCallBack(
                        [&]() {
                            parent->Request_show_lobby(2);
                          }))
-          .addObject(Button(0,381,512,100,L"3 players",texture_button).setClickCallBack(
+          .addObject(GLButton(0,381,512,100,L"3 players",texture_button).setClickCallBack(
                        [&]() {
                            parent->Request_show_lobby(3);
                          }))
-          .addObject(Button(0,491,512,100,L"4 players",texture_button).setClickCallBack(
+          .addObject(GLButton(0,491,512,100,L"4 players",texture_button).setClickCallBack(
                        [&]() {
                            parent->Request_show_lobby(4);
                          }))
-          .addObject(Button(0,672,512,100,L"Back",texture_button).setClickCallBack(
+          .addObject(GLButton(0,672,512,100,L"Back",texture_button).setClickCallBack(
                        [&]() {
                            this->goMenuBack();
                          }))
-          .setKeyCallBack(Qt::Key_Escape,MenuItemClicker(3));
+          .setKeyCallBack(Qt::Key_Escape,GLMenuItemClicker(3));
 
       menu_load_game.setPos(200,260);
       menu_load_game.setSize(624,504);
       menu_load_game
           .setTexture(texture_menu)
-          .addObject(Button(0,311,512,100,L"Autosave",texture_button))
-          .addObject(Button(0,631,512,100,L"Back",texture_button).setClickCallBack(
+          .addObject(GLButton(0,311,512,100,L"Autosave",texture_button))
+          .addObject(GLButton(0,631,512,100,L"Back",texture_button).setClickCallBack(
                        [&]() {
                            this->goMenuBack();
                          }))
-          .setKeyCallBack(Qt::Key_Escape,MenuItemClicker(1));
+          .setKeyCallBack(Qt::Key_Escape,GLMenuItemClicker(1));
 
       menu_save_game.setPos(200,260);
       menu_save_game.setSize(624,504);
       menu_save_game
           .setTexture(texture_menu)
-          .addObject(Button(0,311,512,100,L"Autosave",texture_button))
-          .addObject(Button(0,631,512,100,L"Back",texture_button).setClickCallBack(
+          .addObject(GLButton(0,311,512,100,L"Autosave",texture_button))
+          .addObject(GLButton(0,631,512,100,L"Back",texture_button).setClickCallBack(
                        [&]() {
                            this->goMenuBack();
                          }))
-          .setKeyCallBack(Qt::Key_Escape,MenuItemClicker(1));
+          .setKeyCallBack(Qt::Key_Escape,GLMenuItemClicker(1));
 
 
 
@@ -456,34 +459,34 @@ protected:
       menu_join_game.setSize(624,504);
       menu_join_game
           .setTexture(texture_menu)
-          .addObject(Label(L"Enter Host IP:",0,280, QFont("Snap ITC", 32, 40, false))
+          .addObject(GLLabel(L"Enter Host IP:",0,280, QFont("Snap ITC", 32, 40, false))
                     .setBackground(texture_label)
                     )
-          .addObject(TextEdit(0,360,512,80,texture_button).setMaxTextLength(1024).setText(L"localhost"))
-          .addObject(Button(0,450,512,100,L"Connect",texture_button))
-          .addObject(Button(0,631,512,100,L"Back",texture_button).setClickCallBack(
+          .addObject(GLTextEdit(0,360,512,80,texture_button).setMaxTextLength(1024).setText(L"localhost"))
+          .addObject(GLButton(0,450,512,100,L"Connect",texture_button))
+          .addObject(GLButton(0,631,512,100,L"Back",texture_button).setClickCallBack(
                        [&]() {
                            this->goMenuBack();
                          }))
-          .setKeyCallBack(Qt::Key_Escape,MenuItemClicker(3));
+          .setKeyCallBack(Qt::Key_Escape,GLMenuItemClicker(3));
 
       menu_host_game.setPos(110,150);
       menu_host_game.setSize(804,724);
       menu_host_game
           .setTexture(texture_menu)
-          .addObject(Label(L"Game name:",0,180,QFont("Snap ITC", 32, 40, false)).setBackground(texture_label))
-          .addObject(TextEdit(0,250,710,80,texture_button).setMaxTextLength(512).setText(L"New game"))
-          .addObject(Label(L"Game password:",0,350,QFont("Snap ITC", 32, 40, false)).setBackground(texture_label))
-          .addObject(Label(L"(empty if none)",0,405,QFont("Snap ITC", 20, 40, false)).setBackground(texture_label))
-          .addObject(TextEdit(0,455,710,80,texture_button).setMaxTextLength(512).setText(L""))
-          .addObject(RadioGroup(164,661,286).setFont(QFont("Snap ITC", 32, 40, false))
-                     .setList({L"Pentago", L"Pentago XL"}))
-          .addObject(Button(490,631,370,100,L"Start",texture_button))
-          .addObject(Button(490,741,370,100,L"Cancel",texture_button).setClickCallBack(
+          .addObject(GLLabel(L"Game name:",0,180,QFont("Snap ITC", 32, 40, false)).setBackground(texture_label))
+          .addObject(GLTextEdit(0,250,710,80,texture_button).setMaxTextLength(512).setText(L"New game"))
+          .addObject(GLLabel(L"Game password:",0,350,QFont("Snap ITC", 32, 40, false)).setBackground(texture_label))
+          .addObject(GLLabel(L"(empty if none)",0,405,QFont("Snap ITC", 20, 40, false)).setBackground(texture_label))
+          .addObject(GLTextEdit(0,455,710,80,texture_button).setMaxTextLength(512).setText(L""))
+          .addObject(GLRadioGroup(134,661,340,texture_label).setFont(QFont("Snap ITC", 32, 40, false))
+                     .setItems({L"Pentago", L"Pentago XL",L"test",L"test2"}))
+          .addObject(GLButton(490,631,370,100,L"Start",texture_button))
+          .addObject(GLButton(490,741,370,100,L"Cancel",texture_button).setClickCallBack(
                        [&]() {
                            this->goMenuBack();
                          }))
-          .setKeyCallBack(Qt::Key_Escape,MenuItemClicker(7));
+          .setKeyCallBack(Qt::Key_Escape,GLMenuItemClicker(7));
     }
 
     void goMenuBack() {
@@ -493,7 +496,7 @@ protected:
       }
     }
 
-    void goToMenu(Menu& menu) {
+    void goToMenu(GLMenu& menu) {
       view_history.push(current_objects);
       current_objects.clear();
       current_objects.push_back(&menu);

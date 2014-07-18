@@ -20,7 +20,7 @@
 using std::array;
 using std::vector;
 
-class BoardQuadrant: public RenderObject {
+class BoardQuadrant: public GLRenderObject {
 public:
   static constexpr unsigned QUADRANT_SIZE           = 3;
   //magic constants...even don't ask
@@ -50,7 +50,7 @@ private:
 public:
 
   BoardQuadrant(PentagoBoard* parent,
-                const Texture2D& texture = Texture2D(),
+                const GLTexture2D& texture = GLTexture2D(),
                 GLint x_left_top = 0,
                 GLint y_left_top = 0,
                 GLint width = 0,
@@ -67,7 +67,7 @@ public:
     setParent(parent);
     for (auto& i: stones) {
         for (auto& o: i) {
-            o.setTexture(Texture2D(":/graphics/stone.png"));
+            o.setTexture(GLTexture2D(":/graphics/stone.png"));
           }
       }
   }
@@ -370,7 +370,7 @@ private:
   }
 }; //board quadrant
 
-class PentagoBoardImpl: public RenderObject {
+class PentagoBoardImpl: public GLRenderObject {
   PentagoBoard *parent;
   GLRectangleCoord<GLint> pos;
   GLRectangleCoord<GLint> background_pos;

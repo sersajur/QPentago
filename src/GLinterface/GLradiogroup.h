@@ -7,35 +7,39 @@
 #include <GLES/gl.h>
 #endif
 
-#include "renderobject.h"
-#include "textures.h"
-#include "fontkeeper.h"
+#include "GLrenderobject.h"
+#include "GLtextures.h"
+#include "GLfontkeeper.h"
 #include "GLRectangleCoord.h"
-#include "label.h"
+#include "GLlabel.h"
 
 #include <string>
 #include <vector>
+#include <functional>
 
 using string = std::wstring;
 using str_array = std::vector<string>;
+using RadioGroupSelectedChangedCallBack = std::function<void(int old_selected_index, int new_selected_index)>;
 
-class RadioGroup : public RenderObject, public FontKeeper<RadioGroup>
+class GLRadioGroup : public GLRenderObject, public GLFontKeeper<GLRadioGroup>
 {
 public:
-  RadioGroup(
+  GLRadioGroup(
          GLint x_left_top = 0,
          GLint y_left_top = 0,
          GLint width = 0,
-         const Texture2D& background = Texture2D());
+         const GLTexture2D& background = GLTexture2D());
 
-  RadioGroup& setWidth(GLint width);
-  RadioGroup& setList(const str_array& list);
+  GLRadioGroup& setWidth(GLint width);
+  GLRadioGroup& setItems(const str_array& items_list);
 
-  RadioGroup& setSelectedIndex(int index);
+  GLRadioGroup& setSelectedChangedCallBack(const RadioGroupSelectedChangedCallBack& call_back);
+
+  GLRadioGroup& setSelectedIndex(int index);
   int getItemCount() const;
-  string getItem(int index) const;
+  const string& getItem(int index) const;
   int getSelectedIndex() const;
-  string getSelectedItem() const;  //same as getItem(getSelectedIndex())
+  const string& getSelectedItem() const;  //same as getItem(getSelectedIndex())
 
   virtual void draw() const override;
 
@@ -59,26 +63,32 @@ public:
   virtual void keyPress(int key, bool repeat, KeyboardModifier mod) override;
   virtual void keyRelease(int key, KeyboardModifier mod) override;
 
-  virtual ~RadioGroup() { }
+  virtual ~GLRadioGroup() { }
+
 protected:
   virtual void fontChanged() override;
 private:
   GLRectangleCoord<GLint> pos;
-  Texture2D texture_background;
+  GLTexture2D texture_background;
 
-  Texture2D texture_radio[3];
+  GLTexture2D texture_radio[3];
   //texture_radio[int(false)] -- "not selected" texture
   //texture_radio[int(true)]  -- "selected" texture
   //texture_radio[2]          -- "pressed" (mouse down) texture
 
   bool active;
-  bool pressed;
 
+  int pressed_index;
   int selected_index;
   int hovered_index;
 
-  std::vector<Label> items;
+  std::vector<GLLabel> items;
 
+  int item_height;
+
+  RadioGroupSelectedChangedCallBack selected_changed_call_back;
+public:
+  static GLTexture2D texture_blurr;
 };
 
 #endif // RADIOGROUP_H

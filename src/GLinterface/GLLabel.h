@@ -1,30 +1,32 @@
 #ifndef LABEL_H
 #define LABEL_H
 
-#include "renderobject.h"
-#include "textures.h"
+#include "GLrenderobject.h"
+#include "GLtextures.h"
 #include "GLfontutils.h"
+#include "GLfontkeeper.h"
 
-#include "memory"
-#include "fontkeeper.h"
+#include <memory>
 
-class Label: public RenderObject, public FontKeeper<Label>
+using string = std::wstring;
+
+class GLLabel: public GLRenderObject, public GLFontKeeper<GLLabel>
 {
 public:
 
-  Label(const string& text = L"label",
+  GLLabel(const string& text = L"label",
         int x_left_top = 0,
         int y_left_top = 0,
         const QFont& font = QFont());
 
-  Label& setText(const string& text);
+  GLLabel& setText(const string& text);
   const string& getText() const { return text; }
 
   //width and height of text according to Font
   virtual int width() const override;
   virtual int height() const override;
 
-  Label& setBackground(const Texture2D& texture);
+  GLLabel& setBackground(const GLTexture2D& texture);
 
   virtual void draw() const override;
   void drawCroped(int x_left, int x_right) const;
@@ -37,7 +39,7 @@ public:
 protected:
   virtual void fontChanged() override;
 private:
-  Texture2D backgound;
+  GLTexture2D backgound;
   string text;
   int x_pos, y_pos;
   int text_width;

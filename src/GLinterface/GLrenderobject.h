@@ -9,7 +9,7 @@ enum KeyboardModifier {MD_NONE = Qt::NoModifier,/*No modifier key is pressed*/
                         MD_ALT = Qt::AltModifier,/*Key "Alt" is pressed*/
                         MD_SUPER = Qt::MetaModifier};
 
-class RenderObject
+class GLRenderObject
 {
 public:
   virtual void draw() const = 0; //at least must be implemented
@@ -35,7 +35,7 @@ public:
   virtual void keyRelease(int key, KeyboardModifier mod) { (void)key;(void)mod; }
   virtual void charInput(int unicode_key) { (void)unicode_key; }
 
-  virtual ~RenderObject() { }
+  virtual ~GLRenderObject() { }
 };
 
 #endif // RENDEROBJECT_H

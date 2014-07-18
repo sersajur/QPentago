@@ -23,10 +23,11 @@ struct point_base {
 
 typedef point_base<GLint> point;
 
-class Textures2DHolder;
 
-class Texture2D
+
+class GLTexture2D
 {
+  class Textures2DHolder;
   struct Texture2DInfo {
     GLint texture;
     int width, height;
@@ -46,11 +47,11 @@ public:
 
   //construct and load texture from file
   // "" - means empty texture
-  Texture2D(const QString& filename = "");
-  ~Texture2D();
+  GLTexture2D(const QString& filename = "");
+  ~GLTexture2D();
 
-  Texture2D(const Texture2D& right);
-  Texture2D& operator=(const Texture2D& right);
+  GLTexture2D(const GLTexture2D& right);
+  GLTexture2D& operator=(const GLTexture2D& right);
 
   //release current and load new texture from filename
   bool load(const QString &filename);
@@ -93,10 +94,10 @@ public:
   //if texture is repeatable pattern,
   //scale must be setted, otherwise - zero (by default)
   //1,1 - means keep original texture size
-//  Texture2D& setRepeatScale(float x_sc, float y_sc);
+//  GLTexture2D& setRepeatScale(float x_sc, float y_sc);
 
   //if texture must be drawn cropped
-  Texture2D& setCropRegion(
+  GLTexture2D& setCropRegion(
           const point& left_top,const point& right_top,
           const point& right_bottom, const point& left_bottom);
 };

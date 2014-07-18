@@ -1,4 +1,4 @@
-#include "textedit.h"
+#include "GLtextedit.h"
 #include <cwctype>
 
 //distance between white background and the text (left and right)
@@ -6,8 +6,8 @@
 #define CROP_X 6
 #define CROP_Y 4
 
-TextEdit::TextEdit(
-    GLint x_left_top, GLint y_left_top, GLint width, GLint height, const Texture2D &background):
+GLTextEdit::GLTextEdit(
+    GLint x_left_top, GLint y_left_top, GLint width, GLint height, const GLTexture2D &background):
     background(background),
     text(L"text edit"),
     active(false),
@@ -22,14 +22,14 @@ TextEdit::TextEdit(
   setSize(width,height);
 }
 
-void TextEdit::calcCrop() {
+void GLTextEdit::calcCrop() {
   text_crop = decltype(text_crop)
       (pos.posX()+CROP_X+DELTA_PIX,pos.posY()+CROP_Y,pos.width()-2*(CROP_X+DELTA_PIX), pos.height()-2*CROP_Y);
   back_pos = decltype(back_pos)
       (text_crop.posX()-DELTA_PIX,text_crop.posY(),text_crop.width()+DELTA_PIX*2, text_crop.height());
 }
 
-TextEdit& TextEdit::setSize(GLint width,GLint  height) {
+GLTextEdit& GLTextEdit::setSize(GLint width,GLint  height) {
   pos.setSize(width,height);
   calcCrop();
   QFont font = text.getFont();
@@ -42,7 +42,7 @@ TextEdit& TextEdit::setSize(GLint width,GLint  height) {
   return *this;
 }
 
-TextEdit& TextEdit::setCurPos(int pos) {
+GLTextEdit& GLTextEdit::setCurPos(int pos) {
   if(pos>(int)text.getText().length())
     pos = text.getText().length();
   else if (pos<0)
@@ -66,23 +66,23 @@ TextEdit& TextEdit::setCurPos(int pos) {
   return *this;
 }
 
-TextEdit& TextEdit::setMaxTextLength(int length) {
+GLTextEdit& GLTextEdit::setMaxTextLength(int length) {
   max_width = length;
   return *this;
 }
 
-TextEdit& TextEdit::setText(const string& text) {
+GLTextEdit& GLTextEdit::setText(const string& text) {
   this->text.setText(text);
   setCurPos(text.length());
   return *this;
 }
 
-TextEdit& TextEdit::setTexture(const Texture2D& bckgrnd) {
+GLTextEdit& GLTextEdit::setTexture(const GLTexture2D& bckgrnd) {
   background = bckgrnd;
   return *this;
 }
 
-void TextEdit::draw() const {
+void GLTextEdit::draw() const {
   glColor4f(1,1,1,1);
   background.draw(pos.glCoords(),pos.dimension);
   glBindTexture(GL_TEXTURE_2D, 0);
@@ -112,25 +112,25 @@ void TextEdit::draw() const {
   text.drawCroped(back_pos.getLeft(),back_pos.getRight());
 }
 
-void TextEdit::setActive(bool act) {
+void GLTextEdit::setActive(bool act) {
   active = act;
   hovered = false;
 }
 
-bool TextEdit::isActive() const {
+bool GLTextEdit::isActive() const {
   return active;
 }
 
-bool TextEdit::canBeActive() const {
+bool GLTextEdit::canBeActive() const {
   return true;
 }
 
-void TextEdit::click(int x, int y) {
+void GLTextEdit::click(int x, int y) {
   (void)x;
   (void)y;
 }
 
-void TextEdit::mouseDown(int x, int y) {
+void GLTextEdit::mouseDown(int x, int y) {
   if(!active&&underMouse(x,y)) {
       setActive(true);
     } else {
@@ -153,49 +153,49 @@ void TextEdit::mouseDown(int x, int y) {
     }
 }
 
-void TextEdit::mouseUp(int x, int y) {
+void GLTextEdit::mouseUp(int x, int y) {
   (void)x;
   (void)y;
 }
 
-void TextEdit::hover(int x, int y) {
+void GLTextEdit::hover(int x, int y) {
   hovered = true;
   if(underMouse(x,y)) {
       setActive(true);
     }
 }
 
-void TextEdit::unHover() {
+void GLTextEdit::unHover() {
   hovered = false;
 }
 
-bool TextEdit::underMouse(int x, int y) const {
+bool GLTextEdit::underMouse(int x, int y) const {
   return pos.posInRect(x,y);
 }
-void TextEdit::setPos(int x, int y) {
+void GLTextEdit::setPos(int x, int y) {
   pos.setPos(x,y);
   calcCrop();
   setCurPos(0);
   text.setPos(text_crop.posX(),text_crop.posY());
 }
 
-int  TextEdit::posX() const {
+int  GLTextEdit::posX() const {
   return pos.posX();
 }
 
-int  TextEdit::posY() const {
+int  GLTextEdit::posY() const {
   return pos.posY();
 }
 
-int  TextEdit::height() const {
+int  GLTextEdit::height() const {
   return pos.height();
 }
 
-int  TextEdit::width() const {
+int  GLTextEdit::width() const {
   return pos.width();
 }
 
-void TextEdit::keyPress(int key, bool repeat, KeyboardModifier mod) {
+void GLTextEdit::keyPress(int key, bool repeat, KeyboardModifier mod) {
   if (mod == MD_NONE) {
       switch(key) {
         case Qt::Key_Backspace: {
@@ -232,12 +232,12 @@ void TextEdit::keyPress(int key, bool repeat, KeyboardModifier mod) {
   (void)repeat;
 }
 
-void TextEdit::keyRelease(int key, KeyboardModifier mod) {
+void GLTextEdit::keyRelease(int key, KeyboardModifier mod) {
   (void)key;
   (void)mod;
 }
 
-void TextEdit::charInput(int unicode_key) {
+void GLTextEdit::charInput(int unicode_key) {
   if (iswprint(unicode_key)) {
     if (max_width>0 && int(text.getText().size())>=max_width) {
         // TODO: Beep here
@@ -250,20 +250,20 @@ void TextEdit::charInput(int unicode_key) {
   }
 }
 
-TextEdit& TextEdit::setFont(const QFont& font) {
+GLTextEdit& GLTextEdit::setFont(const QFont& font) {
   text.setFont(font);
   return *this;
 }
 
-const QFont& TextEdit::getFont() const {
+const QFont& GLTextEdit::getFont() const {
   return text.getFont();
 }
 
-TextEdit& TextEdit::setFontColor4i(GLint red, GLint green, GLint blue, GLint alpha) {
+GLTextEdit& GLTextEdit::setFontColor4i(GLint red, GLint green, GLint blue, GLint alpha) {
   text.setFontColor4i(red,green,blue,alpha);
   return *this;
 }
 
-const GLint* TextEdit::getFontColor() const {
+const GLint* GLTextEdit::getFontColor() const {
   return text.getFontColor();
 }

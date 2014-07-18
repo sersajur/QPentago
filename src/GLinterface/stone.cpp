@@ -3,7 +3,7 @@
 Stone::Stone(GLint x_left_top,
              GLint y_left_top,
              GLint radius,
-             const Texture2D& texture):
+             const GLTexture2D& texture):
     active(false),
     setted(false),
     pressed(false),
@@ -42,7 +42,7 @@ const GLfloat* Stone::getColor() const {
   return color;
 }
 
-Stone& Stone::setTexture(const Texture2D& txtr) {
+Stone& Stone::setTexture(const GLTexture2D& txtr) {
   texture = txtr;
   return *this;
 }

@@ -1,19 +1,19 @@
-#include "textures.h"
+#include "GLtextures.h"
 #include <map>
 #include <mutex>
 #include <QtOpenGL>
 #include <QImage>
 
-class Textures2DHolder {
+class GLTexture2D::Textures2DHolder {
   struct AllInfo {
-    Texture2D::Texture2DInfo info;
+    GLTexture2D::Texture2DInfo info;
     int count;
   };
 
   static std::mutex m;
   static std::map<QString,AllInfo> textures_list;
 public:
-  static Texture2D::Texture2DInfo loadTexture(const QString& filename, QGLContext* context) {
+  static GLTexture2D::Texture2DInfo loadTexture(const QString& filename, QGLContext* context) {
     AllInfo texture;
     if (filename!="") {
       std::lock_guard<std::mutex> lg(m);
@@ -23,7 +23,7 @@ public:
         textures_list[filename].count++;
       }catch(std::out_of_range&) {
         QImage im(filename);
-        texture.info = Texture2D::Texture2DInfo(context->bindTexture(im), im.width(), im.height());
+        texture.info = GLTexture2D::Texture2DInfo(context->bindTexture(im), im.width(), im.height());
         texture.count = 1;
         textures_list[filename] = texture;
       }
@@ -45,33 +45,33 @@ public:
   }
 };
 
-std::mutex Textures2DHolder::m;
-std::map<QString,Textures2DHolder::AllInfo> Textures2DHolder::textures_list;
+std::mutex GLTexture2D::Textures2DHolder::m;
+std::map<QString,GLTexture2D::Textures2DHolder::AllInfo> GLTexture2D::Textures2DHolder::textures_list;
 
-Tcontext* Texture2D::context;
+Tcontext* GLTexture2D::context;
 
-Texture2D::Texture2D(const QString &filename):
+GLTexture2D::GLTexture2D(const QString &filename):
     crop{{0,1},{1,1},{1,0},{0,0}} {
   load(filename);
 }
 
-Texture2D::~Texture2D() {
+GLTexture2D::~GLTexture2D() {
   release();
 }
 
-Texture2D::Texture2D(const Texture2D& right):
+GLTexture2D::GLTexture2D(const GLTexture2D& right):
     crop{{0,1},{1,1},{1,0},{0,0}} {
   load(right.filename);
 }
 
-Texture2D& Texture2D::operator=(const Texture2D& right) {
+GLTexture2D& GLTexture2D::operator=(const GLTexture2D& right) {
   release();
   filename = right.filename;
   info = Textures2DHolder::loadTexture(filename,context);
   return *this;
 }
 
-bool Texture2D::load(const QString& filename) {
+bool GLTexture2D::load(const QString& filename) {
   info = Textures2DHolder::loadTexture(filename,context);
   if (info.texture != 0) {
     this->filename = filename;
@@ -81,7 +81,7 @@ bool Texture2D::load(const QString& filename) {
   return true;
 }
 
-void Texture2D::release() {
+void GLTexture2D::release() {
   if (info.texture) {
     Textures2DHolder::freeTexture(filename, context);
     filename.clear();
@@ -89,18 +89,18 @@ void Texture2D::release() {
   }
 }
 
-void Texture2D::draw(const point& left_top) const {
+void GLTexture2D::draw(const point& left_top) const {
   draw(left_top,{left_top.x+width(),left_top.y+height()});
 }
 
-void Texture2D::draw(const point& left_top,const point& right_bottom) const {
+void GLTexture2D::draw(const point& left_top,const point& right_bottom) const {
   draw(left_top,
         {right_bottom.x, left_top.y},
         right_bottom,
         {left_top.x, right_bottom.y});
 }
 
-void Texture2D::draw(const point& left_top,
+void GLTexture2D::draw(const point& left_top,
            const point& right_top,
            const point& right_bottom,
            const point& left_bottom) const {
@@ -120,39 +120,39 @@ void Texture2D::draw(const point& left_top,
   draw((GLint*)region,2);
 }
 
-void Texture2D::draw(const GLint* pos, int dim) const {
+void GLTexture2D::draw(const GLint* pos, int dim) const {
   glBindTexture(GL_TEXTURE_2D, info.texture);
   glVertexPointer(dim, GL_INT, 0, pos);
   glTexCoordPointer(2, GL_DOUBLE, 0, crop);
   glDrawArrays(GL_TRIANGLE_FAN,0,4);
 }
 
-void Texture2D::draw(const GLdouble* pos, int dim) const {
+void GLTexture2D::draw(const GLdouble* pos, int dim) const {
   glBindTexture(GL_TEXTURE_2D, info.texture);
   glVertexPointer(dim, GL_DOUBLE, 0, pos);
   glTexCoordPointer(2, GL_DOUBLE, 0, crop);
   glDrawArrays(GL_TRIANGLE_FAN,0,4);
 }
 
-void Texture2D::draw(const GLint* pos, int dim, const GLdouble* crop_in, int vertex_count) const {
+void GLTexture2D::draw(const GLint* pos, int dim, const GLdouble* crop_in, int vertex_count) const {
   glBindTexture(GL_TEXTURE_2D, info.texture);
   glVertexPointer(dim, GL_INT, 0, pos);
   glTexCoordPointer(2, GL_DOUBLE, 0, crop_in);
   glDrawArrays(GL_TRIANGLE_FAN,0,vertex_count);
 }
 
-void Texture2D::draw(const GLdouble* pos, int dim, const GLdouble* crop_in, int vertex_count) const {
+void GLTexture2D::draw(const GLdouble* pos, int dim, const GLdouble* crop_in, int vertex_count) const {
   glBindTexture(GL_TEXTURE_2D, info.texture);
   glVertexPointer(dim, GL_DOUBLE, 0, pos);
   glTexCoordPointer(2, GL_DOUBLE, 0, crop_in);
   glDrawArrays(GL_TRIANGLE_FAN,0,vertex_count);
 }
 
-//Texture2D& Texture2D::setRepeatScale(float x_sc, float y_sc) {
+//GLTexture2D& GLTexture2D::setRepeatScale(float x_sc, float y_sc) {
 //  return *this;
 //}
 
-Texture2D& Texture2D::setCropRegion(
+GLTexture2D& GLTexture2D::setCropRegion(
         const point& left_top,const point& right_top,
         const point& right_bottom, const point& left_bottom) {
     crop[0][0] = double(info.width)/left_top.x;

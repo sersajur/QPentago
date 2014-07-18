@@ -6,5 +6,8 @@
         <file>graphics/glass_blurred.jpg</file>
         <file>graphics/background_label.jpg</file>
         <file>graphics/stone.png</file>
+        <file>graphics/radio.png</file>
+        <file>graphics/radio_checked.png</file>
+        <file>graphics/radio_pressed.png</file>
     </qresource>
 </RCC>
