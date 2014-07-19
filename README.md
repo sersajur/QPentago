@@ -1,3 +1,3 @@
-QPentago
+GLPentago
 ========
-Game project on Qt, first release will be before 13.05.2014
+OpenGL version of IView for game Pentago
