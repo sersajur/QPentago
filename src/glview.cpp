@@ -49,7 +49,7 @@ private:
     GLMenu menu_join_game;
     GLMenu menu_host_game;
 
-    std::shared_ptr<PentagoBoard> board;
+    PentagoBoard board;
 
     std::vector<GLRenderObject*> current_objects;
 
@@ -127,18 +127,18 @@ protected:
 
       buildMenus();
 
-      board.reset(new PentagoBoard(12,12,1000,1000,2));
+      board.initTextures().setSize(1000,1000).setPos(12,12);
 
-      board->setStoneSetCallBack([&] (int x, int y) {
-          parent->Request_put_stone(x,y);
+      board.setStoneSetCallBack([&] (int x, int y) {
+          emit parent->Request_put_stone(y,x);
         });
-      board->setRotateCallBack([&](int quadrant_x, int quadrant_y, bool rotate_right){
+      board.setRotateCallBack([&](int quadrant_x, int quadrant_y, bool rotate_right){
           static const QUADRANT quadrants[3][3] = {
             {QUADRANT::II,  QUADRANT::I,  QUADRANT::IX},
             {QUADRANT::III, QUADRANT::IV, QUADRANT::VIII},
             {QUADRANT::V,   QUADRANT::VI, QUADRANT::VII}
           };
-          parent->Request_rotate_quadrant(quadrants[quadrant_x][quadrant_y],rotate_right?DIRECTION::RIGHT:DIRECTION::LEFT);
+          emit parent->Request_rotate_quadrant(quadrants[quadrant_y][quadrant_x],rotate_right?DIRECTION::RIGHT:DIRECTION::LEFT);
         });
 
     }
@@ -382,13 +382,13 @@ protected:
                        }))
           .addObject(GLButton(0,316,512,100,L"Load game",texture_button).setClickCallBack(
                        [&]() {
-                           parent->Request_get_saves_list();
-                           parent->Request_enter_game_layout(GAME_LAYOUT::LOAD_GAME);
+                           emit parent->Request_get_saves_list();
+                           emit parent->Request_enter_game_layout(GAME_LAYOUT::LOAD_GAME);
                        }))
           .addObject(GLButton(0,426,512,100,L"Join game",texture_button).setClickCallBack(
                        [&]() {
-                           parent->Request_get_hosts_list();
-                           parent->Request_enter_game_layout(GAME_LAYOUT::JOIN_GAME);
+                           emit parent->Request_get_hosts_list();
+                           emit parent->Request_enter_game_layout(GAME_LAYOUT::JOIN_GAME);
                        }))
           .addObject(GLButton(0,536,512,100,L"Host game",texture_button).setClickCallBack(
                        [&]() {
@@ -407,12 +407,12 @@ protected:
           .setTexture(texture_menu)
           .addObject(GLButton(0,311,512,100,L"Pentago",texture_button).setClickCallBack(
                        [&](){
-                           parent->Request_set_game_mode(GAME_MODE::MODE_PENTAGO);
-                           parent->Request_enter_game_layout(GAME_LAYOUT::LOBBY);
+                           emit parent->Request_set_game_mode(GAME_MODE::MODE_PENTAGO);
+                           emit parent->Request_enter_game_layout(GAME_LAYOUT::LOBBY);
                         }))
           .addObject(GLButton(0,421,512,100,L"Pentago XL",texture_button).setClickCallBack(
                        [&]() {
-                           parent->Request_set_game_mode(GAME_MODE::MODE_PENTAGO_XL);
+                           emit parent->Request_set_game_mode(GAME_MODE::MODE_PENTAGO_XL);
                            goToMenu(menu_n_players);
                         }))
           .addObject(GLButton(0,631,512,100,L"Back",texture_button).setClickCallBack(
@@ -427,11 +427,11 @@ protected:
           .setTexture(texture_menu)
           .addObject(GLButton(0,271,512,100,L"2 players",texture_button).setClickCallBack(
                        [&]() {
-                           parent->Request_show_lobby(2);
+                           emit parent->Request_show_lobby(2);
                          }))
           .addObject(GLButton(0,381,512,100,L"3 players",texture_button).setClickCallBack(
                        [&]() {
-                           parent->Request_show_lobby(3);
+                           emit parent->Request_show_lobby(3);
                          }))
           .addObject(GLButton(0,491,512,100,L"4 players",texture_button).setClickCallBack(
                        [&]() {
@@ -516,7 +516,7 @@ protected:
     }
 
     void openLobby() {
-      //todo
+      Set_game_layout(GAME_LAYOUT::GAME);
     }
 
 //    IView: (see iview.h)
@@ -538,7 +538,17 @@ public: //some kind of slots
     }
 
     virtual void Set_game_mode(GAME_MODE mode) {
-
+      switch(mode) {
+        case GAME_MODE::MODE_PENTAGO: {
+            board.setBoardSize(2);
+            break;
+          }
+        case GAME_MODE::MODE_PENTAGO_XL: {
+            board.setBoardSize(3);
+            break;
+          }
+        }
+      board.initTextures();//textures not loading automatically for now
     }
 
     virtual void Set_game_layout(GAME_LAYOUT layout) override  {
@@ -572,7 +582,7 @@ public: //some kind of slots
                 view_history.pop();
               }
             current_objects.clear();
-            current_objects.push_back(&*board);
+            current_objects.push_back(&board);
             break;
           }
       }
@@ -604,23 +614,45 @@ public: //some kind of slots
     }
 
     virtual void Clear_board() override {
-      qDebug() << "Clear_board emited";
+      for(int i=board.getBoardWidth()-1; i>=0; --i) {
+          for(int j=board.getBoardWidth()-1; j>=0; --j) {
+              board.unsetStone(i,j);
+            }
+        }
     }
 
     virtual void Put_stone(int row, int col, uint32_t rgb) override {
-
+      board.setStone(col,row);
+      board.setStoneColor(col,row,
+                           ((rgb&0xff0000)>>16)/255.0,
+                           ((rgb&0x00ff00)>>8)/255.0,
+                           (rgb&0x0000ff)/255.0,
+                           1);
     }
 
     virtual void Rotate_quadrant(QUADRANT quadrant, DIRECTION direction) override {
-
+      static const std::pair<int,int> quadrants[] = {
+        {1,0},
+        {0,0},
+        {0,1},
+        {1,1},
+        {0,2},
+        {1,2},
+        {2,2},
+        {2,1},
+        {2,0}
+      };
+      int x = quadrants[int(quadrant)-1].first;
+      int y = quadrants[int(quadrant)-1].second;
+      board.rotate(x,y,direction==DIRECTION::RIGHT);
     }
 
     virtual void Disable_rotate_quadrant() override {
-
+      board.enableRotate(false);
     }
 
     virtual void Enable_rotate_quadrant() override {
-
+      board.enableRotate(true);
     }
 
     virtual void Show_quick_message(string text, MESSAGE_TYPE type = MESSAGE_TYPE::M_INFO, int mili_sec=0) override {
@@ -649,6 +681,7 @@ public: //some kind of slots
 };
 
 GLview::GLview(): impl(new GLviewImpl(this)) {
+  setObjectName("OpenGL_view_for_Pentago_game");
   impl->show();
 }
 

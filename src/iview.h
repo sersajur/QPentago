@@ -79,7 +79,7 @@ public:
 
 public slots: //slots, basically from presenter
 	virtual void Show_game_ended(WINNER winner, const string& winner_name)=0;
-	//if winner==NO_ONE_WON, winner_name must be ignored
+	//if winner==NO_ONE_WON, winner_name must be L"" and ignored
 
 	virtual void Set_saves_list(const str_array& save_names,const str_array& saves_info)=0;
 	
@@ -123,7 +123,9 @@ signals: //signals to presenter
 	void Request_enter_game_layout(GAME_LAYOUT);
 	//Request_enter_game_layout(GAME_LAYOUT::LOBBY) - is the same as Request_show_lobby(2)
 
-	void Request_show_lobby(int player_count);//for local game only
+	void Request_show_lobby(int player_count);
+	//for local game only!!!
+	//for new network game, Request_host_game must be used instead
 	void Request_lobby_ready();//start game for local and "ready" for network game
 	void Request_leave_lobby();
 	

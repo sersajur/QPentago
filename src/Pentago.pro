@@ -40,7 +40,8 @@ HEADERS  += glview.h \
     GLinterface/stone.h \
     GLinterface/GLtextedit.h \
     GLinterface/pentagoboard.h \
-    GLinterface/GLlabel.h
+    GLinterface/GLlabel.h \
+    main.h
 
 RESOURCES += \
     GLinterface/GLgraphics.qrc

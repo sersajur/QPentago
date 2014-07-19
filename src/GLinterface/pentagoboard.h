@@ -15,21 +15,25 @@
 using RotateCallBack = void(int quadrant_x, int quadrant_y, bool rotate_right);
 using StoneSetCallBack = void(int pos_x, int pos_y);
 
-class PentagoBoardImpl;
-
 class PentagoBoard: public GLRenderObject
 {
+  class PentagoBoardImpl;
 public:
   PentagoBoard(GLint x_left_top = 0,
         GLint y_left_top = 0,
         GLint width = 0,
         GLint height = 0,
-        int board_size = 2);
-
-  ~PentagoBoard();
+        unsigned board_size = 2);
 
   PentagoBoard(const PentagoBoard& rigth);
   PentagoBoard& operator=(const PentagoBoard& rigth);
+
+  PentagoBoard(PentagoBoard&&) = default;
+  PentagoBoard& operator=(PentagoBoard&&) = default;
+
+  ~PentagoBoard();
+
+  PentagoBoard& initTextures();
 
   PentagoBoard& setSize(int width, int height);
 
@@ -37,6 +41,12 @@ public:
   PentagoBoard& unsetStone(int x_pos, int y_pos);
   PentagoBoard& setStoneColor(int x_pos, int y_pos, GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
   PentagoBoard& rotate(int board_x, int board_y, bool  right_direction);
+
+  PentagoBoard& enableRotate(bool enable);
+
+  PentagoBoard& setBoardSize(unsigned board_size);
+  unsigned getBoardWidth() const;
+  unsigned getBoardHeight() const;
 
   PentagoBoard& setRotateCallBack(std::function<RotateCallBack> rotate_call_back);
   void callRotateCallBack(int quadrant_x, int quadrant_y, bool rotate_right) const;

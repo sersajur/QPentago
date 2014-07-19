@@ -9,21 +9,30 @@
 
 #include <cmath>
 
-#ifndef M_PI
-#define M_PI           3.14159265358979323846  /* pi */
-#endif
-
-#ifndef M_2PI
-#define M_2PI          6.28318530717958647692  /* 2*pi */
-#endif
-
 using std::array;
 using std::vector;
+
+
+constexpr long double operator"" _deg(long double degree) {
+  return degree/180*3.14159265358979323846;
+}
+
+constexpr long double operator"" _rad(long double radian) {
+  return radian/3.14159265358979323846*180;
+}
+
+constexpr long double operator"" _deg(unsigned long long int degree) {
+  return static_cast<long long int>(degree)/180.0*3.14159265358979323846;
+}
+
+constexpr long double operator"" _rad(unsigned long long int radian) {
+  return static_cast<long long int>(radian)/3.14159265358979323846*180;
+}
 
 class BoardQuadrant: public GLRenderObject {
 public:
   static constexpr unsigned QUADRANT_SIZE           = 3;
-  //magic constants...even don't ask
+  //magic constants...even don't ask (but it look nice)
   static constexpr double STONE_SIZE_TO_QUADRANT    = 0.2031*3/QUADRANT_SIZE;
   static constexpr double STONE_SPASE_TO_QUADRANT   = 0.1415*3/QUADRANT_SIZE;
   static constexpr double STONE_SPACE_BEGIN         = 0.0537*3/QUADRANT_SIZE;
@@ -33,20 +42,21 @@ private:
   PentagoBoard* parent;
 
   GLRectangleCoord<GLint> pos;
-  GLdouble angle;
-  GLint dx,dy;
-  int my_pos_x, my_pos_y;
-  int active_x, active_y;
+  GLint dx = 0,dy = 0;
+  int my_pos_x = 0, my_pos_y = 0;
+  int active_x = -1, active_y = -1;
+
   array<array<Stone,QUADRANT_SIZE>,QUADRANT_SIZE> stones;
 
   struct {
     int x,y;
   } click_pos;
 
-  bool mouse_downed;
-  double rotate_angle;
+  bool mouse_downed = false;
+  bool rotating_enabled = true;
+  GLdouble rotate_angle = 0;
 
-  Stone* clicked_stone;
+  Stone* clicked_stone = nullptr;
 public:
 
   BoardQuadrant(PentagoBoard* parent,
@@ -54,17 +64,14 @@ public:
                 GLint x_left_top = 0,
                 GLint y_left_top = 0,
                 GLint width = 0,
-                GLint height = 0):
-      pos(x_left_top, y_left_top, width, height),
-      angle(0), dx(0), dy(0),
-      my_pos_x(0), my_pos_y(0),
-      active_x(-1), active_y(-1),
-      mouse_downed(false),
-      clicked_stone(nullptr) {
+                GLint height = 0):pos(x_left_top, y_left_top, width, height) {
 
     (void)texture;
     reposStones();
     setParent(parent);
+  }
+
+  void initTextures() {
     for (auto& i: stones) {
         for (auto& o: i) {
             o.setTexture(GLTexture2D(":/graphics/stone.png"));
@@ -72,10 +79,11 @@ public:
       }
   }
 
+  //sets coordinates of quadrant on board, NOT on screen
   void setPosOnBoard(int pos_x, int pos_y) {
     my_pos_x = pos_x;
     my_pos_y = pos_y;
-    setParent(parent);
+    setParent(parent);//reset callbacks for stones
   }
 
   void setParent(PentagoBoard* parent) {
@@ -104,7 +112,7 @@ public:
     stones[x_pos][y_pos].setSetted(false);
   }
 
-  void  setActiveStone(int pos_x, int pos_y) {
+  void setActiveStone(int pos_x, int pos_y) {
     if(isActive()) {
         stones[active_x][active_y].unHover();
       }
@@ -159,6 +167,10 @@ public:
       }
   }
 
+  void enableRotate(bool enable) {
+    rotating_enabled = enable;
+  }
+
   void unHoverStone() {
     setActiveStone(-1,-1);
   }
@@ -175,7 +187,7 @@ public:
     if(mouse_downed) {
         glPushMatrix();
         glTranslated(pos.posXcenter(),pos.posYcenter(),0);
-        glRotated(rotate_angle/M_PI*180,0,0,-1);
+        glRotated(rotate_angle/180_deg*180,0,0,-1);
         double scale=1-std::abs(sin(2*rotate_angle))*(1-1/sqrt(2));
         glScaled(scale,scale,1);
         glTranslated(-pos.posXcenter(),-pos.posYcenter(),0);
@@ -237,7 +249,7 @@ public:
 //    qDebug() << " acos(cos(angle)) = " << acos(angle_cos);
 //    qDebug() << " asin(sin(angle)) = " << asin(angle_sin);
 
-    double res = angle_cos>0?asin(angle_sin):angle_sin>0?M_PI-asin(angle_sin):-M_PI-asin(angle_sin);
+    double res = angle_cos>0?asin(angle_sin):angle_sin>0?180_deg-asin(angle_sin):-180_deg-asin(angle_sin);
 //    qDebug() << " angle = " << res;
 
 //    qDebug() << "A = (" << A.x << "," << A.y << ");";
@@ -267,7 +279,7 @@ public:
         clicked_stone->mouseUp(x,y);
         clicked_stone = nullptr;
       } else if (mouse_downed) {
-        if (std::abs(rotate_angle)>M_PI/4) {
+        if (std::abs(rotate_angle)>45_deg) {
             parent->callRotateCallBack(my_pos_x,my_pos_y,rotate_angle<0);
           }
         mouse_downed = false;
@@ -287,10 +299,12 @@ public:
   void hover(int x, int y) override {
     if(mouse_downed) {
         rotate_angle = pointsAngle(click_pos.x,click_pos.y,pos.posXcenter(),pos.posYcenter(),x,y);
+        double max_angle;
+        max_angle = rotating_enabled?88_deg:2_deg;
         if(rotate_angle>0) {
-            rotate_angle = rotate_angle/M_PI*180>88?88.0/180*M_PI:rotate_angle;
+            rotate_angle = rotate_angle>max_angle?max_angle:rotate_angle;
           } else {
-            rotate_angle = rotate_angle/M_PI*180<-88?-88.0/180*M_PI:rotate_angle;
+            rotate_angle = rotate_angle<-max_angle?-max_angle:rotate_angle;
           }
       } else if (clicked_stone) {
         clicked_stone->hover(x,y);
@@ -374,7 +388,7 @@ private:
   }
 }; //board quadrant
 
-class PentagoBoardImpl: public GLRenderObject {
+class PentagoBoard::PentagoBoardImpl: public GLRenderObject {
   PentagoBoard *parent;
   GLRectangleCoord<GLint> pos;
   GLRectangleCoord<GLint> background_pos;
@@ -392,20 +406,23 @@ public:
                    GLint y_left_top = 0,
                    GLint width = 0,
                    GLint height = 0,
-                   int board_size = 2):
+                   unsigned board_size = 2):
       parent(parent),
       pos(x_left_top, y_left_top, width, height),
       active(false),
-      quadrants(board_size,vector<BoardQuadrant>(board_size,BoardQuadrant(parent))),
       active_x(0), active_y(0),
       clicked_quadrant(nullptr) {
-        for (int i=0; i<board_size; i++) {
-            for (int j=0; j<board_size; j++) {
-                quadrants[i][j].setPosOnBoard(i,j);
-              }
+
+    setBoardSize(board_size);
+    quadrants[0][0].setActiveStone(0,0);
+  }
+
+  void initTextures() {
+    for(auto &i: quadrants) {
+        for(auto &o: i) {
+            o.initTextures();
           }
-        reposQuadrants();
-        quadrants[0][0].setActiveStone(0,0);
+      }
   }
 
   void setParent(PentagoBoard *parent) {
@@ -436,6 +453,35 @@ public:
 
   void rotate(int board_x, int board_y, bool  right_direction) {
     quadrants[board_x][board_y].rotate(right_direction);
+  }
+
+  void enableRotate(bool enable) {
+    for(auto& i: quadrants) {
+        for(auto& o: i) {
+            o.enableRotate(enable);
+          }
+      }
+  }
+
+  void setBoardSize(unsigned board_size) {
+    quadrants.resize(board_size);
+    for(auto &q: quadrants) {
+        q.resize(board_size,BoardQuadrant(parent));
+      }
+    for (unsigned i=0; i<board_size; i++) {
+        for (unsigned j=0; j<board_size; j++) {
+            quadrants[i][j].setPosOnBoard(i,j);
+          }
+      }
+    reposQuadrants();//reset position and size of quadrants and stones
+  }
+
+  unsigned getBoardWidth() const {
+    return quadrants.size();
+  }
+
+  unsigned getBoardHeight() const {
+    return quadrants.size()?quadrants[0].size():0;
   }
 
   void setRotateCallBack(std::function<RotateCallBack> rotate_call_back) {
@@ -680,11 +726,9 @@ private:
 
 };//class PentagoBoardImpl
 
-PentagoBoard::PentagoBoard(GLint x_left_top, GLint y_left_top, GLint width, GLint height, int board_size):
-    impl(new PentagoBoardImpl(this,x_left_top,y_left_top,width, height,board_size)) { }
+PentagoBoard::PentagoBoard(GLint x_left_top, GLint y_left_top, GLint width, GLint height, unsigned board_size):
+    impl(new PentagoBoardImpl(this,x_left_top,y_left_top,width, height,board_size)) {
 
-PentagoBoard::~PentagoBoard() {
-  delete impl;
 }
 
 PentagoBoard::PentagoBoard(const PentagoBoard& rigth) {
@@ -700,6 +744,14 @@ PentagoBoard& PentagoBoard::operator=(const PentagoBoard& rigth) {
   return *this;
 }
 
+PentagoBoard::~PentagoBoard() {
+  delete impl;
+}
+
+PentagoBoard& PentagoBoard::initTextures() {
+  impl->initTextures();
+  return *this;
+}
 
 PentagoBoard& PentagoBoard::setSize(int width, int height) {
   impl->setSize(width, height);
@@ -724,6 +776,24 @@ PentagoBoard& PentagoBoard::unsetStone(int x_pos, int y_pos) {
 PentagoBoard& PentagoBoard::rotate(int board_x, int board_y, bool  right_direction) {
   impl->rotate(board_x, board_y, right_direction);
   return *this;
+}
+
+PentagoBoard& PentagoBoard::enableRotate(bool enable) {
+  impl->enableRotate(enable);
+  return *this;
+}
+
+PentagoBoard& PentagoBoard::setBoardSize(unsigned board_size) {
+  impl->setBoardSize(board_size);
+  return *this;
+}
+
+unsigned PentagoBoard::getBoardWidth() const {
+  return impl->getBoardWidth();
+}
+
+unsigned PentagoBoard::getBoardHeight() const {
+  return impl->getBoardHeight();
 }
 
 PentagoBoard& PentagoBoard::setRotateCallBack(std::function<RotateCallBack> rotate_call_back) {
