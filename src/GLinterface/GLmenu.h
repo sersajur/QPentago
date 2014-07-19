@@ -29,15 +29,13 @@ using  MenuKeyCallBack = std::function<bool(int key, KeyboardModifier mod,GLMenu
 class GLMenu: public GLRenderObject
 {
 public:
-  GLMenu(int x_left_top = 0,
-       int y_left_top = 0,
-       int width = 0,
-       int height = 0,
+  GLMenu(const WorldPos &pos_left_top = WorldPos(0,0),
+       const WorldPos &vector_size = WorldPos(0,0),
        const GLTexture2D& texture = GLTexture2D());
 
   GLMenu& setKeyCallBack(int key, KeyboardModifier mod, const MenuKeyCallBack& call_back);
 
-  GLMenu& setSize(int width, int height);
+  GLMenu& setSize(const WorldPos &v_size);
   GLMenu& setTexture(const GLTexture2D& texture);
 
   int getActiveIndex() const { return active_index; }
@@ -55,20 +53,21 @@ public:
   virtual bool isActive() const override;
   virtual bool canBeActive() const override;
 
-  virtual void click(int x, int y) override;
-  virtual void mouseDown(int x, int y) override;
-  virtual void mouseUp(int x, int y) override;
-  virtual void hover(int x, int y) override;
+  virtual void click(const WorldPos &pos) override;
+  virtual void mouseDown(const MouseEvent &mouse) override;
+  virtual void mouseUp(const MouseEvent &mouse) override;
+  virtual void hover(const MouseEvent &mouse) override;
   virtual void unHover() override;
-  virtual bool underMouse(int x, int y) const override;
+  virtual bool underMouse(const WorldPos &m_pos) const override;
 
   //position of left top corner of menu
-  virtual void setPos(int x, int y) override;
-  virtual int posX() const override { return pos.posX(); }
-  virtual int posY() const override { return pos.posY(); }
+  virtual void setPos(const WorldPos &w_pos) override;
 
-  virtual int height() const override { return pos.height(); }
-  virtual int width() const override { return pos.width(); }
+  virtual WorldPos::COORD_TYPE posX() const override { return pos.posX(); }
+  virtual WorldPos::COORD_TYPE posY() const override { return pos.posY(); }
+
+  virtual WorldPos::COORD_TYPE height() const override { return pos.height(); }
+  virtual WorldPos::COORD_TYPE width() const override { return pos.width(); }
 
 
   virtual void keyPress(int key, bool repeat, KeyboardModifier mod, bool &skip_char_input, bool &lock_active) override;
@@ -80,7 +79,7 @@ private:
 
   friend class GLMenuItemClicker;
   GLTexture2D texture;
-  GLRectangleCoord<GLint> pos;
+  GLRectangleCoord pos;
 
   size_t active_index;
   std::vector<std::shared_ptr<GLRenderObject>> menu_objects;
@@ -99,7 +98,7 @@ GLMenu& GLMenu::addObject(const RenderObjectType& object) {
     }
   }
   if (object.posX()==0)
-    menu_objects.back()->setPos(pos.posXcenter()-object.width()/2,object.posY());
+    menu_objects.back()->setPos({pos.posXcenter()-object.width()/2,object.posY()});
   return *this;
 }
 
@@ -115,7 +114,7 @@ public:
   bool operator() (int, KeyboardModifier, GLMenu& menu) {
     if (index<menu.menu_objects.size()) {
         auto& o = menu.menu_objects[index];
-        o->click(o->posX()+o->width()/2,o->posY()+o->height()/2);
+        o->click({o->posX()+o->width()/2,o->posY()+o->height()/2});
       }
     return true;
   }

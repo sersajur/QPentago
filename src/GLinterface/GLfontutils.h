@@ -31,8 +31,8 @@ public:
     const QFont& font() const;
     const QFontMetrics& fontMetrics() const;
 
-    void renderText(GLfloat x, GLfloat y, const string &text);
-    void renderTextCroped(GLfloat x, GLfloat y, const string &text, GLfloat x_left, GLfloat x_right);
+    void renderText(GLdouble x, GLdouble y, const string &text);
+    void renderTextCroped(GLdouble x, GLdouble y, const string &text, GLdouble x_left, GLdouble x_right);
 
 private:
     Q_DISABLE_COPY(GLfont)

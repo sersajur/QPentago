@@ -25,12 +25,11 @@ class GLRadioGroup : public GLRenderObject, public GLFontKeeper<GLRadioGroup>
 {
 public:
   GLRadioGroup(
-         GLint x_left_top = 0,
-         GLint y_left_top = 0,
-         GLint width = 0,
+         const WorldPos &pos_left_top = WorldPos(0,0),
+         WorldPos::COORD_TYPE width = 0,
          const GLTexture2D& background = GLTexture2D());
 
-  GLRadioGroup& setWidth(GLint width);
+  GLRadioGroup& setWidth(WorldPos::COORD_TYPE width);
   GLRadioGroup& setItems(const str_array& items_list);
 
   GLRadioGroup& setSelectedChangedCallBack(const RadioGroupSelectedChangedCallBack& call_back);
@@ -47,18 +46,18 @@ public:
   virtual bool isActive() const override;
   virtual bool canBeActive() const { return true; }
 
-  virtual void click(int x, int y) override;
-  virtual void mouseDown(int x, int y) override;
-  virtual void mouseUp(int x, int y) override;
-  virtual void hover(int x, int y) override;
+  virtual void click(const WorldPos &w_pos) override;
+  virtual void mouseDown(const MouseEvent &mouse) override;
+  virtual void mouseUp(const MouseEvent &mouse) override;
+  virtual void hover(const MouseEvent &mouse) override;
   virtual void unHover() override;
-  virtual bool underMouse(int x, int y) const override;
+  virtual bool underMouse(const WorldPos &m_pos) const override;
 
-  virtual void setPos(int x, int y) override;
-  virtual int posX() const override;
-  virtual int posY() const override;
-  virtual int height() const override;
-  virtual int width() const override;
+  virtual void setPos(const WorldPos &w_pos) override;
+  virtual WorldPos::COORD_TYPE posX() const override;
+  virtual WorldPos::COORD_TYPE posY() const override;
+  virtual WorldPos::COORD_TYPE height() const override;
+  virtual WorldPos::COORD_TYPE width() const override;
 
   virtual void keyPress(int key, bool repeat, KeyboardModifier mod, bool &skip_char_input, bool &lock_active) override;
   virtual void keyRelease(int key, KeyboardModifier mod) override;
@@ -68,7 +67,7 @@ public:
 protected:
   virtual void fontChanged() override;
 private:
-  GLRectangleCoord<GLint> pos;
+  GLRectangleCoord pos;
   GLTexture2D texture_background;
 
   GLTexture2D texture_radio[3];
@@ -84,7 +83,7 @@ private:
 
   std::vector<GLLabel> items;
 
-  int item_height;
+  WorldPos::COORD_TYPE item_height;
 
   RadioGroupSelectedChangedCallBack selected_changed_call_back;
 public:

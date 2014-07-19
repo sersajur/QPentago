@@ -25,19 +25,17 @@
 
 #include <vector>
 #include <stack>
+#include <limits>
 
 class GLview::GLviewImpl: public QGLWidget, public IView {
 public:
-
-  struct Point3D {
-    GLdouble x,y,z;
-  };
 
 private:
     GLview * parent;
 
     int  width, height;
-    GLTexture2D texture_menu_background;
+    GLTexture2D texture_background;
+    GLRectangleCoord texture_background_pos;
 
     GLMenu main_menu;
     GLMenu menu_new_game;
@@ -56,22 +54,21 @@ private:
     std::stack<std::vector<GLRenderObject*>> view_history;
 
     int m_x, m_y;//mouse window coordinates
-    Point3D m_w;//mouse world coordinates
+    WorldPos m_w;//mouse world coordinates
 
   #ifdef QT_DEBUG
     float angle;
     int count;
   #endif
 
-    GLRenderObject* clicked_object;
-    GLRenderObject* hovered_object;
+    GLRenderObject* clicked_object = nullptr;
+    GLRenderObject* hovered_object = nullptr;
 
 public:
 
     GLviewImpl(GLview * gl_parent=0):
-        parent(gl_parent),
-        clicked_object(nullptr),
-        hovered_object(nullptr) {
+        parent(gl_parent) {
+
       setWindowIcon(QIcon(":/window/pentago.ico"));
       setMouseTracking(true);
       QDesktopWidget desktop;
@@ -123,11 +120,11 @@ protected:
 
       GLButton::texture_blurr.load(":/graphics/glass_blurred.jpg");
       GLRadioGroup::texture_blurr.load(":/graphics/glass_blurred.jpg");
-      texture_menu_background.load(":/graphics/background.jpg");
+      texture_background.load(":/graphics/background.jpg");
 
       buildMenus();
 
-      board.initTextures().setSize(1000,1000).setPos(12,12);
+      board.initTextures().setSize({1000,1000}).setPos({12,12});
 
       board.setStoneSetCallBack([&] (int x, int y) {
           emit parent->Request_put_stone(y,x);
@@ -146,6 +143,21 @@ protected:
     virtual void resizeGL(int w, int h) override {
       width = w;
       height = h;
+      { //background texture coordinates calculation
+        WorldPos::COORD_TYPE back_ratio = double(texture_background.width())/texture_background.height();
+        WorldPos::COORD_TYPE window_ratio = double(width)/height;
+        if(window_ratio>back_ratio) {
+            WorldPos::COORD_TYPE tmp = (window_ratio/back_ratio*height-height)/2;
+            texture_background_pos.setPos({0,-tmp});
+            texture_background_pos.setRight(width);
+            texture_background_pos.setBottom(height+tmp);
+          } else {
+            WorldPos::COORD_TYPE tmp = (back_ratio/window_ratio*width-width)/2;
+            texture_background_pos.setPos({-tmp,0});
+            texture_background_pos.setRight(width+tmp);
+            texture_background_pos.setBottom(height);
+          }
+      }
       glViewport(0,0,w,h);
 #if !defined(HAVE_GLES)
       int wh = std::min(w,h);
@@ -165,7 +177,7 @@ protected:
     virtual void paintGL() override {
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       glColor4f(1,1,1,1);
-      drawBackground(texture_menu_background);
+      drawBackground();
 
       for(auto o: current_objects) {
         o->draw();
@@ -178,7 +190,7 @@ protected:
       renderText(20,40,QString("Mouse world pos:"));
       renderText(20,50,QString("X:%1").arg(m_w.x));
       renderText(20,60,QString("Y:%1").arg(m_w.y));
-      renderText(20,70,QString("Z:%1").arg(m_w.z));
+//      renderText(20,70,QString("Z:%1").arg(m_w.z));
       renderText(20,80,QString("Press and hold T or press Y %1").arg(count));
 #else
       qDebug() << QString("\nMouse pos: X:%1 Y:%2").arg(m_x).arg(m_y);
@@ -191,9 +203,11 @@ protected:
     virtual void mousePressEvent ( QMouseEvent * event ) override {
         mouseCoordTranslate(event->pos().x(),event->pos().y());
         for(auto o: current_objects) {
-          if(o->underMouse(m_w.x,m_w.y)) {
-            o->mouseDown(m_w.x,m_w.y);
-            clicked_object = o;
+          if(o->underMouse(m_w)) {
+            o->mouseDown(MouseEvent{m_w,MouseButton((int)event->button()),MouseButton((int)event->buttons())});
+            if(event->button()==Qt::LeftButton) {
+                clicked_object = o;
+              }
             break;
           }
         }
@@ -202,12 +216,12 @@ protected:
 
     virtual void mouseReleaseEvent ( QMouseEvent * event ) override {
         mouseCoordTranslate(event->pos().x(),event->pos().y());
-        if(clicked_object) {
-            clicked_object->mouseUp(m_w.x,m_w.y);
+        if(clicked_object && event->button()==Qt::LeftButton) {
+            clicked_object->mouseUp(MouseEvent{m_w,MouseButton((int)event->button()),MouseButton((int)event->buttons())});
             clicked_object = nullptr;
           } else {
             for(auto o: current_objects) {
-                o->mouseUp(m_w.x,m_w.y);
+                o->mouseUp(MouseEvent{m_w,MouseButton((int)event->button()),MouseButton((int)event->buttons())});
               }
           }
         updateGL();
@@ -220,18 +234,18 @@ protected:
     virtual void mouseMoveEvent(QMouseEvent* event) override {
       mouseCoordTranslate(event->pos().x(),event->pos().y());
       if(clicked_object) {
-          clicked_object->hover(m_w.x,m_w.y);
+          clicked_object->hover(MouseEvent{m_w,MouseButton((int)event->button()),MouseButton((int)event->buttons())});
         } else {
             for(auto o: current_objects) {
-                if(o->underMouse(m_w.x,m_w.y)) {
+                if(o->underMouse(m_w)) {
                     if(hovered_object) {
                         if(hovered_object!=o) {
                             hovered_object->unHover();
-                            o->hover(m_w.x,m_w.y);
+                            o->hover(MouseEvent{m_w,MouseButton((int)event->button()),MouseButton((int)event->buttons())});
                             hovered_object=o;
                           }
                       }
-                    o->hover(m_w.x,m_w.y);
+                    o->hover(MouseEvent{m_w,MouseButton((int)event->button()),MouseButton((int)event->buttons())});
                     hovered_object=o;
                   }
               }
@@ -246,7 +260,9 @@ protected:
 
     virtual void leaveEvent(QEvent * event) override {
       for(auto o: current_objects) {
-        o->mouseUp(INT_MAX,INT_MAX);
+        o->mouseUp(MouseEvent{{std::numeric_limits<WorldPos::COORD_TYPE>::max(),
+                               std::numeric_limits<WorldPos::COORD_TYPE>::max()},
+                              MouseButton::MOUSE_NO_BUTTONS,MouseButton::MOUSE_ALL_BUTTONS});
       }
       updateGL();
       (void)event;
@@ -317,7 +333,7 @@ protected:
 
 protected:
 
-    void drawBackground(const GLTexture2D& texture) {
+    void drawBackground() {
       glMatrixMode( GL_PROJECTION );
       glPushMatrix();
       glLoadIdentity();
@@ -326,23 +342,12 @@ protected:
     #else
       glOrthof(0, width, height, 0, -1, 1 );
     #endif
-
-      float back_ratio = texture.width()/float(texture.height());
-      float window_ratio = width/float(height);
-      if(window_ratio>back_ratio) {
-        float tmp = (window_ratio/back_ratio*height-height)/2;
-        texture.draw({GLint(0)    ,GLint(-tmp)},
-                     {GLint(width),GLint(height+tmp)});
-      } else {
-        float tmp = (back_ratio/window_ratio*width-width)/2;
-        texture.draw({GLint(-tmp)     ,GLint(0)},
-                     {GLint(width+tmp),GLint(height)});
-      }
+      texture_background.draw(texture_background_pos.glCoords(),texture_background_pos.dimension);
       glPopMatrix();
       glMatrixMode(GL_MODELVIEW);
     }
 
-    Point3D unProject(int x, int y) {
+    WorldPos unProject(int x, int y) {
 #ifndef HAVE_GLES
         GLint viewport[4];
         GLdouble modelview[16];
@@ -360,7 +365,7 @@ protected:
 
         gluUnProject(winX, winY, winZ, modelview, projection, viewport, &posX, &posY, &posZ);
 
-        return { posX, posY, posZ };
+        return {posX, posY};
 #else
         (void)x;
         (void)y;
@@ -372,94 +377,94 @@ protected:
       GLTexture2D texture_button(":/graphics/background_button.jpg");
       GLTexture2D texture_menu(":/graphics/dots.png");
       GLTexture2D texture_label(":/graphics/background_label.jpg");
-      main_menu.setPos(200,150);
-      main_menu.setSize(624,724);
+      main_menu.setPos({200,150});
+      main_menu.setSize({624,724});
       main_menu
           .setTexture(texture_menu)
-          .addObject(GLButton(0,206,512,100,L"New game",texture_button).setClickCallBack(
+          .addObject(GLButton({0,206},{512,100},L"New game",texture_button).setClickCallBack(
                        [&]() {
                            goToMenu(menu_new_game);
                        }))
-          .addObject(GLButton(0,316,512,100,L"Load game",texture_button).setClickCallBack(
+          .addObject(GLButton({0,316},{512,100},L"Load game",texture_button).setClickCallBack(
                        [&]() {
                            emit parent->Request_get_saves_list();
                            emit parent->Request_enter_game_layout(GAME_LAYOUT::LOAD_GAME);
                        }))
-          .addObject(GLButton(0,426,512,100,L"Join game",texture_button).setClickCallBack(
+          .addObject(GLButton({0,426},{512,100},L"Join game",texture_button).setClickCallBack(
                        [&]() {
                            emit parent->Request_get_hosts_list();
                            emit parent->Request_enter_game_layout(GAME_LAYOUT::JOIN_GAME);
                        }))
-          .addObject(GLButton(0,536,512,100,L"Host game",texture_button).setClickCallBack(
+          .addObject(GLButton({0,536},{512,100},L"Host game",texture_button).setClickCallBack(
                        [&]() {
                            goToMenu(menu_host_game);
                        }))
-          .addObject(GLButton(0,746,512,100,L"Exit",texture_button).setClickCallBack(
+          .addObject(GLButton({0,746},{512,100},L"Exit",texture_button).setClickCallBack(
                        [&]() {
                            this->close();
                          })
           )
           .setKeyCallBack(Qt::Key_Escape,MD_NONE,GLMenuItemClicker(4));
 
-      menu_new_game.setPos(200,260);
-      menu_new_game.setSize(624,504);
+      menu_new_game.setPos({200,260});
+      menu_new_game.setSize({624,504});
       menu_new_game
           .setTexture(texture_menu)
-          .addObject(GLButton(0,311,512,100,L"Pentago",texture_button).setClickCallBack(
+          .addObject(GLButton({0,311},{512,100},L"Pentago",texture_button).setClickCallBack(
                        [&](){
                            emit parent->Request_set_game_mode(GAME_MODE::MODE_PENTAGO);
                            emit parent->Request_enter_game_layout(GAME_LAYOUT::LOBBY);
                         }))
-          .addObject(GLButton(0,421,512,100,L"Pentago XL",texture_button).setClickCallBack(
+          .addObject(GLButton({0,421},{512,100},L"Pentago XL",texture_button).setClickCallBack(
                        [&]() {
                            emit parent->Request_set_game_mode(GAME_MODE::MODE_PENTAGO_XL);
                            goToMenu(menu_n_players);
                         }))
-          .addObject(GLButton(0,631,512,100,L"Back",texture_button).setClickCallBack(
+          .addObject(GLButton({0,631},{512,100},L"Back",texture_button).setClickCallBack(
                        [&]() {
                            this->goMenuBack();
                          }))
           .setKeyCallBack(Qt::Key_Escape,MD_NONE,GLMenuItemClicker(2));
 
-      menu_n_players.setPos(200,220);
-      menu_n_players.setSize(624,585);
+      menu_n_players.setPos({200,220});
+      menu_n_players.setSize({624,585});
       menu_n_players
           .setTexture(texture_menu)
-          .addObject(GLButton(0,271,512,100,L"2 players",texture_button).setClickCallBack(
+          .addObject(GLButton({0,271},{512,100},L"2 players",texture_button).setClickCallBack(
                        [&]() {
                            emit parent->Request_show_lobby(2);
                          }))
-          .addObject(GLButton(0,381,512,100,L"3 players",texture_button).setClickCallBack(
+          .addObject(GLButton({0,381},{512,100},L"3 players",texture_button).setClickCallBack(
                        [&]() {
                            emit parent->Request_show_lobby(3);
                          }))
-          .addObject(GLButton(0,491,512,100,L"4 players",texture_button).setClickCallBack(
+          .addObject(GLButton({0,491},{512,100},L"4 players",texture_button).setClickCallBack(
                        [&]() {
                            parent->Request_show_lobby(4);
                          }))
-          .addObject(GLButton(0,672,512,100,L"Back",texture_button).setClickCallBack(
+          .addObject(GLButton({0,672},{512,100},L"Back",texture_button).setClickCallBack(
                        [&]() {
                            this->goMenuBack();
                          }))
           .setKeyCallBack(Qt::Key_Escape,MD_NONE,GLMenuItemClicker(3));
 
-      menu_load_game.setPos(200,260);
-      menu_load_game.setSize(624,504);
+      menu_load_game.setPos({200,260});
+      menu_load_game.setSize({624,504});
       menu_load_game
           .setTexture(texture_menu)
-          .addObject(GLButton(0,311,512,100,L"Autosave",texture_button))
-          .addObject(GLButton(0,631,512,100,L"Back",texture_button).setClickCallBack(
+          .addObject(GLButton({0,311},{512,100},L"Autosave",texture_button))
+          .addObject(GLButton({0,631},{512,100},L"Back",texture_button).setClickCallBack(
                        [&]() {
                            this->goMenuBack();
                          }))
           .setKeyCallBack(Qt::Key_Escape,MD_NONE,GLMenuItemClicker(1));
 
-      menu_save_game.setPos(200,260);
-      menu_save_game.setSize(624,504);
+      menu_save_game.setPos({200,260});
+      menu_save_game.setSize({624,504});
       menu_save_game
           .setTexture(texture_menu)
-          .addObject(GLButton(0,311,512,100,L"Autosave",texture_button))
-          .addObject(GLButton(0,631,512,100,L"Back",texture_button).setClickCallBack(
+          .addObject(GLButton({0,311},{512,100},L"Autosave",texture_button))
+          .addObject(GLButton({0,631},{512,100},L"Back",texture_button).setClickCallBack(
                        [&]() {
                            this->goMenuBack();
                          }))
@@ -467,35 +472,35 @@ protected:
 
 
 
-      menu_join_game.setPos(200,260);
-      menu_join_game.setSize(624,504);
+      menu_join_game.setPos({200,260});
+      menu_join_game.setSize({624,504});
       menu_join_game
           .setTexture(texture_menu)
-          .addObject(GLLabel(L"Enter Host IP:",0,280, QFont("Snap ITC", 32, 40, false))
+          .addObject(GLLabel(L"Enter Host IP:",{0,280}, QFont("Snap ITC", 32, 40, false))
                     .setBackground(texture_label)
                     )
-          .addObject(GLTextEdit(0,360,512,80,texture_button).setMaxTextLength(1024).setText(L"localhost"))
-          .addObject(GLButton(0,450,512,100,L"Connect",texture_button))
-          .addObject(GLButton(0,631,512,100,L"Back",texture_button).setClickCallBack(
+          .addObject(GLTextEdit({0,360},{512,80},texture_button).setMaxTextLength(1024).setText(L"localhost"))
+          .addObject(GLButton({0,450},{512,100},L"Connect",texture_button))
+          .addObject(GLButton({0,631},{512,100},L"Back",texture_button).setClickCallBack(
                        [&]() {
                            this->goMenuBack();
                          }))
           .setKeyCallBack(Qt::Key_Escape,MD_NONE,GLMenuItemClicker(3));
 
-      menu_host_game.setPos(110,150);
-      menu_host_game.setSize(804,724);
+      menu_host_game.setPos({110,150});
+      menu_host_game.setSize({804,724});
       menu_host_game
           .setTexture(texture_menu)
-          .addObject(GLLabel(L"Game name:",0,180,QFont("Snap ITC", 32, 40, false)).setBackground(texture_label))
-          .addObject(GLTextEdit(0,250,710,80,texture_button).setMaxTextLength(512).setText(L"New game"))
-          .addObject(GLLabel(L"Game password:",0,350,QFont("Snap ITC", 32, 40, false)).setBackground(texture_label))
-          .addObject(GLLabel(L"(empty if none)",0,405,QFont("Snap ITC", 20, 40, false)).setBackground(texture_label))
-          .addObject(GLTextEdit(0,455,710,80,texture_button).setMaxTextLength(512).setText(L""))
-          .addObject(GLRadioGroup(134,661,340,texture_button).setFont(QFont("Snap ITC", 32, 40, false))
+          .addObject(GLLabel(L"Game name:",{0,180},QFont("Snap ITC", 32, 40, false)).setBackground(texture_label))
+          .addObject(GLTextEdit({0,250},{710,80},texture_button).setMaxTextLength(512).setText(L"New game"))
+          .addObject(GLLabel(L"Game password:",{0,350},QFont("Snap ITC", 32, 40, false)).setBackground(texture_label))
+          .addObject(GLLabel(L"(empty if none)",{0,405},QFont("Snap ITC", 20, 40, false)).setBackground(texture_label))
+          .addObject(GLTextEdit({0,455},{710,80},texture_button).setMaxTextLength(512).setText(L""))
+          .addObject(GLRadioGroup({134,661},340,texture_button).setFont(QFont("Snap ITC", 32, 40, false))
                      .setItems({L"Pentago", L"Pentago XL",L"test"
                                }).setSelectedIndex(0))
-          .addObject(GLButton(490,631,370,100,L"Start",texture_button))
-          .addObject(GLButton(490,741,370,100,L"Cancel",texture_button).setClickCallBack(
+          .addObject(GLButton({490,631},{370,100},L"Start",texture_button))
+          .addObject(GLButton({490,741},{370,100},L"Cancel",texture_button).setClickCallBack(
                        [&]() {
                            this->goMenuBack();
                          }))
@@ -513,6 +518,7 @@ protected:
       view_history.push(current_objects);
       current_objects.clear();
       current_objects.push_back(&menu);
+      menu.setActive(true);
     }
 
     void openLobby() {
@@ -520,7 +526,7 @@ protected:
     }
 
 //    IView: (see iview.h)
-public: //some kind of slots
+public slots:
     virtual void Show_game_ended(WINNER winner, const string& winner_name) override {
 
     }

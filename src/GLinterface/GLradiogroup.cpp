@@ -4,11 +4,10 @@
 
 GLTexture2D GLRadioGroup::texture_blurr;
 
-GLRadioGroup::GLRadioGroup(
-      GLint x_left_top,
-      GLint y_left_top,
-      GLint width,
+GLRadioGroup::GLRadioGroup(const WorldPos &pos_left_top,
+      WorldPos::COORD_TYPE width,
       const GLTexture2D& background):
+    pos(pos_left_top,{width,0}),
     texture_background(background),
     texture_radio({GLTexture2D(":/graphics/radio.png"),
                    GLTexture2D(":/graphics/radio_checked.png"),
@@ -18,12 +17,10 @@ GLRadioGroup::GLRadioGroup(
     selected_index(-1),
     hovered_index(-1),
     item_height(10) {
-  setPos(x_left_top,y_left_top);
-  setWidth(width);
 }
 
-GLRadioGroup& GLRadioGroup::setWidth(GLint width) {
-  pos.setSize(width,pos.height());
+GLRadioGroup& GLRadioGroup::setWidth(WorldPos::COORD_TYPE width) {
+  pos.setSize({width,pos.height()});
   return *this;
 }
 
@@ -31,10 +28,10 @@ GLRadioGroup& GLRadioGroup::setItems(const str_array& items_list) {
   setSelectedIndex(-1);
   items.clear();
   for(auto& item: items_list) {
-      items.push_back(GLLabel(item,0,0,getFont()));
+      items.push_back(GLLabel(item,{0,0},getFont()));
     }
-  pos.setSize(pos.width(),item_height*items.size());
-  setPos(posX(),posY());//repos Labels
+  pos.setSize({pos.width(),item_height*items.size()});
+  setPos(pos.pos());//repos Labels
   return *this;
 }
 
@@ -84,18 +81,18 @@ void GLRadioGroup::draw() const {
   glColor4f(1,1,1,1);
   texture_background.draw(pos.glCoords(),pos.dimension);
   if(hovered_index>=0) {
-      decltype(pos) bluer_pos(pos.getLeft(),pos.getTop()+hovered_index*item_height,
-                              pos.width(),item_height);
+      decltype(pos) bluer_pos({pos.getLeft(),pos.getTop()+hovered_index*item_height},
+                              {pos.width(),item_height});
       glColor4f(1,1,1,.33);
       texture_blurr.draw(bluer_pos.glCoords(),bluer_pos.dimension);
     }
   glColor4f(1,1,1,1);
-  decltype(pos) chord(pos.getLeft(),pos.getBottom()-item_height,
-                      item_height,item_height);
+  decltype(pos) chord({pos.getLeft(),pos.getBottom()-item_height},
+                      {item_height,item_height});
   for(int i=items.size()-1; i>=0; --i) {
       texture_radio[((selected_index==i)&(pressed_index!=i))+(pressed_index==i)*2].draw(chord.glCoords(),chord.dimension);
       items[i].drawCroped(pos.getLeft(),pos.getRight());
-      chord.setPos(chord.posX(),chord.posY()-item_height);
+      chord.setPos({chord.posX(),chord.posY()-item_height});
     }
 }
 
@@ -114,34 +111,34 @@ bool GLRadioGroup::isActive() const {
   return active;
 }
 
-void GLRadioGroup::click(int x, int y) {
-  if(underMouse(x,y)) {
-      int new_index = std::trunc((y-pos.getTop())/item_height);
+void GLRadioGroup::click(const WorldPos &w_pos) {
+  if(underMouse(w_pos)) {
+      int new_index = std::trunc((w_pos.y-pos.getTop())/item_height);
       if(selected_index!=new_index){
           setSelectedIndex(new_index);
         }
     }
 }
 
-void GLRadioGroup::mouseDown(int x, int y) {
-  if(underMouse(x,y)) {
-      pressed_index=std::trunc((y-pos.getTop())/item_height);
+void GLRadioGroup::mouseDown(const MouseEvent &mouse) {
+  if(underMouse(mouse.pos)) {
+      pressed_index=std::trunc((mouse.pos.y-pos.getTop())/item_height);
     }
 }
 
-void GLRadioGroup::mouseUp(int x, int y) {
-  if(underMouse(x,y)) {
-      if(pressed_index==std::trunc((y-pos.getTop())/item_height)) {
-          click(x,y);
+void GLRadioGroup::mouseUp(const MouseEvent &mouse) {
+  if(underMouse(mouse.pos)) {
+      if(pressed_index==std::trunc((mouse.pos.y-pos.getTop())/item_height)) {
+          click(mouse.pos);
         }
     }
   pressed_index=-1;
 }
 
-void GLRadioGroup::hover(int x, int y) {
-  if(underMouse(x,y)) {
+void GLRadioGroup::hover(const MouseEvent &mouse) {
+  if(underMouse(mouse.pos)) {
       setActive(true);
-      hovered_index=std::trunc((y-pos.getTop())/item_height);
+      hovered_index=std::trunc((mouse.pos.y-pos.getTop())/item_height);
     }
 }
 
@@ -149,34 +146,33 @@ void GLRadioGroup::unHover() {
   setActive(false);
 }
 
-bool GLRadioGroup::underMouse(int x, int y) const {
-  return pos.posInRect(x,y);
+bool GLRadioGroup::underMouse(const WorldPos &m_pos) const {
+  return pos.posInRect(m_pos);
 }
 
-void GLRadioGroup::setPos(int x, int y) {
-  pos.setPos(x,y);
+void GLRadioGroup::setPos(const WorldPos &w_pos) {
+  pos.setPos(w_pos);
 
-  int pos_x = x+item_height;
-  int pos_y = y;
+  WorldPos::COORD_TYPE y = w_pos.y;
   for(auto&i:items) {
-      i.setPos(pos_x,pos_y);
-      pos_y+=item_height;
+      i.setPos({w_pos.x+item_height,y});
+      y+=item_height;
     }
 }
 
-int GLRadioGroup::posX() const {
+WorldPos::COORD_TYPE GLRadioGroup::posX() const {
   return pos.posX();
 }
 
-int GLRadioGroup::posY() const {
+WorldPos::COORD_TYPE GLRadioGroup::posY() const {
   return pos.posY();
 }
 
-int GLRadioGroup::height() const {
+WorldPos::COORD_TYPE GLRadioGroup::height() const {
   return pos.height();
 }
 
-int GLRadioGroup::width() const {
+WorldPos::COORD_TYPE GLRadioGroup::width() const {
   return pos.width();
 }
 

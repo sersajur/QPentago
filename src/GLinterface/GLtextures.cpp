@@ -89,21 +89,21 @@ void GLTexture2D::release() {
   }
 }
 
-void GLTexture2D::draw(const point& left_top) const {
+void GLTexture2D::draw(const WorldPos& left_top) const {
   draw(left_top,{left_top.x+width(),left_top.y+height()});
 }
 
-void GLTexture2D::draw(const point& left_top,const point& right_bottom) const {
+void GLTexture2D::draw(const WorldPos& left_top,const WorldPos& right_bottom) const {
   draw(left_top,
         {right_bottom.x, left_top.y},
         right_bottom,
         {left_top.x, right_bottom.y});
 }
 
-void GLTexture2D::draw(const point& left_top,
-           const point& right_top,
-           const point& right_bottom,
-           const point& left_bottom) const {
+void GLTexture2D::draw(const WorldPos& left_top,
+           const WorldPos& right_top,
+           const WorldPos& right_bottom,
+           const WorldPos& left_bottom) const {
 //  glBindTexture(GL_TEXTURE_2D, info.texture);
 //  glBegin(GL_QUADS);
 //    glTexCoord2i(crop_lt.x, crop_lt.y); glVertex2d(left_top.x, left_top.y);
@@ -111,13 +111,13 @@ void GLTexture2D::draw(const point& left_top,
 //    glTexCoord2i(crop_rb.x, crop_rb.y); glVertex2d(right_bottom.x, right_bottom.y);
 //    glTexCoord2i(crop_lb.x, crop_lb.y); glVertex2d(left_bottom.x, left_bottom.y);
 //  glEnd();
-  GLint region[4][2] = {
+  WorldPos::COORD_TYPE region[4][2] = {
     {left_top.x,left_top.y},
     {right_top.x,right_top.y},
     {right_bottom.x,right_bottom.y},
     {left_bottom.x,left_bottom.y}
   };
-  draw((GLint*)region,2);
+  draw((WorldPos::COORD_TYPE*)region,2);
 }
 
 void GLTexture2D::draw(const GLint* pos, int dim) const {
@@ -153,8 +153,8 @@ void GLTexture2D::draw(const GLdouble* pos, int dim, const GLdouble* crop_in, in
 //}
 
 GLTexture2D& GLTexture2D::setCropRegion(
-        const point& left_top,const point& right_top,
-        const point& right_bottom, const point& left_bottom) {
+        const WorldPos& left_top,const WorldPos& right_top,
+        const WorldPos& right_bottom, const WorldPos& left_bottom) {
     crop[0][0] = double(info.width)/left_top.x;
     crop[1][0] = double(info.width)/right_top.x;
     crop[2][0] = double(info.width)/right_bottom.x;

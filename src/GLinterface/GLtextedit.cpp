@@ -6,39 +6,41 @@
 #define CROP_X 6
 #define CROP_Y 4
 
-GLTextEdit::GLTextEdit(
-    GLint x_left_top, GLint y_left_top, GLint width, GLint height, const GLTexture2D &background):
+GLTextEdit::GLTextEdit(const WorldPos &pos_left_top, const WorldPos &vector_size, const GLTexture2D &background):
     background(background),
     text(L"text edit"),
     active(false),
     hovered(false),
-    pos(x_left_top,y_left_top),
+    pos(pos_left_top),
     cur_pos(text.width()),
     max_width(-1)  {
 
   calcCrop();
   setCurPos(0);
-  text.setFont(QFont("Snap ITC", height/2, 40, false));
-  setSize(width,height);
+  text.setFont(QFont("Snap ITC", 1/*whatever*/, 40, false));
+  setSize(vector_size);
 }
 
 void GLTextEdit::calcCrop() {
   text_crop = decltype(text_crop)
-      (pos.posX()+CROP_X+DELTA_PIX,pos.posY()+CROP_Y,pos.width()-2*(CROP_X+DELTA_PIX), pos.height()-2*CROP_Y);
+      ({pos.posX()+CROP_X+DELTA_PIX,pos.posY()+CROP_Y},
+       {pos.width()-2*(CROP_X+DELTA_PIX), pos.height()-2*CROP_Y});
   back_pos = decltype(back_pos)
-      (text_crop.posX()-DELTA_PIX,text_crop.posY(),text_crop.width()+DELTA_PIX*2, text_crop.height());
+      ({text_crop.posX()-DELTA_PIX,text_crop.posY()},
+       {text_crop.width()+DELTA_PIX*2, text_crop.height()});
 }
 
-GLTextEdit& GLTextEdit::setSize(GLint width,GLint  height) {
-  pos.setSize(width,height);
+GLTextEdit& GLTextEdit::setSize(const WorldPos &v_size) {
+  pos.setSize(v_size);
   calcCrop();
   QFont font = text.getFont();
-  height = abs(height);
-  height = std::min(height,150);
+  WorldPos::COORD_TYPE height = v_size.y;
+  height = std::abs(height);
+  height = std::min(height,WorldPos::COORD_TYPE(150));
   height /= 2;
   font.setPointSize(height==0?1:height);
   text.setFont(font);
-  text.setPos(text_crop.posX(),text_crop.posY());
+  text.setPos(text_crop.pos());
   return *this;
 }
 
@@ -56,12 +58,12 @@ GLTextEdit& GLTextEdit::setCurPos(int pos) {
   if (cur_world_pos>text_crop.getRight()) {
       int dx = cur_world_pos-(text_crop.getRight());
       cur_world_pos-=dx;
-      text.setPos(text.posX()-dx,text.posY());
+      text.setPos({text.posX()-dx,text.posY()});
     }
   if (cur_world_pos<text_crop.getLeft()) {
       int dx = text_crop.getLeft()-cur_world_pos;
       cur_world_pos+=dx;
-      text.setPos(text.posX()+dx,text.posY());
+      text.setPos({text.posX()+dx,text.posY()});
     }
   return *this;
 }
@@ -94,15 +96,15 @@ void GLTextEdit::draw() const {
 
   if(active) {
       glColor4f(1,1,1,0.5);
-      glVertexPointer(back_pos.dimension, GL_INT, 0, back_pos.glCoords());
+      glVertexPointer(back_pos.dimension, back_pos.glCoordType, 0, back_pos.glCoords());
       glDrawArrays(GL_TRIANGLE_FAN,0,4);
 
-      GLint cursor[2][2] = {
-        {(GLint)cur_world_pos,(GLint)(text_crop.getTop()+text_crop.height()/10.0)},
-        {(GLint)cur_world_pos,(GLint)(text_crop.getBottom()-text_crop.height()/10.0)}
+      WorldPos::COORD_TYPE cursor[2][2] = {
+        {(WorldPos::COORD_TYPE)cur_world_pos,(WorldPos::COORD_TYPE)(text_crop.getTop()+text_crop.height()/10.0)},
+        {(WorldPos::COORD_TYPE)cur_world_pos,(WorldPos::COORD_TYPE)(text_crop.getBottom()-text_crop.height()/10.0)}
       };
       glColor4f(0,0,0,1);
-      glVertexPointer(2, GL_INT, 0, (GLint*)cursor);
+      glVertexPointer(2, WorldPos::glCoordType, 0, (WorldPos::COORD_TYPE*)cursor);
       glLineWidth(2);
       glDrawArrays(GL_LINE_STRIP,0,2);
     }
@@ -112,7 +114,7 @@ void GLTextEdit::draw() const {
       glColor4f(0,0,0,1);
     }
   glLineWidth(1);
-  glVertexPointer(back_pos.dimension, GL_INT, 0, back_pos.glCoords());
+  glVertexPointer(back_pos.dimension, back_pos.glCoordType, 0, back_pos.glCoords());
   glDrawArrays(GL_LINE_LOOP,0,4);
   text.drawCroped(back_pos.getLeft(),back_pos.getRight());
 }
@@ -130,20 +132,19 @@ bool GLTextEdit::canBeActive() const {
   return true;
 }
 
-void GLTextEdit::click(int x, int y) {
-  (void)x;
-  (void)y;
+void GLTextEdit::click(const WorldPos &w_pos) {
+  (void)w_pos;
 }
 
-void GLTextEdit::mouseDown(int x, int y) {
-  if(!active&&underMouse(x,y)) {
+void GLTextEdit::mouseDown(const MouseEvent &mouse) {
+  if(!active&&underMouse(mouse.pos)) {
       setActive(true);
     } else {
-      if(text_crop.posInRect(x,y)) {
+      if(text_crop.posInRect(mouse.pos)) {
           int tmp_pos = text.posX();
           for(unsigned i = 0; i<text.getText().length(); i++) {
               int w = text.getFontMetrics().width(text.getText()[i]);
-              if(tmp_pos+w/2>x) {
+              if(tmp_pos+w/2>mouse.pos.x) {
                   setCurPos(i);
                   tmp_pos+=w/2;
                   break;
@@ -151,21 +152,20 @@ void GLTextEdit::mouseDown(int x, int y) {
                   tmp_pos+=w;
                 }
             }
-          if (tmp_pos<x) {
+          if (tmp_pos<mouse.pos.x) {
               setCurPos(text.getText().length());
             }
         }
     }
 }
 
-void GLTextEdit::mouseUp(int x, int y) {
-  (void)x;
-  (void)y;
+void GLTextEdit::mouseUp(const MouseEvent &mouse) {
+  (void)mouse;
 }
 
-void GLTextEdit::hover(int x, int y) {
+void GLTextEdit::hover(const MouseEvent &mouse) {
   hovered = true;
-  if(underMouse(x,y)) {
+  if(underMouse(mouse.pos)) {
       setActive(true);
     }
 }
@@ -174,29 +174,29 @@ void GLTextEdit::unHover() {
   hovered = false;
 }
 
-bool GLTextEdit::underMouse(int x, int y) const {
-  return pos.posInRect(x,y);
+bool GLTextEdit::underMouse(const WorldPos &m_pos) const {
+  return pos.posInRect(m_pos);
 }
-void GLTextEdit::setPos(int x, int y) {
-  pos.setPos(x,y);
+void GLTextEdit::setPos(const WorldPos &w_pos) {
+  pos.setPos(w_pos);
   calcCrop();
   setCurPos(0);
-  text.setPos(text_crop.posX(),text_crop.posY());
+  text.setPos(text_crop.pos());
 }
 
-int  GLTextEdit::posX() const {
+WorldPos::COORD_TYPE  GLTextEdit::posX() const {
   return pos.posX();
 }
 
-int  GLTextEdit::posY() const {
+WorldPos::COORD_TYPE  GLTextEdit::posY() const {
   return pos.posY();
 }
 
-int  GLTextEdit::height() const {
+WorldPos::COORD_TYPE  GLTextEdit::height() const {
   return pos.height();
 }
 
-int  GLTextEdit::width() const {
+WorldPos::COORD_TYPE GLTextEdit::width() const {
   return pos.width();
 }
 

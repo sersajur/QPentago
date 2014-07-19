@@ -1,13 +1,11 @@
 #include "GLmenu.h"
 #include <type_traits>
 
-GLMenu::GLMenu(int x_getLeft_getTop,
-           int y_getLeft_getTop,
-           int width,
-           int height,
+GLMenu::GLMenu(const WorldPos &pos_left_top,
+           const WorldPos &vector_size,
            const GLTexture2D& texture): active_index(0), active(true) {
-  setPos(x_getLeft_getTop,y_getLeft_getTop);
-  setSize(width, height);
+  setPos(pos_left_top);
+  setSize(vector_size);
   setTexture(texture);
 }
 
@@ -16,8 +14,8 @@ GLMenu& GLMenu::setKeyCallBack(int key, KeyboardModifier mod, const MenuKeyCallB
   return *this;
 }
 
-GLMenu& GLMenu::setSize(int width, int height) {
-  pos.setSize(width,height);
+GLMenu& GLMenu::setSize(const WorldPos &v_size) {
+  pos.setSize(v_size);
   return *this;
 }
 
@@ -103,32 +101,32 @@ void GLMenu::draw() const {
   }
 }
 
-void GLMenu::click(int x, int y) {
+void GLMenu::click(const WorldPos &pos) {
   for(auto o: menu_objects) {
-    if (o->underMouse(x,y))
-      o->click(x,y);
+    if (o->underMouse(pos))
+      o->click(pos);
   }
 }
 
-void GLMenu::mouseDown(int x, int y) {
+void GLMenu::mouseDown(const MouseEvent &mouse) {
   for(auto o: menu_objects) {
-    if(o->underMouse(x,y)) {
-      o->mouseDown(x,y);
+    if(o->underMouse(mouse.pos)) {
+      o->mouseDown(mouse);
     }
   }
 }
 
-void GLMenu::mouseUp(int x, int y) {
+void GLMenu::mouseUp(const MouseEvent &mouse) {
   for(auto o: menu_objects) {
-    o->mouseUp(x,y);
+    o->mouseUp(mouse);
   }
 }
 
-void GLMenu::hover(int x, int y) {
+void GLMenu::hover(const MouseEvent &mouse) {
   setActive(true);
   for(size_t i=0; i<menu_objects.size(); i++) {
-    if (menu_objects[i]->underMouse(x,y)) {
-      menu_objects[i]->hover(x,y);
+    if (menu_objects[i]->underMouse(mouse.pos)) {
+      menu_objects[i]->hover(MouseEvent{mouse.pos});
       if(active_index!=i && menu_objects[i]->isActive()) {
         menu_objects[active_index]->setActive(false);
         menu_objects[active_index]->unHover();
@@ -145,12 +143,13 @@ void GLMenu::unHover() {
   setActive(false);
 }
 
-bool GLMenu::underMouse(int x, int y) const {
-  return pos.posInRect(x,y);
+bool GLMenu::underMouse(const WorldPos &m_pos) const {
+  return pos.posInRect(m_pos);
 }
 
-void GLMenu::setPos(int x, int y) {
-  pos.setPos(x,y);
+void GLMenu::setPos(const WorldPos &w_pos) {
+  pos.setPos(w_pos);
+  //TODO: move all objects
 }
 
 void GLMenu::keyPress(int key, bool repeat, KeyboardModifier mod, bool &skip_char_input, bool &lock_active) {

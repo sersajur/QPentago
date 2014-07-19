@@ -1,41 +1,41 @@
 #ifndef GLRECTANGLECOORD_H
 #define GLRECTANGLECOORD_H
 
+#include "GLrenderobject.h"
 
-//dim - dimension can be 2 or 3
-//CoordType - like GLint or GLfloat
-//TODO: add 3 dimension support
-template <typename CoordType, int dim = 2>
+//now designed only for 2 dimensional
+//TODO: remake later
 class GLRectangleCoord {
-  CoordType pos[4][dim];
 public:
 
-  static constexpr int dimension = dim;
+  using CoordType = WorldPos::COORD_TYPE;
+  static constexpr int dimension = sizeof(WorldPos)/sizeof(WorldPos::x);
+  static constexpr GLenum glCoordType = WorldPos::glCoordType;
 
-  inline GLRectangleCoord(
-    CoordType x_left_top = 0,
-    CoordType y_left_top = 0,
-    CoordType width = 0,
-    CoordType height = 0);
+  explicit inline GLRectangleCoord(
+      const WorldPos &base_pos = WorldPos(),
+      const WorldPos &vector_size = WorldPos());
 
   //x,y = left top korner
-  void setPos(CoordType x, CoordType y);
-  void setSize(CoordType width, CoordType height);
+  inline void setPos(const WorldPos &b_pos);
+  inline void setSize(const WorldPos &v_pos);
 
-  void setLeft(CoordType left);
-  void setRight(CoordType right);
-  void setTop(CoordType top);
-  void setBottom(CoordType bottom);
+  inline void setLeft(CoordType left);
+  inline void setRight(CoordType right);
+  inline void setTop(CoordType top);
+  inline void setBottom(CoordType bottom);
 
-  CoordType getLeft() const;
-  CoordType getRight() const;
-  CoordType getTop() const;
-  CoordType getBottom() const;
+  inline CoordType getLeft() const;
+  inline CoordType getRight() const;
+  inline CoordType getTop() const;
+  inline CoordType getBottom() const;
 
   //left top
   inline CoordType posX() const;
   //left top
   inline CoordType posY() const;
+
+  inline WorldPos pos() const;
 
   inline CoordType height() const;
   inline CoordType width() const;
@@ -45,124 +45,125 @@ public:
 
   inline const CoordType* glCoords() const;
 
-  inline bool posInRect(CoordType x, CoordType y) const;
+  inline bool posInRect(const WorldPos &w_pos) const;
+private:
+  WorldPos::COORD_TYPE _pos[4][dimension];
 };
 
-template <typename CoordType, int dim>
-GLRectangleCoord<CoordType,dim>::GLRectangleCoord(
-  CoordType x_left_top,
-  CoordType y_left_top,
-  CoordType width,
-  CoordType height) {
-  static_assert(dim==2||dim==3,"Dimension of GLRectangleCoord can be only 2 or 3.");
-  setPos(x_left_top,y_left_top);
-  setSize(width,height);
+
+GLRectangleCoord::GLRectangleCoord(
+    const WorldPos &base_pos,
+    const WorldPos &vector_size) {
+  setPos(base_pos);
+  setSize(vector_size);
 }
 
-template <typename CoordType, int dim>
-void GLRectangleCoord<CoordType,dim>::setPos(CoordType x, CoordType y) {
-  int w = width();
-  int h = height();
-  pos[0][0] = x;
-  pos[0][1] = y;
-  setSize(w,h);
-}
-
-template <typename CoordType, int dim>
-void GLRectangleCoord<CoordType,dim>::setSize(CoordType width, CoordType height) {
-  pos[1][0] = pos[0][0] + width;
-  pos[1][1] = pos[0][1];
-
-  pos[2][0] = pos[0][0] + width;
-  pos[2][1] = pos[0][1] + height;
-
-  pos[3][0] = pos[0][0];
-  pos[3][1] = pos[0][1] + height;
-}
-
-template <typename CoordType, int dim>
-void GLRectangleCoord<CoordType,dim>::setLeft(CoordType left) {
-  pos[0][0] = left;
-  pos[3][0] = left;
-}
-
-template <typename CoordType, int dim>
-void GLRectangleCoord<CoordType,dim>::setRight(CoordType right) {
-  pos[1][0] = right;
-  pos[2][0] = right;
-}
-
-template <typename CoordType, int dim>
-void GLRectangleCoord<CoordType,dim>::setTop(CoordType top) {
-  pos[0][1] = top;
-  pos[1][1] = top;
-}
-
-template <typename CoordType, int dim>
-void GLRectangleCoord<CoordType,dim>::setBottom(CoordType bottom) {
-  pos[2][1] = bottom;
-  pos[3][1] = bottom;
+void GLRectangleCoord::setPos(const WorldPos &b_pos) {
+  WorldPos::COORD_TYPE w = width();
+  WorldPos::COORD_TYPE h = height();
+  _pos[0][0] = b_pos.x;
+  _pos[0][1] = b_pos.y;
+  setSize({w,h});
 }
 
 
-template <typename CoordType, int dim>
-CoordType GLRectangleCoord<CoordType,dim>::getLeft() const {
-  return pos[0][0];
+void GLRectangleCoord::setSize(const WorldPos &v_pos) {
+  _pos[1][0] = _pos[0][0] + v_pos.x;
+  _pos[1][1] = _pos[0][1];
+
+  _pos[2][0] = _pos[0][0] + v_pos.x;
+  _pos[2][1] = _pos[0][1] + v_pos.y;
+
+  _pos[3][0] = _pos[0][0];
+  _pos[3][1] = _pos[0][1] + v_pos.y;
 }
 
-template <typename CoordType, int dim>
-CoordType GLRectangleCoord<CoordType,dim>::getRight() const {
-  return pos[1][0];
+
+void GLRectangleCoord::setLeft(CoordType left) {
+  _pos[0][0] = left;
+  _pos[3][0] = left;
 }
 
-template <typename CoordType, int dim>
-CoordType GLRectangleCoord<CoordType,dim>::getTop() const {
-  return pos[0][1];
+
+void GLRectangleCoord::setRight(CoordType right) {
+  _pos[1][0] = right;
+  _pos[2][0] = right;
 }
 
-template <typename CoordType, int dim>
-CoordType GLRectangleCoord<CoordType,dim>::getBottom() const {
-  return pos[3][1];
+
+void GLRectangleCoord::setTop(CoordType top) {
+  _pos[0][1] = top;
+  _pos[1][1] = top;
 }
 
-template <typename CoordType, int dim>
-CoordType GLRectangleCoord<CoordType,dim>::posX() const {
-  return pos[0][0];
-}
-template <typename CoordType, int dim>
-CoordType GLRectangleCoord<CoordType,dim>::posY() const {
-  return pos[0][1];
+
+void GLRectangleCoord::setBottom(CoordType bottom) {
+  _pos[2][1] = bottom;
+  _pos[3][1] = bottom;
 }
 
-template <typename CoordType, int dim>
-CoordType GLRectangleCoord<CoordType,dim>::height() const {
-  return pos[3][1]-pos[0][1];
+
+
+GLRectangleCoord::CoordType GLRectangleCoord::getLeft() const {
+  return _pos[0][0];
 }
 
-template <typename CoordType, int dim>
-CoordType GLRectangleCoord<CoordType,dim>::width() const {
-  return pos[1][0]-pos[0][0];
+
+GLRectangleCoord::CoordType GLRectangleCoord::getRight() const {
+  return _pos[1][0];
 }
 
-template <typename CoordType, int dim>
-CoordType GLRectangleCoord<CoordType,dim>::posXcenter() const {
-  return (pos[0][0]+pos[1][0])/2;
+
+GLRectangleCoord::CoordType GLRectangleCoord::getTop() const {
+  return _pos[0][1];
 }
 
-template <typename CoordType, int dim>
-CoordType GLRectangleCoord<CoordType,dim>::posYcenter() const {
-  return (pos[0][1]+pos[3][1])/2;
+
+GLRectangleCoord::CoordType GLRectangleCoord::getBottom() const {
+  return _pos[3][1];
 }
 
-template <typename CoordType, int dim>
-const CoordType* GLRectangleCoord<CoordType,dim>::glCoords() const {
-  return (CoordType*)pos;
+
+GLRectangleCoord::CoordType GLRectangleCoord::posX() const {
+  return _pos[0][0];
 }
 
-template <typename CoordType, int dim>
-bool GLRectangleCoord<CoordType,dim>::posInRect(CoordType x, CoordType y) const {
-  return (pos[0][0] <= x) && (pos[0][1] <= y) &&
-      (pos[2][0] >= x) && (pos[2][1] >= y);
+GLRectangleCoord::CoordType GLRectangleCoord::posY() const {
+  return _pos[0][1];
+}
+
+WorldPos GLRectangleCoord::pos() const {
+  return {posX(),posY()};
+}
+
+GLRectangleCoord::CoordType GLRectangleCoord::height() const {
+  return _pos[3][1]-_pos[0][1];
+}
+
+
+GLRectangleCoord::CoordType GLRectangleCoord::width() const {
+  return _pos[1][0]-_pos[0][0];
+}
+
+
+GLRectangleCoord::CoordType GLRectangleCoord::posXcenter() const {
+  return (_pos[0][0]+_pos[1][0])/2;
+}
+
+
+GLRectangleCoord::CoordType GLRectangleCoord::posYcenter() const {
+  return (_pos[0][1]+_pos[3][1])/2;
+}
+
+
+const GLRectangleCoord::CoordType* GLRectangleCoord::glCoords() const {
+  return (CoordType*)_pos;
+}
+
+
+bool GLRectangleCoord::posInRect(const WorldPos &w_pos) const {
+  return (_pos[0][0] <= w_pos.x) && (_pos[0][1] <= w_pos.y) &&
+      (_pos[2][0] >= w_pos.x) && (_pos[2][1] >= w_pos.y);
 }
 
 #endif // GLRECTANGLECOORD_H

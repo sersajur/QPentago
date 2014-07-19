@@ -1,30 +1,29 @@
 #include "stone.h"
 
-Stone::Stone(GLint x_left_top,
-             GLint y_left_top,
-             GLint radius,
+Stone::Stone(const WorldPos &pos_left_top,
+             WorldPos::COORD_TYPE radius,
              const GLTexture2D& texture):
     active(false),
     setted(false),
     pressed(false),
     color{1,1,1,1},
-    pos(x_left_top,y_left_top,radius*2,radius*2),
+    pos(pos_left_top,{radius*2,radius*2}),
     texture(texture) {
 
 }
 
-Stone& Stone::setSize(int width, int height) {
+Stone& Stone::setSize(const WorldPos &v_size) {
   if (setted)
-    pos = decltype(pos) (pos.posX()+pos.width(),pos.posY()+pos.height(),-pos.width(),-pos.height());
-  pos.setSize(width,height);
+    pos = decltype(pos) ({pos.posX()+pos.width(),pos.posY()+pos.height()},{-pos.width(),-pos.height()});
+  pos.setSize(v_size);
   if (setted)
-    pos = decltype(pos) (pos.posX()+pos.width(),pos.posY()+pos.height(),-pos.width(),-pos.height());
+    pos = decltype(pos) ({pos.posX()+pos.width(),pos.posY()+pos.height()},{-pos.width(),-pos.height()});
   return *this;
 }
 
 Stone& Stone::setSetted(bool set) {
   if(setted!=set) {
-      pos = decltype(pos) (pos.posX()+pos.width(),pos.posY()+pos.height(),-pos.width(),-pos.height());
+      pos = decltype(pos) ({pos.posX()+pos.width(),pos.posY()+pos.height()},{-pos.width(),-pos.height()});
     }
   setted=set;
   return *this;
@@ -84,32 +83,31 @@ void Stone::draw(double angle) const {
     }
 }
 
-void Stone::click(int x, int y) {
-  (void)x;
-  (void)y;
+void Stone::click(const WorldPos &w_pos) {
+  (void)w_pos;
   if(click_call_back) {
       click_call_back();
     }
 }
 
-void Stone::mouseDown(int x, int y) {
-  (void)x;
-  (void)y;
-  pressed = true;
-}
-
-void Stone::mouseUp(int x, int y) {
-  (void)x;
-  (void)y;
-  if(underMouse(x,y)&&pressed) {
-      click(x,y);
+void Stone::mouseDown(const MouseEvent &mouse) {
+  (void)mouse;
+  if(mouse.button==MOUSE_BUTTON_1) {
+      pressed = true;
     }
-  pressed = false;
 }
 
-void Stone::hover(int x, int y) {
-  (void)x;
-  (void)y;
+void Stone::mouseUp(const MouseEvent &mouse) {
+  if(mouse.button==MOUSE_BUTTON_1) {
+      if(underMouse(mouse.pos)&&pressed) {
+          click(mouse.pos);
+        }
+      pressed = false;
+    }
+}
+
+void Stone::hover(const MouseEvent &mouse) {
+  (void)mouse;
   active = true;
 }
 
@@ -117,33 +115,33 @@ void Stone::unHover() {
   active = false;
 }
 
-#define SQR(x) (x)*(x)
+static inline double SQR(double x) { return x*x; }
 
-bool Stone::underMouse(int x, int y) const {
-  return SQR(float(pos.posXcenter()-x)/(pos.width()/2.0))+SQR(float(pos.posYcenter()-y)/(pos.height()/2.0))<1;
+bool Stone::underMouse(const WorldPos &m_pos) const {
+  return SQR(float(pos.posXcenter()-m_pos.x)/(pos.width()/2.0))+SQR(float(pos.posYcenter()-m_pos.y)/(pos.height()/2.0))<1;
 }
 
-void Stone::setPos(int x, int y) {
+void Stone::setPos(const WorldPos &m_pos) {
   if (setted)
-    pos = decltype(pos) (pos.posX()+pos.width(),pos.posY()+pos.height(),-pos.width(),-pos.height());
-  pos.setPos(x,y);
+    pos = decltype(pos) ({pos.posX()+pos.width(),pos.posY()+pos.height()},{-pos.width(),-pos.height()});
+  pos.setPos(m_pos);
   if (setted)
-    pos = decltype(pos) (pos.posX()+pos.width(),pos.posY()+pos.height(),-pos.width(),-pos.height());
+    pos = decltype(pos) ({pos.posX()+pos.width(),pos.posY()+pos.height()},{-pos.width(),-pos.height()});
 
 }
 
-int Stone::posX() const {
+WorldPos::COORD_TYPE Stone::posX() const {
   return pos.posX();
 }
 
-int Stone::posY() const {
+WorldPos::COORD_TYPE Stone::posY() const {
   return pos.posY();
 }
 
-int Stone::height() const {
+WorldPos::COORD_TYPE Stone::height() const {
   return pos.height();
 }
 
-int Stone::width() const {
+WorldPos::COORD_TYPE Stone::width() const {
   return pos.width();
 }

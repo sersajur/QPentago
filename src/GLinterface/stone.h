@@ -16,12 +16,11 @@
 class Stone: public GLRenderObject
 {
 public:
-  Stone(GLint x_left_top = 0,
-        GLint y_left_top = 0,
-        GLint radius = 0,
+  Stone(const WorldPos &pos_left_top = WorldPos(0,0),
+        WorldPos::COORD_TYPE radius = 0,
         const GLTexture2D& texture = GLTexture2D());
 
-  Stone& setSize(int width, int height);
+  Stone& setSize(const WorldPos &v_size);
 
   bool isSetted() const { return setted; }
   Stone& setSetted(bool set);
@@ -40,18 +39,18 @@ public:
   virtual bool isActive() const { return active; }
   virtual bool canBeActive() const { return true; }
 
-  virtual void click(int x, int y) override;
-  virtual void mouseDown(int x, int y) override;
-  virtual void mouseUp(int x, int y) override;
-  virtual void hover(int x, int y) override;
+  virtual void click(const WorldPos &w_pos) override;
+  virtual void mouseDown(const MouseEvent &mouse) override;
+  virtual void mouseUp(const MouseEvent &mouse) override;
+  virtual void hover(const MouseEvent &mouse) override;
   virtual void unHover() override;
-  virtual bool underMouse(int x, int y) const override;
+  virtual bool underMouse(const WorldPos &m_pos) const override;
 
-  virtual void setPos(int x, int y) override;
-  virtual int posX() const override;
-  virtual int posY() const override;
-  virtual int height() const override;
-  virtual int width() const override;
+  virtual void setPos(const WorldPos &m_pos) override;
+  virtual WorldPos::COORD_TYPE posX() const override;
+  virtual WorldPos::COORD_TYPE posY() const override;
+  virtual WorldPos::COORD_TYPE height() const override;
+  virtual WorldPos::COORD_TYPE width() const override;
 
 private:
   bool active;
@@ -59,7 +58,7 @@ private:
   bool pressed;
   GLfloat color[4];
 
-  GLRectangleCoord<GLint,2> pos;
+  GLRectangleCoord pos;
   GLTexture2D texture;
 
   std::function<void()> click_call_back;

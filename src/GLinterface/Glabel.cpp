@@ -2,8 +2,8 @@
 #include <limits>
 #include <cstdint>
 
-GLLabel::GLLabel(const string &m_text, int x, int y, const QFont& font):
-    GLFontKeeper(font), text(m_text), x_pos(x), y_pos(y) {
+GLLabel::GLLabel(const string &m_text, const WorldPos &pos_left_top, const QFont& font):
+    GLFontKeeper(font), text(m_text), pos(pos_left_top) {
     fontChanged();
 }
 
@@ -14,30 +14,29 @@ GLLabel& GLLabel::setText(const string& text) {
 }
 
 GLLabel& GLLabel::setBackground(const GLTexture2D &texture) {
-    x_pos-=(backgound?getFontMetrics().averageCharWidth():0);
+    pos.x-=(backgound?getFontMetrics().averageCharWidth():0);
     backgound = texture;
-    x_pos+=(backgound?getFontMetrics().averageCharWidth():0);
+    pos.x+=(backgound?getFontMetrics().averageCharWidth():0);
     return *this;
 }
 
-int GLLabel::posX() const {
-    return x_pos-(backgound?getFontMetrics().averageCharWidth():0);
+WorldPos::COORD_TYPE GLLabel::posX() const {
+    return pos.x-(backgound?getFontMetrics().averageCharWidth():0);
 }
 
-int GLLabel::posY() const {
-    return y_pos;
+WorldPos::COORD_TYPE GLLabel::posY() const {
+    return pos.y;
 }
 
-void GLLabel::setPos(int x, int y) {
-  x_pos = x+(backgound?getFontMetrics().averageCharWidth():0);
-  y_pos = y;
+void GLLabel::setPos(const WorldPos &w_pos) {
+  pos = {w_pos.x+(backgound?getFontMetrics().averageCharWidth():0),w_pos.y};
 }
 
-int GLLabel::width() const {
+WorldPos::COORD_TYPE GLLabel::width() const {
     return text_width+(backgound?2*getFontMetrics().averageCharWidth():0);
 }
 
-int GLLabel::height() const {
+WorldPos::COORD_TYPE GLLabel::height() const {
     return getFontMetrics().height();
 }
 
@@ -46,18 +45,18 @@ void GLLabel::draw() const {
   if(backgound) {
       glColor4f(1,1,1,1);
       int a = getFontMetrics().averageCharWidth();
-      backgound.draw({x_pos-a,y_pos},
-                     {x_pos+text_width+a,y_pos},
-                     {x_pos+text_width+a,y_pos+height()},
-                     {x_pos-a,y_pos+height()});
+      backgound.draw({pos.x-a,pos.y},
+                     {pos.x+text_width+a,pos.y},
+                     {pos.x+text_width+a,pos.y+height()},
+                     {pos.x-a,pos.y+height()});
   }
   glColor4f(double(font_color[0])/INT_MAX,double(font_color[1])/INT_MAX,double(font_color[2])/INT_MAX,double(font_color[3])/INT_MAX);
-  text_font->renderText(x_pos,y_pos,text);
+  text_font->renderText(pos.x,pos.y,text);
 }
 
 void GLLabel::drawCroped(int x_left, int x_right) const {
   glColor4f(double(font_color[0])/INT_MAX,double(font_color[1])/INT_MAX,double(font_color[2])/INT_MAX,double(font_color[3])/INT_MAX);
-  text_font->renderTextCroped(x_pos,y_pos,text,x_left, x_right);
+  text_font->renderTextCroped(pos.x,pos.y,text,x_left, x_right);
 }
 
 void GLLabel::fontChanged() {

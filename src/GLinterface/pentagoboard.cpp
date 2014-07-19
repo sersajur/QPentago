@@ -1,5 +1,7 @@
 #include "pentagoboard.h"
 #include "GLRectangleCoord.h"
+#include "GLtextures.h"
+
 #include "stone.h"
 
 #include <QDebug>
@@ -41,16 +43,15 @@ public:
 private:
   PentagoBoard* parent;
 
-  GLRectangleCoord<GLint> pos;
-  GLint dx = 0,dy = 0;
+  GLRectangleCoord pos;
+  GLTexture2D texture;
+
   int my_pos_x = 0, my_pos_y = 0;
   int active_x = -1, active_y = -1;
 
   array<array<Stone,QUADRANT_SIZE>,QUADRANT_SIZE> stones;
 
-  struct {
-    int x,y;
-  } click_pos;
+  WorldPos click_pos;
 
   bool mouse_downed = false;
   bool rotating_enabled = true;
@@ -60,13 +61,8 @@ private:
 public:
 
   BoardQuadrant(PentagoBoard* parent,
-                const GLTexture2D& texture = GLTexture2D(),
-                GLint x_left_top = 0,
-                GLint y_left_top = 0,
-                GLint width = 0,
-                GLint height = 0):pos(x_left_top, y_left_top, width, height) {
-
-    (void)texture;
+                const WorldPos &pos_left_top = WorldPos(0,0),
+                const WorldPos &vector_size = WorldPos(0,0)):pos(pos_left_top, vector_size) {
     reposStones();
     setParent(parent);
   }
@@ -99,8 +95,8 @@ public:
       }
   }
 
-  void setSize(int width, int height) {
-    pos.setSize(width, height);
+  void setSize(const WorldPos &v_size) {
+    pos.setSize(v_size);
     reposStones();
   }
 
@@ -120,7 +116,7 @@ public:
     active_y = pos_y;
     if((active_x>=0) & (active_y>=0)) {
         Stone& s = stones[active_x][active_y];
-        s.hover(s.posX()+s.width()/2,s.posY()+s.posY()/2);
+        s.hover(MouseEvent{{s.posX()+s.width()/2,s.posY()+s.posY()/2}});
       }
   }
 
@@ -193,9 +189,7 @@ public:
         glTranslated(-pos.posXcenter(),-pos.posYcenter(),0);
       }
     glColor4f(0.5,0,0,1);
-    glBindTexture(GL_TEXTURE_2D,0);
-    glVertexPointer(pos.dimension, GL_INT, 0, pos.glCoords());
-    glDrawArrays(GL_TRIANGLE_FAN,0,4);
+    texture.draw(pos.glCoords(),pos.dimension);
     for (auto& i: stones) {
         for (auto& o: i) {
             o.draw(-rotate_angle);
@@ -257,48 +251,63 @@ public:
     return (res==NAN||res==INFINITY)?0:res;
   }
 
-  void mouseDown(int x, int y) override {
-    for (auto& i: stones) {
-        for (auto& o: i) {
-            if(o.underMouse(x,y)) {
-                o.mouseDown(x,y);
-                clicked_stone = &o;
-                return;
+  void mouseDown(const MouseEvent &mouse) override {
+    if(mouse.button==MOUSE_BUTTON_1) {
+        for (auto& i: stones) {
+            for (auto& o: i) {
+                if(o.underMouse(mouse.pos)) {
+                    o.mouseDown(MouseEvent{mouse});
+                    clicked_stone = &o;
+                    return;
+                  }
               }
           }
-      }
-    click_pos.x = x;
-    click_pos.y = y;
-    rotate_angle = 0;
-    mouse_downed = true;
-//    qDebug() << "mouse_downed = " << mouse_downed;
-  }
-
-  void mouseUp(int x, int y) override {
-    if (clicked_stone) {
-        clicked_stone->mouseUp(x,y);
-        clicked_stone = nullptr;
-      } else if (mouse_downed) {
-        if (std::abs(rotate_angle)>45_deg) {
-            parent->callRotateCallBack(my_pos_x,my_pos_y,rotate_angle<0);
-          }
-        mouse_downed = false;
+        click_pos = mouse.pos;
         rotate_angle = 0;
-        clicked_stone = 0;
+        mouse_downed = true;
       } else {
         for (auto& i: stones) {
             for (auto& o: i) {
-                o.mouseUp(x,y);
+                if(o.underMouse(mouse.pos)) {
+                    o.mouseDown(MouseEvent{mouse});
+                    return;
+                  }
               }
           }
       }
-
-//   qDebug() << "mouse_downed = " << mouse_downed;
   }
 
-  void hover(int x, int y) override {
+  void mouseUp(const MouseEvent &mouse) override {
+    if(mouse.button==MOUSE_BUTTON_1) {
+        if (clicked_stone) {
+            clicked_stone->mouseUp(mouse);
+            clicked_stone = nullptr;
+          } else if (mouse_downed) {
+            if (std::abs(rotate_angle)>45_deg) {
+                parent->callRotateCallBack(my_pos_x,my_pos_y,rotate_angle<0);
+              }
+            mouse_downed = false;
+            rotate_angle = 0;
+            clicked_stone = 0;
+          } else {
+            for (auto& i: stones) {
+                for (auto& o: i) {
+                    o.mouseUp(mouse);
+                  }
+              }
+        }
+      } else {
+        for (auto& i: stones) {
+            for (auto& o: i) {
+                o.mouseUp(mouse);
+              }
+          }
+      }
+  }
+
+  void hover(const MouseEvent &mouse) override {
     if(mouse_downed) {
-        rotate_angle = pointsAngle(click_pos.x,click_pos.y,pos.posXcenter(),pos.posYcenter(),x,y);
+        rotate_angle = pointsAngle(click_pos.x,click_pos.y,pos.posXcenter(),pos.posYcenter(),mouse.pos.x,mouse.pos.y);
         double max_angle;
         max_angle = rotating_enabled?88_deg:2_deg;
         if(rotate_angle>0) {
@@ -307,13 +316,13 @@ public:
             rotate_angle = rotate_angle<-max_angle?-max_angle:rotate_angle;
           }
       } else if (clicked_stone) {
-        clicked_stone->hover(x,y);
+        clicked_stone->hover(mouse);
       } else {
         for (unsigned i=0; i< stones.size(); i++) {
           for(unsigned j=0; j< stones[i].size(); j++) {
             if(active_x!=(int)i || active_y!=(int)j) {
-              if (stones[i][j].underMouse(x,y)) {
-                  stones[i][j].hover(x,y);
+              if (stones[i][j].underMouse(mouse.pos)) {
+                  stones[i][j].hover(mouse);
                   if(isActive()) {
                       stones[active_x][active_y].unHover();
                     }
@@ -331,28 +340,28 @@ public:
 
   }
 
-  bool underMouse(int x, int y) const override {
-    return pos.posInRect(x,y);
+  bool underMouse(const WorldPos &m_pos) const override {
+    return pos.posInRect(m_pos);
   }
 
-  void setPos(int x, int y) override {
-    pos.setPos(x,y);
+  void setPos(const WorldPos &m_pos) override {
+    pos.setPos(m_pos);
     reposStones();
   }
 
-  int posX() const override {
+  WorldPos::COORD_TYPE posX() const override {
     return pos.posX();
   }
 
-  int posY() const override {
+  WorldPos::COORD_TYPE posY() const override {
     return pos.posY();
   }
 
-  int height() const override {
+  WorldPos::COORD_TYPE height() const override {
     return pos.height();
   }
 
-  int width() const override {
+  WorldPos::COORD_TYPE width() const override {
     return pos.width();
   }
 
@@ -381,8 +390,8 @@ private:
 
     for (unsigned i=0; i< stones.size(); i++) {
         for(unsigned j=0; j< stones[i].size(); j++) {
-            stones[i][j].setPos(pos.posX()+pos.width()*(hh+i*(H+h)),pos.posY()+pos.height()*(hh+j*(H+h)));
-            stones[i][j].setSize(pos.width()*H,pos.height()*H);
+            stones[i][j].setPos({pos.posX()+pos.width()*(hh+i*(H+h)),pos.posY()+pos.height()*(hh+j*(H+h))});
+            stones[i][j].setSize({pos.width()*H,pos.height()*H});
           }
       }
   }
@@ -390,28 +399,27 @@ private:
 
 class PentagoBoard::PentagoBoardImpl: public GLRenderObject {
   PentagoBoard *parent;
-  GLRectangleCoord<GLint> pos;
-  GLRectangleCoord<GLint> background_pos;
-  bool active;
+  GLRectangleCoord pos;
+
+  GLTexture2D texture_background;
+  GLRectangleCoord background_pos;
+
+  bool active = false;
+
   std::function<StoneSetCallBack> set_call_back;
   std::function<RotateCallBack> rotate_call_back;
   vector<vector<BoardQuadrant>> quadrants;
 
-  int active_x, active_y;
+  int active_x=0, active_y=0;
 
-  BoardQuadrant* clicked_quadrant;
+  BoardQuadrant* clicked_quadrant = nullptr;
 public:
   PentagoBoardImpl(PentagoBoard *parent,
-                   GLint x_left_top = 0,
-                   GLint y_left_top = 0,
-                   GLint width = 0,
-                   GLint height = 0,
+                   const WorldPos &pos_left_top = WorldPos(0,0),
+                   const WorldPos &vector_size = WorldPos(0,0),
                    unsigned board_size = 2):
       parent(parent),
-      pos(x_left_top, y_left_top, width, height),
-      active(false),
-      active_x(0), active_y(0),
-      clicked_quadrant(nullptr) {
+      pos(pos_left_top, vector_size) {
 
     setBoardSize(board_size);
     quadrants[0][0].setActiveStone(0,0);
@@ -434,8 +442,8 @@ public:
       }
   }
 
-  void setSize(int width, int height) {
-    pos.setSize(width,height);
+  void setSize(const WorldPos &v_size) {
+    pos.setSize(v_size);
     reposQuadrants();
   }
 
@@ -505,9 +513,7 @@ public:
 
   virtual void draw() const override {
     glColor4f(0.7,0.7,0.7,1);
-    glBindTexture(GL_TEXTURE_2D,0);
-    glVertexPointer(background_pos.dimension, GL_INT, 0, background_pos.glCoords());
-    glDrawArrays(GL_TRIANGLE_FAN,0,4);
+    texture_background.draw(background_pos.glCoords(),background_pos.dimension);
     for(auto& i: quadrants) {
         for(auto& o: i) {
             o.draw();
@@ -527,52 +533,53 @@ public:
     return true;
   }
 
-  virtual void click(int x, int y) override {
+  virtual void click(const WorldPos &m_pos) override {
     for(auto& i: quadrants) {
         for(auto& o: i) {
-            if(o.underMouse(x,y)) {
-                o.click(x,y);
+            if(o.underMouse(m_pos)) {
+                o.click(m_pos);
               }
           }
       }
   }
 
-  virtual void mouseDown(int x, int y) override {
-    if(underMouse(x,y)) {
+  virtual void mouseDown(const MouseEvent &mouse) override {
+    if(underMouse(mouse.pos)) {
         setActive(true);
       }
     for(auto& i: quadrants) {
         for(auto& o: i) {
-            if(o.underMouse(x,y)) {
-                o.mouseDown(x,y);
-                clicked_quadrant = &o;
+            if(o.underMouse(mouse.pos)) {
+                o.mouseDown(mouse);
+                if(mouse.button==MOUSE_BUTTON_1)
+                  clicked_quadrant = &o;
                 return;
               }
           }
       }
   }
 
-  virtual void mouseUp(int x, int y) override {
-    if (clicked_quadrant) {
-        clicked_quadrant->mouseUp(x,y);
+  virtual void mouseUp(const MouseEvent &mouse) override {
+    if (clicked_quadrant && mouse.button==MOUSE_BUTTON_1) {
+        clicked_quadrant->mouseUp(mouse);
         clicked_quadrant = nullptr;
       } else {
         for(auto& i: quadrants) {
           for(auto& o: i) {
-              o.mouseUp(x,y);
+              o.mouseUp(mouse);
             }
           }
       }
   }
 
-  virtual void hover(int x, int y) override {
+  virtual void hover(const MouseEvent &mouse) override {
     if (clicked_quadrant) {
-        clicked_quadrant->hover(x,y);
+        clicked_quadrant->hover(mouse);
       } else {
         for(unsigned i = 0; i<quadrants.size(); i++) {
             for(unsigned j = 0; j<quadrants[i].size(); j++) {
-                if(quadrants[i][j].underMouse(x,y)) {
-                    quadrants[i][j].hover(x,y);
+                if(quadrants[i][j].underMouse(mouse.pos)) {
+                    quadrants[i][j].hover(mouse);
                     if(quadrants[i][j].isActive()) {
                         if((active_x!=(int)i)|(active_y!=(int)j)) {
                             quadrants[active_x][active_y].unHoverStone();
@@ -601,28 +608,28 @@ public:
         }
   }
 
-  virtual bool underMouse(int x, int y) const override {
-    return pos.posInRect(x,y);
+  virtual bool underMouse(const WorldPos &m_pos) const override {
+    return pos.posInRect(m_pos);
   }
 
-  virtual void setPos(int x, int y) override {
-    pos.setPos(x,y);
+  virtual void setPos(const WorldPos &m_pos) override {
+    pos.setPos(m_pos);
     reposQuadrants();
   }
 
-  virtual int posX() const override {
+  virtual WorldPos::COORD_TYPE posX() const override {
     return pos.posY();
   }
 
-  virtual int posY() const override {
+  virtual WorldPos::COORD_TYPE posY() const override {
     return pos.posY();
   }
 
-  virtual int height() const override {
+  virtual WorldPos::COORD_TYPE height() const override {
     return pos.height();
   }
 
-  virtual int width() const override {
+  virtual WorldPos::COORD_TYPE width() const override {
     return pos.width();
   }
 
@@ -699,25 +706,25 @@ public:
   }
 private:
   void reposQuadrants() {
-    double dx = pos.width()/(1/BoardQuadrant::QUADRANTS_SPACE+(quadrants.size()-1)*(1+1/BoardQuadrant::QUADRANTS_SPACE));
-    double w = (pos.width()-dx*(quadrants.size()-1))/quadrants.size();
-    double x = pos.posX();
+    GLdouble dx = pos.width()/(1/BoardQuadrant::QUADRANTS_SPACE+(quadrants.size()-1)*(1+1/BoardQuadrant::QUADRANTS_SPACE));
+    GLdouble w = (pos.width()-dx*(quadrants.size()-1))/quadrants.size();
+    GLdouble x = pos.posX();
 
-    double dy = pos.height()/(1/BoardQuadrant::QUADRANTS_SPACE+(quadrants[0].size()-1)*(1+1/BoardQuadrant::QUADRANTS_SPACE));
-    double h = (pos.height()-dy*(quadrants[0].size()-1))/quadrants[0].size();
+    GLdouble dy = pos.height()/(1/BoardQuadrant::QUADRANTS_SPACE+(quadrants[0].size()-1)*(1+1/BoardQuadrant::QUADRANTS_SPACE));
+    GLdouble h = (pos.height()-dy*(quadrants[0].size()-1))/quadrants[0].size();
 
-    double dw = w*BoardQuadrant::BACKGROUND_SPACE;
-    double dh = h*BoardQuadrant::BACKGROUND_SPACE;
+    GLdouble dw = w*BoardQuadrant::BACKGROUND_SPACE;
+    GLdouble dh = h*BoardQuadrant::BACKGROUND_SPACE;
     background_pos = decltype(background_pos)
-        (pos.posX()+dw,pos.posY()+dh,pos.width()-2*dw,pos.height()-2*dh);
+        ({pos.posX()+dw,pos.posY()+dh},{pos.width()-2*dw,pos.height()-2*dh});
 
     for(unsigned int i = 0; i<quadrants.size(); i++) {
-        double dy = pos.height()/(1/BoardQuadrant::QUADRANTS_SPACE+(quadrants[i].size()-1)*(1+1/BoardQuadrant::QUADRANTS_SPACE));
-        double h = (pos.height()-dy*(quadrants[i].size()-1))/quadrants[i].size();
-        double y = pos.posY();
+        GLdouble dy = pos.height()/(1/BoardQuadrant::QUADRANTS_SPACE+(quadrants[i].size()-1)*(1+1/BoardQuadrant::QUADRANTS_SPACE));
+        GLdouble h = (pos.height()-dy*(quadrants[i].size()-1))/quadrants[i].size();
+        GLdouble y = pos.posY();
         for(unsigned int j = 0; j<quadrants[i].size(); j++) {
-            quadrants[i][j].setPos(x,y);
-            quadrants[i][j].setSize(std::round(w),std::round(h));
+            quadrants[i][j].setPos({x,y});
+            quadrants[i][j].setSize({w,h});
             y+=h+dy;
           }
         x+=w+dx;
@@ -726,8 +733,8 @@ private:
 
 };//class PentagoBoardImpl
 
-PentagoBoard::PentagoBoard(GLint x_left_top, GLint y_left_top, GLint width, GLint height, unsigned board_size):
-    impl(new PentagoBoardImpl(this,x_left_top,y_left_top,width, height,board_size)) {
+PentagoBoard::PentagoBoard(const WorldPos &pos_left_top, const WorldPos &vector_size, unsigned board_size):
+    impl(new PentagoBoardImpl(this,pos_left_top,vector_size,board_size)) {
 
 }
 
@@ -753,8 +760,8 @@ PentagoBoard& PentagoBoard::initTextures() {
   return *this;
 }
 
-PentagoBoard& PentagoBoard::setSize(int width, int height) {
-  impl->setSize(width, height);
+PentagoBoard& PentagoBoard::setSize(const WorldPos &v_size) {
+  impl->setSize(v_size);
   return *this;
 }
 
@@ -830,47 +837,47 @@ bool PentagoBoard::canBeActive() const {
   return impl->canBeActive();
 }
 
-void PentagoBoard::click(int x, int y) {
-  impl->click(x,y);
+void PentagoBoard::click(const WorldPos &m_pos) {
+  impl->click(m_pos);
 }
 
-void PentagoBoard::mouseDown(int x, int y) {
-  impl->mouseDown(x,y);
+void PentagoBoard::mouseDown(const MouseEvent &mouse) {
+  impl->mouseDown(mouse);
 }
 
-void PentagoBoard::mouseUp(int x, int y) {
-  impl->mouseUp(x,y);
+void PentagoBoard::mouseUp(const MouseEvent &mouse) {
+  impl->mouseUp(mouse);
 }
 
-void PentagoBoard::hover(int x, int y) {
-  impl->hover(x,y);
+void PentagoBoard::hover(const MouseEvent &mouse) {
+  impl->hover(mouse);
 }
 
 void PentagoBoard::unHover() {
   impl->unHover();
 }
 
-bool PentagoBoard::underMouse(int x, int y) const {
-  return impl->underMouse(x,y);
+bool PentagoBoard::underMouse(const WorldPos &m_pos) const {
+  return impl->underMouse(m_pos);
 }
 
-void PentagoBoard::setPos(int x, int y) {
-  impl->setPos(x,y);
+void PentagoBoard::setPos(const WorldPos &m_pos) {
+  impl->setPos(m_pos);
 }
 
-int  PentagoBoard::posX() const {
+WorldPos::COORD_TYPE  PentagoBoard::posX() const {
   return impl->posX();
 }
 
-int  PentagoBoard::posY() const {
+WorldPos::COORD_TYPE  PentagoBoard::posY() const {
   return impl->posY();
 }
 
-int  PentagoBoard::height() const {
+WorldPos::COORD_TYPE  PentagoBoard::height() const {
   return impl->height();
 }
 
-int  PentagoBoard::width() const {
+WorldPos::COORD_TYPE PentagoBoard::width() const {
   return impl->width();
 }
 

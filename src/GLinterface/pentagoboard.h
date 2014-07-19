@@ -19,11 +19,9 @@ class PentagoBoard: public GLRenderObject
 {
   class PentagoBoardImpl;
 public:
-  PentagoBoard(GLint x_left_top = 0,
-        GLint y_left_top = 0,
-        GLint width = 0,
-        GLint height = 0,
-        unsigned board_size = 2);
+  PentagoBoard(const WorldPos &pos_left_top = WorldPos(0,0),
+               const WorldPos &vector_size = WorldPos(0,0),
+               unsigned board_size = 2);
 
   PentagoBoard(const PentagoBoard& rigth);
   PentagoBoard& operator=(const PentagoBoard& rigth);
@@ -35,7 +33,7 @@ public:
 
   PentagoBoard& initTextures();
 
-  PentagoBoard& setSize(int width, int height);
+  PentagoBoard& setSize(const WorldPos &v_size);
 
   PentagoBoard& setStone(int x_pos, int y_pos);
   PentagoBoard& unsetStone(int x_pos, int y_pos);
@@ -60,18 +58,18 @@ public:
   virtual bool isActive() const override;
   virtual bool canBeActive() const override;
 
-  virtual void click(int x, int y) override;
-  virtual void mouseDown(int x, int y) override;
-  virtual void mouseUp(int x, int y) override;
-  virtual void hover(int x, int y) override;
+  virtual void click(const WorldPos &m_pos) override;
+  virtual void mouseDown(const MouseEvent &mouse) override;
+  virtual void mouseUp(const MouseEvent &mouse) override;
+  virtual void hover(const MouseEvent &mouse) override;
   virtual void unHover() override;
-  virtual bool underMouse(int x, int y) const override;
+  virtual bool underMouse(const WorldPos &m_pos) const override;
 
-  virtual void setPos(int x, int y) override;
-  virtual int posX() const override;
-  virtual int posY() const override;
-  virtual int height() const override;
-  virtual int width() const override;
+  virtual void setPos(const WorldPos &m_pos) override;
+  virtual WorldPos::COORD_TYPE posX() const override;
+  virtual WorldPos::COORD_TYPE posY() const override;
+  virtual WorldPos::COORD_TYPE height() const override;
+  virtual WorldPos::COORD_TYPE width() const override;
 
   virtual void keyPress(int key, bool repeat, KeyboardModifier mod, bool &skip_char_input, bool &lock_active) override;
   virtual void keyRelease(int key, KeyboardModifier mod) override;

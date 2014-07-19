@@ -22,7 +22,7 @@ namespace
         GLuint textureId;
         GLsizei width;
         GLsizei height;
-        GLRectangleCoord<GLfloat> pos;
+        GLRectangleCoord pos;
     };
 
 } // anonymous namespace
@@ -77,7 +77,6 @@ void GLfontImpl::allocateTexture()
     textures.push_back(texture);
 }
 
-//a lot of troubles if character is '\t'
 CharData &GLfontImpl::createCharacter(QChar c)
 {
     ushort unicodeC = c.unicode();
@@ -89,7 +88,12 @@ CharData &GLfontImpl::createCharacter(QChar c)
 
     GLuint texture = textures.back();
 
-    GLsizei width = fontMetrics.width(c);
+    GLsizei width;
+    if(c=='\t') {
+        width = 2*fontMetrics.width(' ');
+      } else {
+        width = fontMetrics.width(c);
+      }
     GLsizei height = fontMetrics.height();
 
     QPixmap pixmap(width, height);
@@ -101,7 +105,11 @@ CharData &GLfontImpl::createCharacter(QChar c)
     painter.setFont(font);
     painter.setPen(Qt::white);
 
-    painter.drawText(0, fontMetrics.ascent(), c);
+    if(c=='\t') {
+      painter.drawText(0, fontMetrics.ascent(), "  ");
+    } else {
+      painter.drawText(0, fontMetrics.ascent(), c);
+    }
     painter.end();
 
 
@@ -154,7 +162,7 @@ const QFontMetrics& GLfont::fontMetrics() const
 }
 
 //! Renders text at given x, y.
-void GLfont::renderText(GLfloat x, GLfloat y, const string &text)
+void GLfont::renderText(GLdouble x, GLdouble y, const string &text)
 {
     if(text.empty()) return;
     // If the current context's device is not active for painting, the
@@ -174,7 +182,7 @@ void GLfont::renderText(GLfloat x, GLfloat y, const string &text)
 //    glPushMatrix();
     GLuint texture = 0;
 //    glTranslatef(x, y, 0);
-    GLRectangleCoord<GLfloat> char_pos(x,y);
+    GLRectangleCoord char_pos(WorldPos{x,y});
     for (unsigned i = 0; i < text.length(); ++i)
     {
         CharData &c = d->createCharacter(text[i]);
@@ -183,40 +191,22 @@ void GLfont::renderText(GLfloat x, GLfloat y, const string &text)
             texture = c.textureId;
             glBindTexture(GL_TEXTURE_2D, texture);
         }
-        char_pos.setSize(c.width,c.height);
-        glVertexPointer(char_pos.dimension, GL_FLOAT, 0, char_pos.glCoords());
-        glTexCoordPointer(2, GL_FLOAT, 0, c.pos.glCoords());
+        char_pos.setSize({WorldPos::COORD_TYPE(c.width),WorldPos::COORD_TYPE(c.height)});
+        glVertexPointer(char_pos.dimension, char_pos.glCoordType, 0, char_pos.glCoords());
+        glTexCoordPointer(c.pos.dimension, c.pos.glCoordType, 0, c.pos.glCoords());
         glDrawArrays(GL_TRIANGLE_FAN,0,4);
 
-        char_pos.setPos(char_pos.getLeft()+c.width,char_pos.getTop());
-
-//        glBegin(GL_QUADS);
-//        glTexCoord2f(c.s[0], c.t[0]);
-//        glVertex2f(0, c.height);
-
-
-//        glTexCoord2f(c.s[1], c.t[0]);
-//        glVertex2f(c.width, c.height);
-
-
-//        glTexCoord2f(c.s[1], c.t[1]);
-//        glVertex2f(c.width, 0);
-
-//        glTexCoord2f(c.s[0], c.t[1]);
-//        glVertex2f(0, 0);
-//        glEnd();
-
-//        glTranslatef(c.width, 0, 0);
+        char_pos.setPos({WorldPos::COORD_TYPE(char_pos.getLeft()+c.width),WorldPos::COORD_TYPE(char_pos.getTop())});
     }
 
     glPopMatrix();
 //    glPopAttrib();
 }
 
-void GLfont::renderTextCroped(GLfloat x, GLfloat y, const string &text, GLfloat x_left, GLfloat x_right) {
+void GLfont::renderTextCroped(GLdouble x, GLdouble y, const string &text, GLdouble x_left, GLdouble x_right) {
     if(text.empty()) return;
     GLuint texture = 0;
-    GLRectangleCoord<GLfloat> char_pos(x,y);
+    GLRectangleCoord char_pos(WorldPos{x,y});
     for (unsigned i = 0; i < text.length(); ++i)
     {
         CharData &c = d->createCharacter(text[i]);
@@ -225,14 +215,15 @@ void GLfont::renderTextCroped(GLfloat x, GLfloat y, const string &text, GLfloat 
             texture = c.textureId;
             glBindTexture(GL_TEXTURE_2D, texture);
         }
-        char_pos.setSize(c.width,c.height);
+
+        char_pos.setSize({WorldPos::COORD_TYPE(c.width),WorldPos::COORD_TYPE(c.height)});
         if((char_pos.getLeft()>=x_left) && (char_pos.getRight()<=x_right)) {
-            glVertexPointer(char_pos.dimension, GL_FLOAT, 0, char_pos.glCoords());
-            glTexCoordPointer(2, GL_FLOAT, 0, c.pos.glCoords());
+            glVertexPointer(char_pos.dimension, char_pos.glCoordType, 0, char_pos.glCoords());
+            glTexCoordPointer(c.pos.dimension, c.pos.glCoordType, 0, c.pos.glCoords());
             glDrawArrays(GL_TRIANGLE_FAN,0,4);
           }
 
-        char_pos.setPos(char_pos.getLeft()+c.width,char_pos.getTop());
+        char_pos.setPos({WorldPos::COORD_TYPE(char_pos.getLeft()+c.width),WorldPos::COORD_TYPE(char_pos.getTop())});
     }
 
     glPopMatrix();

@@ -15,15 +15,7 @@ using string = std::wstring;
 using Tcontext = QGLContext;
 //
 
-template<typename T>
-struct point_base {
-    T x,y;
-    point_base(T x = 0, T y = 0): x(x), y(y) {}
-};
-
-typedef point_base<GLint> point;
-
-
+#include "GLrenderobject.h"
 
 class GLTexture2D
 {
@@ -67,18 +59,18 @@ public:
   //draw texture on current OpenGL context
   //starting with left top coordinates
   //and keep original texture size
-  void draw(const point& left_top = point()) const;
+  void draw(const WorldPos& left_top = WorldPos(0,0)) const;
 
   //draw texture on current OpenGL context
   //starting with left top coordinates to right bottom
-  void draw(const point& left_top,const point& right_bottom) const;
+  void draw(const WorldPos& left_top,const WorldPos& right_bottom) const;
 
   //draw texture on current OpenGL context
   //in quadrangle setted by input parameters
-  void draw(const point& left_top,
-             const point& right_top,
-             const point& right_bottom,
-             const point& left_bottom) const;
+  void draw(const WorldPos& left_top,
+             const WorldPos& right_top,
+             const WorldPos& right_bottom,
+             const WorldPos& left_bottom) const;
 
   //draw texture on current OpenGL context
   //in quadrangle setted by input array
@@ -98,8 +90,8 @@ public:
 
   //if texture must be drawn cropped
   GLTexture2D& setCropRegion(
-          const point& left_top,const point& right_top,
-          const point& right_bottom, const point& left_bottom);
+          const WorldPos& left_top,const WorldPos& right_top,
+          const WorldPos& right_bottom, const WorldPos& left_bottom);
 };
 
 #endif // TEXTURES_H
