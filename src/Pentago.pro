@@ -29,7 +29,6 @@ SOURCES += main.cpp\
 HEADERS  += glview.h \
     GLinterface/GLfontutils.h \
     iview.h \
-    tests.h \
     GLinterface/GLbutton.h \
     GLinterface/GLfontkeeper.h \
     GLinterface/GLfontkeeperbase.h \

@@ -4,7 +4,7 @@
 #include "GLrenderobject.h"
 #include "GLtextures.h"
 #include "GLfontkeeperbase.h"
-#include "GLRectangleCoord.h"
+#include "GLrectanglecoord.h"
 #include "GLlabel.h"
 
 #include <utility>
