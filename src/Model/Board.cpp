@@ -16,8 +16,10 @@ bool Board::putStone(short row, short column, short player) {
 }
 
 void Board::Rotate(Quadrant quadrant, RotateDirection direction) {
-    unsigned i = quadrant == Quadrant::I || quadrant == Quadrant::II ? 0 : 3;
-    unsigned j = quadrant == Quadrant::I || quadrant == Quadrant::IV ? 3 : 0;
+    unsigned i = quadrant == Quadrant::I || quadrant == Quadrant::II || quadrant == Quadrant::IX
+            ? 0 : (quadrant == Quadrant::III || quadrant == Quadrant::IV || quadrant == Quadrant::VIII ? 3 : 6);
+    unsigned j = quadrant == Quadrant::I || quadrant == Quadrant::IV || quadrant == Quadrant::VI
+            ? 3 : (quadrant == Quadrant::IX || quadrant == Quadrant::VIII || quadrant == Quadrant::VII ? 6 : 0);
 	short tmp;
 
 	switch (direction) {
@@ -57,13 +59,9 @@ vector<short>& Board::operator[](short i) {
 }
 
 void Board::Clear() {
-    board.clear();
-    board.reserve(rowCount);
-    for (auto row : board)
-        row.reserve(colCount);
-    for (unsigned i = 0; i < rowCount; i++)
-        for (unsigned j = 0; j < colCount; j++)
-			board[i][j] = 0;
+    board = std::move(vector<vector<short>>(rowCount));
+    for (auto& row : board)
+        row = std::move(vector<short>(colCount, 0));
 	stepNum = 1;
 }
 

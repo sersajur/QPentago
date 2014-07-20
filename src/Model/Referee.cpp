@@ -47,7 +47,7 @@ winstatus Referee::UpdateWinState(Board b) {
 
 //= Used by _FindCombFromPoint for get relative directs:
 short* Referee::__GetDirectStep(short di, short dj, short num) {
-	short primaryDirectNum;
+    short primaryDirectNum = 0;
 	for (int i = 0; i < 8; i++)
 		if ((direct[i][0] == di) && (direct[i][1] == dj)) {
 			primaryDirectNum = i;

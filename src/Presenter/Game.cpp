@@ -56,9 +56,9 @@ void Game::load_game(string filename){
     QFile in(filename.c_str());
     GameState gs(in);
     board.RestoreGame(gs);
-    for (int i = 0; i<6;i++)
-        for (int j = 0; j<6; j++)
-            if (board[i][j]!=0)
+    for (unsigned i = 0; i<board.getRowCount();i++)
+        for (unsigned j = 0; j<board.getColCount(); j++)
+            if (board[i][j] != 0)
                 emit draw_stone(i, j, (board[i][j] > 0) ? IView::BLACK : IView::WHITE);
     emit set_control_settings(IView::control_setting::LOCAL_GAME);
 }
