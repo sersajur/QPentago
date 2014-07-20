@@ -22,7 +22,8 @@ SOURCES += main.cpp\
     GLinterface/stone.cpp \
     GLinterface/GLtextedit.cpp \
     GLinterface/GLtextures.cpp \
-    GLinterface/Glabel.cpp
+    GLinterface/Glabel.cpp \
+    GLinterface/GLlist.cpp
 
 
 HEADERS  += glview.h \
@@ -41,7 +42,8 @@ HEADERS  += glview.h \
     GLinterface/GLtextedit.h \
     GLinterface/pentagoboard.h \
     GLinterface/GLlabel.h \
-    main.h
+    main.h \
+    GLinterface/GLlist.h
 
 RESOURCES += \
     GLinterface/GLgraphics.qrc
