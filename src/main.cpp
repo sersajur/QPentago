@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 #endif
 
   QApplication a(argc, argv);
-  GLview w;
+  GLView w;
   PresenterEmulator presenter(w);
   w.dumpObjectInfo();
   (void)presenter;

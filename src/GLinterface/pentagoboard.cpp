@@ -574,10 +574,10 @@ public:
 
   virtual void hover(const MouseEvent &mouse) override {
     if (clicked_quadrant) {
-        if (mouse.buttons & MOUSE_BUTTON_1)
+//        if (mouse.buttons & MOUSE_BUTTON_1)
           clicked_quadrant->hover(mouse);
-        else
-          mouseUp(MouseEvent{mouse.pos,MOUSE_BUTTON_1,MouseButton(mouse.buttons^MOUSE_BUTTON_1)});
+//        else
+//          mouseUp(MouseEvent{mouse.pos,MOUSE_BUTTON_1,MouseButton(mouse.buttons^MOUSE_BUTTON_1)});
       } else {
         for(unsigned i = 0; i<quadrants.size(); i++) {
             for(unsigned j = 0; j<quadrants[i].size(); j++) {

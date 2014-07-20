@@ -25,13 +25,18 @@
 
 #include <vector>
 #include <stack>
+#include <set>
 #include <limits>
 
-class GLview::GLviewImpl: public QGLWidget, public IView {
+using std::vector;
+using std::stack;
+using std::set;
+
+class GLView::GLviewImpl: public QGLWidget, public IView {
 public:
 
 private:
-    GLview * parent;
+    GLView * parent;
 
     int  width, height;
     GLTexture2D texture_background;
@@ -49,12 +54,14 @@ private:
 
     PentagoBoard board;
 
-    std::vector<GLRenderObject*> current_objects;
+    vector<GLRenderObject*> current_objects;
 
-    std::stack<std::vector<GLRenderObject*>> view_history;
+    stack<vector<GLRenderObject*>> view_history;
 
     int m_x, m_y;//mouse window coordinates
     WorldPos m_w;//mouse world coordinates
+
+    set<Qt::MouseButton> buttons_pressed;
 
   #ifdef QT_DEBUG
     float angle;
@@ -66,16 +73,16 @@ private:
 
 public:
 
-    GLviewImpl(GLview * gl_parent=0):
+    explicit GLviewImpl(GLView * gl_parent=0):
         parent(gl_parent) {
 
       setWindowIcon(QIcon(":/window/pentago.ico"));
       setMouseTracking(true);
       QDesktopWidget desktop;
       setGeometry(
-        desktop.screenGeometry().right()/2-320,
-        desktop.screenGeometry().bottom()/2-240,
-        640,480);
+        desktop.screenGeometry().right()/2-400,
+        desktop.screenGeometry().bottom()/2-300,
+        800,600);
 
 #ifndef QT_DEBUG
       setMinimumSize(640,480);
@@ -99,7 +106,7 @@ public:
       GLRadioGroup::texture_blurr.release();
     }
 
-    void setParent(GLview * gl_parent) {
+    void setParent(GLView * gl_parent) {
       parent = gl_parent;
     }
 
@@ -201,30 +208,34 @@ protected:
 // // QGLWidget
 
     virtual void mousePressEvent ( QMouseEvent * event ) override {
-        mouseCoordTranslate(event->pos().x(),event->pos().y());
-        for(auto o: current_objects) {
-          if(o->underMouse(m_w)) {
-            o->mouseDown(MouseEvent{m_w,MouseButton((int)event->button()),MouseButton((int)event->buttons())});
-            if(event->button()==Qt::LeftButton) {
-                clicked_object = o;
-              }
-            break;
+      if(buttons_pressed.insert(event->button()).second) {
+          mouseCoordTranslate(event->pos().x(),event->pos().y());
+          for(auto o: current_objects) {
+            if(o->underMouse(m_w)) {
+              o->mouseDown(MouseEvent{m_w,MouseButton((int)event->button()),MouseButton((int)event->buttons())});
+              if(event->button()==Qt::LeftButton) {
+                  clicked_object = o;
+                }
+              break;
+            }
           }
         }
-        updateGL();
+      updateGL();
     }
 
     virtual void mouseReleaseEvent ( QMouseEvent * event ) override {
-        mouseCoordTranslate(event->pos().x(),event->pos().y());
-        if(clicked_object && event->button()==Qt::LeftButton) {
-            clicked_object->mouseUp(MouseEvent{m_w,MouseButton((int)event->button()),MouseButton((int)event->buttons())});
-            clicked_object = nullptr;
-          } else {
-            for(auto o: current_objects) {
-                o->mouseUp(MouseEvent{m_w,MouseButton((int)event->button()),MouseButton((int)event->buttons())});
-              }
+      if(buttons_pressed.erase(event->button())!=0) {
+          mouseCoordTranslate(event->pos().x(),event->pos().y());
+          if(clicked_object && event->button()==Qt::LeftButton) {
+              clicked_object->mouseUp(MouseEvent{m_w,MouseButton((int)event->button()),MouseButton((int)event->buttons())});
+              clicked_object = nullptr;
+            } else {
+              for(auto o: current_objects) {
+                  o->mouseUp(MouseEvent{m_w,MouseButton((int)event->button()),MouseButton((int)event->buttons())});
+                }
           }
-        updateGL();
+        }
+      updateGL();
     }
 
     virtual void mouseDoubleClickEvent ( QMouseEvent * event ) override {
@@ -253,19 +264,30 @@ protected:
       updateGL();
     }
 
-    virtual void enterEvent(QEvent * event) override {
+    virtual void enterEvent(QEvent *) override {
       updateGL();
-      (void)event;
     }
 
-    virtual void leaveEvent(QEvent * event) override {
-      for(auto o: current_objects) {
-        o->mouseUp(MouseEvent{{std::numeric_limits<WorldPos::COORD_TYPE>::max(),
-                               std::numeric_limits<WorldPos::COORD_TYPE>::max()},
-                              MouseButton::MOUSE_NO_BUTTONS,MouseButton::MOUSE_ALL_BUTTONS});
-      }
+    virtual void leaveEvent(QEvent *) override {
+      if(buttons_pressed.size()) {
+          MouseButton current_buttons = MOUSE_NO_BUTTONS;
+          for(auto i: buttons_pressed) {
+              current_buttons=MouseButton(current_buttons|i);
+            }
+          auto it=buttons_pressed.begin();
+          MouseButton btn = MouseButton(*it);
+          while(it!=buttons_pressed.end()) {
+              it++;
+              current_buttons=MouseButton(current_buttons^btn);
+              for(auto o: current_objects) {
+                  o->mouseUp(MouseEvent{{std::numeric_limits<WorldPos::COORD_TYPE>::max(),
+                                         std::numeric_limits<WorldPos::COORD_TYPE>::max()},
+                                        btn,current_buttons});
+                }
+              btn = MouseButton(*it);
+            }
+        }
       updateGL();
-      (void)event;
     }
 
 
@@ -686,120 +708,120 @@ public slots:
     }
 };
 
-GLview::GLview(): impl(new GLviewImpl(this)) {
+GLView::GLView(): impl(new GLviewImpl(this)) {
   setObjectName("OpenGL_view_for_Pentago_game");
   impl->show();
 }
 
 
-GLview::GLview(GLview&& right): impl(new GLviewImpl(&right)) {
+GLView::GLView(GLView&& right): impl(new GLviewImpl(&right)) {
   std::swap(impl, right.impl);
   impl->setParent(this);
 }
 
-GLview& GLview::operator=(GLview&&right) {
+GLView& GLView::operator=(GLView&&right) {
   std::swap(impl, right.impl);
   impl->setParent(this);
   right.impl->setParent(&right);
   return *this;
 }
 
-GLview::~GLview() {
+GLView::~GLView() {
   delete impl;
 }
 
 //
 // IView:
 //
-void GLview::Show_game_ended(WINNER winner, const string& winner_name) {
+void GLView::Show_game_ended(WINNER winner, const string& winner_name) {
   impl->Show_game_ended(winner,winner_name);
 }
 
-void GLview::Set_saves_list(const str_array& save_names,const str_array& saves_info) {
+void GLView::Set_saves_list(const str_array& save_names,const str_array& saves_info) {
   impl->Set_saves_list(save_names,saves_info);
 }
 
-void GLview::Set_game_mode(GAME_MODE mode) {
+void GLView::Set_game_mode(GAME_MODE mode) {
   impl->Set_game_mode(mode);
 }
 
-void GLview::Set_game_layout(GAME_LAYOUT layout) {
+void GLView::Set_game_layout(GAME_LAYOUT layout) {
   impl->Set_game_layout(layout);
 }
 
-void GLview::Set_lobby_params(LOBBY_STATUS status, const string& lobby_name, int player_count) {
+void GLView::Set_lobby_params(LOBBY_STATUS status, const string& lobby_name, int player_count) {
   impl->Set_lobby_params(status,lobby_name,player_count);
 }
 
-void GLview::Set_lobby_player_name(int player_num, const string& name) {
+void GLView::Set_lobby_player_name(int player_num, const string& name) {
   impl->Set_lobby_player_name(player_num,name);
 }
 
-void GLview::Set_lobby_player_color(int player_num, uint32_t rgb) {
+void GLView::Set_lobby_player_color(int player_num, uint32_t rgb) {
   impl->Set_lobby_player_color(player_num,rgb);
 }
 
-void GLview::Set_lobby_player_color_charge_enable(int player_num, bool enabled) {
+void GLView::Set_lobby_player_color_charge_enable(int player_num, bool enabled) {
   impl->Set_lobby_player_color_charge_enable(player_num,enabled);
 }
 
-void GLview::Set_lobby_player_avatar(int player_num, const char* image) {
+void GLView::Set_lobby_player_avatar(int player_num, const char* image) {
   impl->Set_lobby_player_avatar(player_num,image);
 }
 
-void GLview::Set_hosts_list(const str_array& hosts) {
+void GLView::Set_hosts_list(const str_array& hosts) {
   impl->Set_hosts_list(hosts);
 }
 
-void GLview::Clear_board() {
+void GLView::Clear_board() {
   impl->Clear_board();
 }
 
-void GLview::Put_stone(int row, int col, uint32_t rgb) {
+void GLView::Put_stone(int row, int col, uint32_t rgb) {
   impl->Put_stone(row,col,rgb);
 }
 
-void GLview::Rotate_quadrant(QUADRANT quadrant, DIRECTION direction) {
+void GLView::Rotate_quadrant(QUADRANT quadrant, DIRECTION direction) {
   impl->Rotate_quadrant(quadrant,direction);
 }
 
-void GLview::Disable_rotate_quadrant() {
+void GLView::Disable_rotate_quadrant() {
   impl->Disable_rotate_quadrant();
 }
 
-void GLview::Enable_rotate_quadrant() {
+void GLView::Enable_rotate_quadrant() {
   impl->Enable_rotate_quadrant();
 }
 
-void GLview::Show_quick_message(string text, MESSAGE_TYPE type, int mili_sec) {
+void GLView::Show_quick_message(string text, MESSAGE_TYPE type, int mili_sec) {
   impl->Show_quick_message(text,type,mili_sec);
 }
 
-void GLview::Show_message(string text, MESSAGE_BUTTONS buttons, MESSAGE_ICON icon) {
+void GLView::Show_message(string text, MESSAGE_BUTTONS buttons, MESSAGE_ICON icon) {
   impl->Show_message(text,buttons,icon);
 }
 
-void GLview::Hide_message() {
+void GLView::Hide_message() {
   impl->Hide_message();
 }
 
-void GLview::Ask_user_text_input(const string& question, const string &button_accept_text) {
+void GLView::Ask_user_text_input(const string& question, const string &button_accept_text) {
   impl->Ask_user_text_input(question,button_accept_text);
 }
 
-void GLview::Enable_chat() {
+void GLView::Enable_chat() {
   impl->Enable_chat();
 }
 
-void GLview::Disable_chat() {
+void GLView::Disable_chat() {
   impl->Disable_chat();
 }
 
-void GLview::Clear_chat() {
+void GLView::Clear_chat() {
   impl->Clear_chat();
 }
 
-void GLview::Add_message_to_chat(string from, string text, time_t message_time) {
+void GLView::Add_message_to_chat(string from, string text, time_t message_time) {
   impl->Add_message_to_chat(from,text,message_time);
 }
 

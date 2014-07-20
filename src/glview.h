@@ -4,22 +4,22 @@
 
 #include "iview.h"
 
-class GLview : public IView
+class GLView : public IView
 {
   class GLviewImpl;
   GLviewImpl *impl;//everithing is here
 public:
 
-    GLview();
+    GLView();
 
-    GLview(GLview&& right);
+    GLView(GLView&& right);
 
-    GLview& operator=(GLview&&right);
+    GLView& operator=(GLView&&right);
 
-    GLview(const GLview&) = delete;//can not be copied
-    GLview& operator=(const GLview&) = delete;//can not be copied
+    GLView(const GLView&) = delete;//can not be copied
+    GLView& operator=(const GLView&) = delete;//can not be copied
 
-    ~GLview();
+    ~GLView();
 
 //    IView: (see iview.h)
 public slots:
