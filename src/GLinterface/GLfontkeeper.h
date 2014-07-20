@@ -26,13 +26,13 @@ protected:
     virtual void fontChanged() = 0;
 
     GLint font_color[4];
-    std::shared_ptr<glutils::GLfont> text_font;
+    std::shared_ptr<glutils::GLFont> text_font;
 };
 
 
 template<typename Keeper>
 GLFontKeeper<Keeper>::GLFontKeeper(const QFont &font):
-      text_font(new glutils::GLfont(QFont(font))) {
+      text_font(new glutils::GLFont(QFont(font))) {
     font_color[0] = 0;
     font_color[1] = 0;
     font_color[2] = 0;
@@ -41,7 +41,7 @@ GLFontKeeper<Keeper>::GLFontKeeper(const QFont &font):
 
 template<typename Keeper>
 Keeper& GLFontKeeper<Keeper>::setFont(const QFont& font) {
-    text_font.reset(new glutils::GLfont(QFont(font)));
+    text_font.reset(new glutils::GLFont(QFont(font)));
     fontChanged();
     return dynamic_cast<Keeper&>(*this);
 }

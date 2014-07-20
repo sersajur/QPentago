@@ -3,7 +3,7 @@
 
 #include "GLrenderobject.h"
 #include "GLtextures.h"
-#include "GLRectangleCoord.h"
+#include "GLrectanglecoord.h"
 
 #include <utility>
 #include <list>

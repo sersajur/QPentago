@@ -22,13 +22,12 @@ SOURCES += main.cpp\
     GLinterface/stone.cpp \
     GLinterface/GLtextedit.cpp \
     GLinterface/GLtextures.cpp \
-    GLinterface/Glabel.cpp \
-    GLinterface/GLlist.cpp
+    GLinterface/GLlist.cpp \
+    GLinterface/GLlabel.cpp
 
 
 HEADERS  += glview.h \
     GLinterface/GLfontutils.h \
-    GLinterface/GLRectangleCoord.h \
     iview.h \
     tests.h \
     GLinterface/GLbutton.h \
@@ -43,7 +42,8 @@ HEADERS  += glview.h \
     GLinterface/pentagoboard.h \
     GLinterface/GLlabel.h \
     main.h \
-    GLinterface/GLlist.h
+    GLinterface/GLlist.h \
+    GLinterface/GLrectanglecoord.h
 
 RESOURCES += \
     GLinterface/GLgraphics.qrc

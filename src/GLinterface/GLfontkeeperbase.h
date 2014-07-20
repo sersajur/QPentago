@@ -1,10 +1,8 @@
 #ifndef FONTKEEPERBASE_H
 #define FONTKEEPERBASE_H
 
+#include "GLrenderobject.h"
 #include <QFont>
-
-//#include "GL/gl.h"
-#include <QtOpenGL>
 
 #include <climits>
 

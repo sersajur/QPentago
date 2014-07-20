@@ -1,13 +1,6 @@
 #ifndef BUTTON_H
 #define BUTTON_H
 
-#if !defined(HAVE_GLES)
-#include <GL/gl.h>
-#include "GL/glu.h"
-#else
-#include <GLES/gl.h>
-#endif
-
 #include "GLrenderobject.h"
 #include "GLtextures.h"
 #include "GLfontkeeperbase.h"

@@ -10,6 +10,8 @@
 #include <GLES/gl.h>
 #endif
 
+using string = std::wstring;
+
 enum KeyboardModifier { MD_NONE = Qt::NoModifier,/*No modifier key is pressed*/
                         MD_SHIFT = Qt::ShiftModifier,/*Key "Shift" is pressed*/
                         MD_CONTROL = Qt::ControlModifier,/*Key "Control" is pressed*/

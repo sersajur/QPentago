@@ -1,6 +1,7 @@
 #include "GLtextures.h"
 #include <map>
 #include <mutex>
+
 #include <QtOpenGL>
 #include <QImage>
 
@@ -48,7 +49,7 @@ public:
 std::mutex GLTexture2D::Textures2DHolder::m;
 std::map<QString,GLTexture2D::Textures2DHolder::AllInfo> GLTexture2D::Textures2DHolder::textures_list;
 
-Tcontext* GLTexture2D::context;
+QGLContext* GLTexture2D::context;
 
 GLTexture2D::GLTexture2D(const QString &filename):
     crop{{0,1},{1,1},{1,0},{0,0}} {

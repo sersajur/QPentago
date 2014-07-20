@@ -4,19 +4,13 @@
 #include "GLrenderobject.h"
 #include "GLtextures.h"
 #include "GLlabel.h"
-#include "GLRectangleCoord.h"
+#include "GLrectanglecoord.h"
 #include "GLfontkeeperbase.h"
 
 
 #include <map>
 #include <functional>
 #include <tuple>
-
-#ifndef HAVE_GLES
-#include "GL/gl.h"
-#else
-#include "GLES/gl.h"
-#endif
 
 class GLTextEdit;
 
@@ -30,7 +24,7 @@ struct TextEditHotKey {
 
 //function return true if this key must not be used as char iput at the same event
 //if hotkey is registered, regular keyPress for this GLTextEdit will NOT be called
-using  TextEditKeyCallBack = std::function<bool(int key, KeyboardModifier mod, GLTextEdit& menu)>;
+using  TextEditKeyCallBack = std::function<bool(const TextEditHotKey&, GLTextEdit& menu)>;
 
 class GLTextEdit : public GLRenderObject, public GLFontKeeperBase<GLTextEdit>
 {

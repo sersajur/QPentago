@@ -1,7 +1,5 @@
 #include "GLbutton.h"
 
-#include <QGLWidget>
-
 #include <climits>
 
 GLTexture2D GLButton::texture_blurr;

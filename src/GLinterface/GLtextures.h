@@ -1,18 +1,10 @@
 #ifndef TEXTURES_H
 #define TEXTURES_H
 
-#if !defined(HAVE_GLES)
-#include <GL/gl.h>
-#else
-#include <GLES/gl.h>
-#endif
-
 //QT staff
 #include <QString>
 #include <QGLContext>
 
-using string = std::wstring;
-using Tcontext = QGLContext;
 //
 
 #include "GLrenderobject.h"
@@ -20,20 +12,22 @@ using Tcontext = QGLContext;
 class GLTexture2D
 {
   class Textures2DHolder;
+
   struct Texture2DInfo {
     GLint texture;
     int width, height;
     Texture2DInfo(): texture(0), width(0), height(0) {}
     Texture2DInfo(GLuint t, int w, int h): texture(t), width(w), height(h) {}
   };
+
   friend class Textures2DHolder;
 
   Texture2DInfo info;
   QString filename;
   GLdouble crop[4][2];
-  static Tcontext* context;
+  static QGLContext* context;
 public:
-  static void setContext(Tcontext* ctxt) {
+  static void setContext(QGLContext* ctxt) {
     context = ctxt;
   }
 

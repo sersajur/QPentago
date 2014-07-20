@@ -6,14 +6,8 @@
 #include <memory>
 #include <functional>
 
-#ifndef HAVE_GLES
-#include <GL/gl.h>
-#else
-#include <GLES/gl.h>
-#endif
-
-using RotateCallBack = void(int quadrant_x, int quadrant_y, bool rotate_right);
-using StoneSetCallBack = void(int pos_x, int pos_y);
+using RotateCallBack = std::function<void(int quadrant_x, int quadrant_y, bool rotate_right)>;
+using StoneSetCallBack = std::function<void(int pos_x, int pos_y)>;
 
 class PentagoBoard: public GLRenderObject
 {
@@ -46,10 +40,10 @@ public:
   unsigned getBoardWidth() const;
   unsigned getBoardHeight() const;
 
-  PentagoBoard& setRotateCallBack(std::function<RotateCallBack> rotate_call_back);
+  PentagoBoard& setRotateCallBack(const RotateCallBack &rotate_call_back);
   void callRotateCallBack(int quadrant_x, int quadrant_y, bool rotate_right) const;
 
-  PentagoBoard& setStoneSetCallBack(std::function<StoneSetCallBack> stone_set_call_back);
+  PentagoBoard& setStoneSetCallBack(const StoneSetCallBack &stone_set_call_back);
   void callStoneSetCallBack(int pos_x, int pos_y) const;
 
   virtual void draw() const override;

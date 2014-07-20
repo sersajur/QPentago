@@ -1,16 +1,10 @@
 #ifndef RADIOGROUP_H
 #define RADIOGROUP_H
 
-#if !defined(HAVE_GLES)
-#include <GL/gl.h>
-#else
-#include <GLES/gl.h>
-#endif
-
 #include "GLrenderobject.h"
 #include "GLtextures.h"
 #include "GLfontkeeper.h"
-#include "GLRectangleCoord.h"
+#include "GLrectanglecoord.h"
 #include "GLlabel.h"
 
 #include <string>

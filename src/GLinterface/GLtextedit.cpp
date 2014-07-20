@@ -204,7 +204,7 @@ void GLTextEdit::keyPress(int key, bool repeat, KeyboardModifier mod, bool &skip
   (void)repeat;
   lock_active = false;
   if(key_call_backs.find(TextEditHotKey{key,mod})!=key_call_backs.end()) {
-      skip_char_input=key_call_backs[TextEditHotKey{key,mod}](key,mod,*this);
+      skip_char_input=key_call_backs[TextEditHotKey{key,mod}](TextEditHotKey{key,mod},*this);
       return;
     }
   if (mod == MD_NONE) {

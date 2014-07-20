@@ -1,10 +1,7 @@
 #include "pentagoboard.h"
-#include "GLRectangleCoord.h"
+#include "GLrectanglecoord.h"
 #include "GLtextures.h"
-
 #include "stone.h"
-
-#include <QDebug>
 
 #include <array>
 #include <vector>
@@ -13,7 +10,6 @@
 
 using std::array;
 using std::vector;
-
 
 constexpr long double operator"" _deg(long double degree) {
   return degree/180*3.14159265358979323846;
@@ -406,8 +402,8 @@ class PentagoBoard::PentagoBoardImpl: public GLRenderObject {
 
   bool active = false;
 
-  std::function<StoneSetCallBack> set_call_back;
-  std::function<RotateCallBack> rotate_call_back;
+  StoneSetCallBack set_call_back;
+  RotateCallBack rotate_call_back;
   vector<vector<BoardQuadrant>> quadrants;
 
   int active_x=0, active_y=0;
@@ -492,7 +488,7 @@ public:
     return quadrants.size()?quadrants[0].size():0;
   }
 
-  void setRotateCallBack(std::function<RotateCallBack> rotate_call_back) {
+  void setRotateCallBack(RotateCallBack rotate_call_back) {
     this->rotate_call_back = rotate_call_back;
   }
 
@@ -501,7 +497,7 @@ public:
       rotate_call_back(quadrant_x,quadrant_y,rotate_right);
   }
 
-  void setStoneSetCallBack(std::function<StoneSetCallBack> stone_set_call_back) {
+  void setStoneSetCallBack(StoneSetCallBack stone_set_call_back) {
     this->set_call_back = stone_set_call_back;
   }
 
@@ -806,7 +802,7 @@ unsigned PentagoBoard::getBoardHeight() const {
   return impl->getBoardHeight();
 }
 
-PentagoBoard& PentagoBoard::setRotateCallBack(std::function<RotateCallBack> rotate_call_back) {
+PentagoBoard& PentagoBoard::setRotateCallBack(const RotateCallBack &rotate_call_back) {
   impl->setRotateCallBack(rotate_call_back);
   return *this;
 }
@@ -815,7 +811,7 @@ void PentagoBoard::callRotateCallBack(int quadrant_x, int quadrant_y, bool rotat
   impl->callRotateCallBack(quadrant_x,quadrant_y,rotate_right);
 }
 
-PentagoBoard& PentagoBoard::setStoneSetCallBack(std::function<StoneSetCallBack> stone_set_call_back) {
+PentagoBoard& PentagoBoard::setStoneSetCallBack(const StoneSetCallBack &stone_set_call_back) {
   impl->setStoneSetCallBack(stone_set_call_back);
   return *this;
 }

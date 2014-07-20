@@ -2,16 +2,10 @@
 #define STONE_H
 
 #include "GLrenderobject.h"
-#include "GLRectangleCoord.h"
+#include "GLrectanglecoord.h"
 #include "GLtextures.h"
 
 #include <functional>
-
-#ifndef HAVE_GLES
-#include <GL/gl.h>
-#else
-#include <GLES/gl.h>
-#endif
 
 class Stone: public GLRenderObject
 {

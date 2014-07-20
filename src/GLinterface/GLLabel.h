@@ -6,10 +6,6 @@
 #include "GLfontutils.h"
 #include "GLfontkeeper.h"
 
-#include <memory>
-
-using string = std::wstring;
-
 class GLLabel: public GLRenderObject, public GLFontKeeper<GLLabel>
 {
 public:

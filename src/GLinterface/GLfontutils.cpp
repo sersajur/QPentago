@@ -11,7 +11,7 @@
 #include <QPixmap>
 #include <QGLFormat>
 
-#include "GLRectangleCoord.h"
+#include "GLrectanglecoord.h"
 
 namespace
 {
@@ -31,7 +31,7 @@ namespace
 namespace glutils
 {
 
-struct GLfontImpl
+struct GLFont::GLfontImpl
 {
     GLfontImpl(const QFont &f);
     ~GLfontImpl();
@@ -49,18 +49,18 @@ struct GLfontImpl
     GLint yOffset;
 };
 
-GLfontImpl::GLfontImpl(const QFont &f)
+GLFont::GLfontImpl::GLfontImpl(const QFont &f)
     : font(f), fontMetrics(f), xOffset(0), yOffset(0)
 {
 }
 
-GLfontImpl::~GLfontImpl()
+GLFont::GLfontImpl::~GLfontImpl()
 {
     if(!textures.empty())
         glDeleteTextures(textures.size(), textures.data());
 }
 
-void GLfontImpl::allocateTexture()
+void GLFont::GLfontImpl::allocateTexture()
 {
     GLuint texture;
     glGenTextures(1, &texture);
@@ -77,7 +77,7 @@ void GLfontImpl::allocateTexture()
     textures.push_back(texture);
 }
 
-CharData &GLfontImpl::createCharacter(QChar c)
+CharData& GLFont::GLfontImpl::createCharacter(QChar c)
 {
     ushort unicodeC = c.unicode();
     if (characters.find(unicodeC)!=characters.end())
@@ -142,27 +142,27 @@ CharData &GLfontImpl::createCharacter(QChar c)
     return character;
 }
 
-GLfont::GLfont(const QFont &f) : d(new GLfontImpl(f))
+GLFont::GLFont(const QFont &f) : d(new GLfontImpl(f))
 {
 }
 
-GLfont::~GLfont()
+GLFont::~GLFont()
 {
     delete d;
 }
 
-const QFont& GLfont::font() const
+const QFont& GLFont::font() const
 {
     return d->font;
 }
 
-const QFontMetrics& GLfont::fontMetrics() const
+const QFontMetrics& GLFont::fontMetrics() const
 {
     return d->fontMetrics;
 }
 
-//! Renders text at given x, y.
-void GLfont::renderText(GLdouble x, GLdouble y, const string &text)
+// Renders text at given x, y.
+void GLFont::renderText(GLdouble x, GLdouble y, const string &text)
 {
     if(text.empty()) return;
     // If the current context's device is not active for painting, the
@@ -203,7 +203,8 @@ void GLfont::renderText(GLdouble x, GLdouble y, const string &text)
 //    glPopAttrib();
 }
 
-void GLfont::renderTextCroped(GLdouble x, GLdouble y, const string &text, GLdouble x_left, GLdouble x_right) {
+// Renders text at given x, y and crop everithing that at left from x_left or at right from x_right
+void GLFont::renderTextCroped(GLdouble x, GLdouble y, const string &text, GLdouble x_left, GLdouble x_right) {
     if(text.empty()) return;
     GLuint texture = 0;
     GLRectangleCoord char_pos(WorldPos{x,y});

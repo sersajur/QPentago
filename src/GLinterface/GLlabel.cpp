@@ -1,6 +1,7 @@
-#include "GLLabel.h"
+#include "GLlabel.h"
 #include <limits>
 #include <cstdint>
+#include <memory>
 
 GLLabel::GLLabel(const string &m_text, const WorldPos &pos_left_top, const QFont& font):
     GLFontKeeper(font), text(m_text), pos(pos_left_top) {
