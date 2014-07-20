@@ -17,7 +17,7 @@ class GameState : public ISerializible
 {
 public:
     GameState() { }
-    GameState(short (*)[6][6], const unsigned);
+    GameState(vector<vector<short>>, const unsigned);
     GameState(QIODevice& f) { this->Deserialize(f); }
     virtual void Serialize(QIODevice&);
     virtual void Deserialize(QIODevice&);
@@ -25,12 +25,16 @@ public:
     //void setBoard(const short _board[6][6]) : board {_board} { }
     void setStepNum(const unsigned num) { stepNum = num; }
 
-    const vector<short>& getBoard() const { return board; }
+    const vector<short>& operator[](unsigned i) const { return board[i]; }
+    const vector<vector<short>>& getBoard() const { return board; }
     unsigned getStepNum() const { return stepNum; }
+
+    unsigned getRowCount() { return height; }
+    unsigned getColCount() { return width; }
 
 private:
     unsigned width = 6, height = 6;
-    vector<short> board;
+    vector<vector<short>> board;
     unsigned stepNum;
 };
 

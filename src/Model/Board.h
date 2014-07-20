@@ -5,16 +5,16 @@
 
 class Board : public IOriginator {
 public:
-	enum RotateDirection { Left, Right };
+    enum class RotateDirection { Left, Right };
+    enum class Quadrant { I = 1, II, III, IV, V, VI, VII, VIII, IX };
 
-	Board();
+    Board(unsigned _rowCount = 6, unsigned _colCount = 6);
     virtual ~Board() { }
 	bool putStone(short, short, short);
-	void Rotate(short, RotateDirection);
+    void Rotate(Quadrant, RotateDirection);
 	
-    //TODO: треба зробити один з них const
-	short& operator()(short, short);
-	short* operator[](short);
+    const short& operator()(short, short);
+    vector<short>& operator[](short);
 	
 	void Clear();
 
@@ -22,8 +22,9 @@ public:
     virtual void RestoreGame(GameState&);
 
 private:
-    typedef short TheBoard[6][6];
+    typedef vector<vector<short>> TheBoard;
     TheBoard board;
+    unsigned rowCount, colCount;
 	unsigned stepNum;
 };
 

@@ -11,7 +11,7 @@ Game::Game() {
     players.push_back(unique_ptr<Player>(new Player("Player 2")));
 
     // init View here
-    userInterface = shared_ptr<IView>(new View());
+    userInterface.reset(new View());
     shared_ptr<View> v = std::dynamic_pointer_cast<View>(userInterface);
 
     // connect View to Presenter
@@ -81,8 +81,11 @@ void Game::put_stone(int x, int y){
 
 void Game::rotate(IView::quadrant quadrant, IView::turn direction){
     // get the sender == currentPlayer
-    board.Rotate((short)quadrant-1, (direction == IView::LEFT) ? Board::Left : Board::Right);
-    if (currentPlayer < decltype(currentPlayer)(players.size()-1)) currentPlayer++; else currentPlayer = 0;
+    board.Rotate((Board::Quadrant)quadrant, (direction == IView::LEFT) ? Board::RotateDirection::Left : Board::RotateDirection::Right);
+    if (currentPlayer < decltype(currentPlayer)(players.size()-1))
+        currentPlayer++;
+    else
+        currentPlayer = 0;
     if (referee.UpdateWinState(board) != NoOne)
         emit message(players[currentPlayer]->GetName() + " Win!");
 
@@ -97,7 +100,10 @@ void Game::rotate(IView::quadrant quadrant, IView::turn direction){
 
 void Game::leave(){
     // get the sender == currentPlayer
-    if (currentPlayer > decltype(currentPlayer)(players.size())) currentPlayer = 0; else currentPlayer++;
+    if (currentPlayer > decltype(currentPlayer)(players.size()))
+        currentPlayer = 0;
+    else
+        currentPlayer++;
     if (players.size() == 1)
         emit message(players[currentPlayer]->GetName() + "Win!");
 }

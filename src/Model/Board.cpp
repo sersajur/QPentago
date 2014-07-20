@@ -15,13 +15,13 @@ bool Board::putStone(short row, short column, short player) {
 	return true;
 }
 
-void Board::Rotate(short quadrant, RotateDirection direction) {
-	unsigned i = quadrant == 0 || quadrant == 1 ? 0 : 3;
-	unsigned j = quadrant == 0 || quadrant == 3 ? 3 : 0;
+void Board::Rotate(Quadrant quadrant, RotateDirection direction) {
+    unsigned i = quadrant == Quadrant::I || quadrant == Quadrant::II ? 0 : 3;
+    unsigned j = quadrant == Quadrant::I || quadrant == Quadrant::IV ? 3 : 0;
 	short tmp;
 
 	switch (direction) {
-	case Left:
+    case RotateDirection::Left:
 		tmp = board[i][j];
 		board[i][j] = board[i][j + 2];
 		board[i][j + 2] = board[i + 2][j + 2];
@@ -33,7 +33,7 @@ void Board::Rotate(short quadrant, RotateDirection direction) {
 		board[i + 2][j + 1] = board[i + 1][j];
 		board[i + 1][j] = tmp;
 		break;
-	case Right:
+    case RotateDirection::Right:
 		tmp = board[i][j];
 		board[i][j] = board[i + 2][j];
 		board[i + 2][j] = board[i + 2][j + 2];
@@ -48,30 +48,37 @@ void Board::Rotate(short quadrant, RotateDirection direction) {
 	}
 }
 
-short& Board::operator()(short i, short j) {
+const short& Board::operator()(short i, short j) {
 	return board[i][j];
 }
 
-short* Board::operator[](short i) {
+vector<short>& Board::operator[](short i) {
 	return board[i];
 }
 
 void Board::Clear() {
-	for (short i = 0; i < 6; i++)
-		for (short j = 0; j < 6; j++)
+    board.clear();
+    board.reserve(rowCount);
+    for (auto row : board)
+        row.reserve(colCount);
+    for (unsigned i = 0; i < rowCount; i++)
+        for (unsigned j = 0; j < colCount; j++)
 			board[i][j] = 0;
 	stepNum = 1;
 }
 
-Board::Board() {
+Board::Board(unsigned _rowCount, unsigned _colCount) : rowCount{_rowCount}, colCount{_colCount} {
 	Clear();
 }
 
-GameState Board::SaveGame() { return GameState(&board, stepNum); }
+GameState Board::SaveGame() { return GameState(board, stepNum); }
 
 void Board::RestoreGame(GameState& gs){
-    for (short i = 0; i < 6; i++)
-        for (short j = 0; j < 6; j++)
-            board[i][j] = gs.getBoard()[i*6+j];
+    rowCount = gs.getRowCount();
+    colCount = gs.getColCount();
+    Clear();
+    for (unsigned i = 0; i < rowCount; i++)
+        for (unsigned j = 0; j < colCount; j++)
+            board[i][j] = gs.getBoard()[i][j];
     stepNum = gs.getStepNum();
 }

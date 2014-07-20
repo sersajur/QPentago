@@ -1,11 +1,7 @@
 #include "serialization.h"
 #include <QStringList>
 
-GameState::GameState(short (*_board)[6][6], const unsigned num) : stepNum{num} {
-    board.clear();
-    for (uint i = 0; i < height; i++)
-        for (uint j = 0; j < width; j++)
-            board.push_back((*_board)[i][j]);
+GameState::GameState(vector<vector<short>> _board, const unsigned num) : width{board[0].size()}, height{board.size()}, board{_board}, stepNum{num} {
 }
 
 void GameState::Serialize(QIODevice& f) {
@@ -24,7 +20,7 @@ void GameState::Serialize(QIODevice& f) {
         stream.writeCharacters("\n        ");
         for (uint j = 0; j < width; j++)
         {
-            stream.writeCharacters(QString::number(this->board[i*width+j]) + " ");
+            stream.writeCharacters(QString::number(this->board[i][j]) + " ");
         }
     }
     stream.writeCharacters("\n    ");
@@ -50,8 +46,12 @@ void GameState::Deserialize(QIODevice& f) {
                 this->stepNum = stream.attributes().value("StepsPerformed").toInt();
                 QStringList tmp = stream.readElementText().simplified().split(" ");
                 board.clear();
-                for (uint i = 0; i < height*width; i++)
-                    this->board.push_back(QString(tmp[i]).toShort());
+                board.reserve(height);
+                for(auto row : board)
+                    row.reserve(this->width);
+                for (uint i = 0; i < height; i++)
+                    for (uint j = 0; j < width; j++)
+                    this->board[i][j] = QString(tmp[i]).toShort();
             }
         }
     }
