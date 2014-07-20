@@ -1,7 +1,7 @@
 /*
  * Referee.cpp
  *
- *  Created on: 13 лист. 2013
+ *  Created on: 13 Р»РёСЃС‚. 2013
  *      Author: sersajur
  */
 #include "Referee.h"

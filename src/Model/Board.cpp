@@ -1,7 +1,7 @@
 /*
  * Board.cpp
  *
- *  Created on: 10 лист. 2013
+ *  Created on: 10 Р»РёСЃС‚. 2013
  *      Author: Gasper
  */
 #include "Board.h"

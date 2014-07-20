@@ -1,3 +1,9 @@
+/*
+ * Board.h
+ *
+ *  Created on: 10 лист. 2013
+ *      Author: Gasper
+ */
 #ifndef BOARD_H
 #define BOARD_H
 
