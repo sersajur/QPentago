@@ -29,7 +29,7 @@ public:
     //Network network;
     //bool mustShutdown;
 
-    virtual ~Game() { new shared_ptr<IView>(userInterface); }
+    virtual ~Game() { }
     static Game& GetInstance();
     void Show() { std::dynamic_pointer_cast<View>(userInterface)->show(); }
 
