@@ -1,7 +1,7 @@
 /*
  * Board.cpp
  *
- *  Created on: 10 лист. 2013
+ *  Created on: 10 Р»РёСЃС‚. 2013
  *      Author: Gasper
  */
 #include "Board.h"
@@ -59,9 +59,7 @@ vector<short>& Board::operator[](short i) {
 }
 
 void Board::Clear() {
-    board = std::move(vector<vector<short>>(rowCount));
-    for (auto& row : board)
-        row = std::move(vector<short>(colCount, 0));
+    board = std::move(vector<vector<short>>(rowCount, vector<short>(colCount, 0)));
 	stepNum = 1;
 }
 

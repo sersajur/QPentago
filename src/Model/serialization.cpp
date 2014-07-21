@@ -1,7 +1,7 @@
 #include "serialization.h"
 #include <QStringList>
 
-GameState::GameState(vector<vector<short>> _board, const unsigned num) : width{board[0].size()}, height{board.size()}, board{_board}, stepNum{num} {
+GameState::GameState(const vector<vector<short>>& _board, const unsigned num) : width{_board[0].size()}, height{_board.size()}, board{_board}, stepNum{num} {
 }
 
 void GameState::Serialize(QIODevice& f) {
@@ -45,13 +45,10 @@ void GameState::Deserialize(QIODevice& f) {
                 this->width = stream.attributes().value("Width").toInt();
                 this->stepNum = stream.attributes().value("StepsPerformed").toInt();
                 QStringList tmp = stream.readElementText().simplified().split(" ");
-                board.clear();
-                board.reserve(height);
-                for(auto row : board)
-                    row.reserve(this->width);
+                board = std::move(vector<vector<short>>(height, vector<short>(width, 0)));
                 for (uint i = 0; i < height; i++)
                     for (uint j = 0; j < width; j++)
-                    this->board[i][j] = QString(tmp[i]).toShort();
+                        this->board[i][j] = QString(tmp[i*height+j]).toShort();
             }
         }
     }
