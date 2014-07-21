@@ -11,14 +11,12 @@
 #include <vector>
 #include <functional>
 
-using string = std::wstring;
-using str_array = std::vector<string>;
 using RadioGroupSelectedChangedCallBack = std::function<void(int old_selected_index, int new_selected_index)>;
 
 class GLRadioGroup : public GLRenderObject, public GLFontKeeper<GLRadioGroup>
 {
 public:
-  GLRadioGroup(
+  explicit GLRadioGroup(
          const WorldPos &pos_left_top = WorldPos(0,0),
          WorldPos::COORD_TYPE width = 0,
          const GLTexture2D& background = GLTexture2D());
@@ -55,8 +53,6 @@ public:
 
   virtual void keyPress(int key, bool repeat, KeyboardModifier mod, bool &skip_char_input, bool &lock_active) override;
   virtual void keyRelease(int key, KeyboardModifier mod) override;
-
-  virtual ~GLRadioGroup() { }
 
 protected:
   virtual void fontChanged() override;

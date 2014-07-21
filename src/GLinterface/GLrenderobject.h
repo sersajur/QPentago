@@ -11,12 +11,14 @@
 #endif
 
 using string = std::wstring;
+using str_array = std::vector<string>;
 
 enum KeyboardModifier { MD_NONE = Qt::NoModifier,/*No modifier key is pressed*/
                         MD_SHIFT = Qt::ShiftModifier,/*Key "Shift" is pressed*/
                         MD_CONTROL = Qt::ControlModifier,/*Key "Control" is pressed*/
                         MD_ALT = Qt::AltModifier,/*Key "Alt" is pressed*/
-                        MD_SUPER = Qt::MetaModifier};
+                        MD_SUPER = Qt::MetaModifier
+};
 
 enum MouseButton {  MOUSE_NO_BUTTONS = Qt::NoButton,
                     MOUSE_BUTTON_1 = Qt::LeftButton,

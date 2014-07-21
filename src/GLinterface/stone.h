@@ -10,7 +10,7 @@
 class Stone: public GLRenderObject
 {
 public:
-  Stone(const WorldPos &pos_left_top = WorldPos(0,0),
+  explicit Stone(const WorldPos &pos_left_top = WorldPos(0,0),
         WorldPos::COORD_TYPE radius = 0,
         const GLTexture2D& texture = GLTexture2D());
 

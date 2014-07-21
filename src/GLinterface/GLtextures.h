@@ -33,11 +33,15 @@ public:
 
   //construct and load texture from file
   // "" - means empty texture
-  GLTexture2D(const QString& filename = "");
-  ~GLTexture2D();
+  explicit GLTexture2D(const QString& filename = "");
 
   GLTexture2D(const GLTexture2D& right);
   GLTexture2D& operator=(const GLTexture2D& right);
+
+  GLTexture2D(GLTexture2D&&) = default;
+  GLTexture2D& operator=(GLTexture2D&&) = default;
+
+  ~GLTexture2D();
 
   //release current and load new texture from filename
   bool load(const QString &filename);
@@ -76,11 +80,6 @@ public:
   void draw(const GLint* pos, int dim, const GLdouble* crop_in, int vertex_count = 4) const;
 
   void draw(const GLdouble* pos, int dim, const GLdouble* crop_in, int vertex_count = 4) const;
-
-  //if texture is repeatable pattern,
-  //scale must be setted, otherwise - zero (by default)
-  //1,1 - means keep original texture size
-//  GLTexture2D& setRepeatScale(float x_sc, float y_sc);
 
   //if texture must be drawn cropped
   GLTexture2D& setCropRegion(

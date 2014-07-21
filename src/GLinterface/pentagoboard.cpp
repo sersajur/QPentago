@@ -56,7 +56,7 @@ private:
   Stone* clicked_stone = nullptr;
 public:
 
-  BoardQuadrant(PentagoBoard* parent,
+  explicit BoardQuadrant(PentagoBoard* parent,
                 const WorldPos &pos_left_top = WorldPos(0,0),
                 const WorldPos &vector_size = WorldPos(0,0)):pos(pos_left_top, vector_size) {
     reposStones();
@@ -410,7 +410,7 @@ class PentagoBoard::PentagoBoardImpl: public GLRenderObject {
 
   BoardQuadrant* clicked_quadrant = nullptr;
 public:
-  PentagoBoardImpl(PentagoBoard *parent,
+  explicit PentagoBoardImpl(PentagoBoard *parent,
                    const WorldPos &pos_left_top = WorldPos(0,0),
                    const WorldPos &vector_size = WorldPos(0,0),
                    unsigned board_size = 2):

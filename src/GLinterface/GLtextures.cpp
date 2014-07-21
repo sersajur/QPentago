@@ -149,10 +149,6 @@ void GLTexture2D::draw(const GLdouble* pos, int dim, const GLdouble* crop_in, in
   glDrawArrays(GL_TRIANGLE_FAN,0,vertex_count);
 }
 
-//GLTexture2D& GLTexture2D::setRepeatScale(float x_sc, float y_sc) {
-//  return *this;
-//}
-
 GLTexture2D& GLTexture2D::setCropRegion(
         const WorldPos& left_top,const WorldPos& right_top,
         const WorldPos& right_bottom, const WorldPos& left_bottom) {

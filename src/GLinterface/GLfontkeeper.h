@@ -10,7 +10,7 @@ template<typename Keeper>
 class GLFontKeeper: public GLFontKeeperBase<Keeper>
 {
 public:
-    GLFontKeeper(const QFont& font = QFont());
+    explicit GLFontKeeper(const QFont& font = QFont());
 
     virtual Keeper& setFont(const QFont& font) override final;
     virtual const QFont& getFont() const override final;

@@ -13,7 +13,7 @@ class PentagoBoard: public GLRenderObject
 {
   class PentagoBoardImpl;
 public:
-  PentagoBoard(const WorldPos &pos_left_top = WorldPos(0,0),
+  explicit PentagoBoard(const WorldPos &pos_left_top = WorldPos(0,0),
                const WorldPos &vector_size = WorldPos(0,0),
                unsigned board_size = 2);
 

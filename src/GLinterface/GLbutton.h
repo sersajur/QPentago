@@ -15,7 +15,7 @@ using ButtonClickCallBack=std::function<void()>;
 class GLButton: public GLRenderObject, public GLFontKeeperBase<GLButton>
 {
 public:
-  GLButton(const WorldPos &pos_left_top = WorldPos(0,0),
+  explicit GLButton(const WorldPos &pos_left_top = WorldPos(0,0),
          const WorldPos &vector_size = WorldPos(0,0),
          const string &caption = L"Button",
          const GLTexture2D& texture = GLTexture2D());

@@ -5,14 +5,7 @@
 
 #include <QFont>
 
-#include <string>
-
-
-class QChar;
-class QFont;
 class QFontMetrics;
-
-using string = std::wstring;
 
 namespace glutils
 {
@@ -22,7 +15,7 @@ class GLFont final
   class GLfontImpl;
 
 public:
-    GLFont(const QFont &f = QFont());
+    explicit GLFont(const QFont &f = QFont());
 
     GLFont(const GLFont&) = delete;
     GLFont& operator=(const GLFont&) = delete;

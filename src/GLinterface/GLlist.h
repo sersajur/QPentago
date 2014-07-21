@@ -6,7 +6,7 @@
 class GLList: GLRenderObject
 {
 public:
-  GLList();
+  explicit GLList();
 };
 
 #endif // GLLIST_H

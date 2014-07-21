@@ -29,7 +29,7 @@ using  MenuKeyCallBack = std::function<bool(int key, KeyboardModifier mod,GLMenu
 class GLMenu: public GLRenderObject
 {
 public:
-  GLMenu(const WorldPos &pos_left_top = WorldPos(0,0),
+  explicit GLMenu(const WorldPos &pos_left_top = WorldPos(0,0),
        const WorldPos &vector_size = WorldPos(0,0),
        const GLTexture2D& texture = GLTexture2D());
 

@@ -3,14 +3,13 @@
 
 #include "GLrenderobject.h"
 #include "GLtextures.h"
-#include "GLfontutils.h"
 #include "GLfontkeeper.h"
 
 class GLLabel: public GLRenderObject, public GLFontKeeper<GLLabel>
 {
 public:
 
-  GLLabel(const string& text = L"label",
+  explicit GLLabel(const string& text = L"label",
         const WorldPos &pos_left_top = WorldPos(0,0),
         const QFont& font = QFont());
 
