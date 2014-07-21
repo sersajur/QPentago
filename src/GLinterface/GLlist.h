@@ -5,16 +5,39 @@
 #include "GLtextures.h"
 #include "GLrectanglecoord.h"
 
+#include <functional>
+
+class GLList;
+
+using ListSelectedChangedCallBack = std::function<void(int new_index, int old_index, GLList& parent)>;
+
 class GLList: GLRenderObject
 {
 public:
   explicit GLList(const WorldPos &pos_left_top = WorldPos(0,0),
                   WorldPos::COORD_TYPE width = 0,
-                  unsigned max_visible_items);
+                  unsigned max_visible_items=1);
+
+  GLList& setWidth(WorldPos::COORD_TYPE width);
 
   GLList& setListTexture(const GLTexture2D &texture);
 
   GLList& setItems(const str_array& items_list);
+
+  unsigned getItemsCount() const;
+
+  GLList& setSelectedItem(int index);
+
+  int getSelectedItemIndex() const;
+  const string& getSelectedItem() const;
+
+  GLList& setMaxVisibleItems(unsigned count);
+  unsigned getMaxVisibleItems() const;
+
+  GLList& setMinVisibleItemIndex(unsigned index);
+  unsigned getFirstVisibleItemIndex() const;
+
+  GLList& setSelectedChangedCallBack(const ListSelectedChangedCallBack& call_back);
 
 //GLRenderObject:
   virtual void draw() const override;
@@ -41,6 +64,8 @@ public:
 
 private:
   GLRectangleCoord pos;
+
+  GLTexture2D texture_item;
 };
 
 #endif // GLLIST_H

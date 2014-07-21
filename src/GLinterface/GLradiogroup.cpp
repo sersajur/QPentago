@@ -45,7 +45,7 @@ GLRadioGroup& GLRadioGroup::setSelectedIndex(int index) {
       int old_index = selected_index;
       selected_index = index;
       if(selected_changed_call_back) {
-          selected_changed_call_back(old_index,selected_index);
+          selected_changed_call_back(old_index,selected_index,*this);
         }
     }
   else

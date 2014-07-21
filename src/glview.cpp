@@ -576,7 +576,6 @@ public slots:
             break;
           }
         }
-      board.initTextures();//textures not loading automatically for now
     }
 
     virtual void Set_game_layout(GAME_LAYOUT layout) override  {

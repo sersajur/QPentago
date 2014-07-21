@@ -11,7 +11,9 @@
 #include <vector>
 #include <functional>
 
-using RadioGroupSelectedChangedCallBack = std::function<void(int old_selected_index, int new_selected_index)>;
+class GLRadioGroup;
+
+using RadioGroupSelectedChangedCallBack = std::function<void(int old_selected_index, int new_selected_index, GLRadioGroup& parent)>;
 
 class GLRadioGroup : public GLRenderObject, public GLFontKeeper<GLRadioGroup>
 {

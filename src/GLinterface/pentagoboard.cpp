@@ -406,7 +406,9 @@ class PentagoBoard::PentagoBoardImpl: public GLRenderObject {
   RotateCallBack rotate_call_back;
   vector<vector<BoardQuadrant>> quadrants;
 
-  int active_x=0, active_y=0;
+  int active_x = 0, active_y = 0;
+
+  bool textures_loaded = false;
 
   BoardQuadrant* clicked_quadrant = nullptr;
 public:
@@ -422,6 +424,7 @@ public:
   }
 
   void initTextures() {
+    textures_loaded = true;
     for(auto &i: quadrants) {
         for(auto &o: i) {
             o.initTextures();
@@ -441,6 +444,9 @@ public:
   void setSize(const WorldPos &v_size) {
     pos.setSize(v_size);
     reposQuadrants();
+    if(textures_loaded) {
+        initTextures();
+      }
   }
 
   void setStoneColor(int x_pos, int y_pos, GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha) {
