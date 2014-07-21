@@ -31,7 +31,9 @@ public:
   virtual WorldPos::COORD_TYPE posY() const override;
 
 protected:
+  //GLFontKeeper
   virtual void fontChanged() override;
+  virtual void fontColorChanged() override;
 private:
   GLTexture2D backgound;
   string text;

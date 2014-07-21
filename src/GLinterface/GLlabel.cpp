@@ -64,3 +64,7 @@ void GLLabel::fontChanged() {
   this->text_width = text_font->fontMetrics().width(QString::fromStdWString(text));
 //  this->strike_out_pos = text_font->fontMetrics().strikeOutPos();
 }
+
+void GLLabel::fontColorChanged() {
+  //
+}

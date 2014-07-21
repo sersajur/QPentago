@@ -25,6 +25,9 @@ protected:
     //font changed call back
     virtual void fontChanged() = 0;
 
+    //font color changed call back
+    virtual void fontColorChanged() = 0;
+
     GLint font_color[4];
     std::shared_ptr<glutils::GLFont> text_font;
 };
@@ -56,6 +59,7 @@ Keeper& GLFontKeeper<Keeper>::setFontColor4i(GLint red, GLint green, GLint blue,
     font_color[1] = green;
     font_color[2] = blue;
     font_color[3] = alpha;
+    fontColorChanged();
     return dynamic_cast<Keeper&>(*this);
 }
 

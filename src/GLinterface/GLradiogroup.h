@@ -57,7 +57,9 @@ public:
   virtual void keyRelease(int key, KeyboardModifier mod) override;
 
 protected:
+  //GLFontKeeper
   virtual void fontChanged() override;
+  virtual void fontColorChanged() override;
 private:
   GLRectangleCoord pos;
   GLTexture2D texture_background;

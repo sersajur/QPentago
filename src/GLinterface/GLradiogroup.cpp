@@ -77,6 +77,12 @@ void GLRadioGroup::fontChanged() {
     }
 }
 
+void GLRadioGroup::fontColorChanged() {
+  for(auto&i:items) {
+      i.setFontColor4iv(getFontColor());
+    }
+}
+
 void GLRadioGroup::draw() const {
   glColor4f(1,1,1,1);
   texture_background.draw(pos.glCoords(),pos.dimension);
