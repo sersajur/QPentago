@@ -1,6 +1,7 @@
 #include "GLtextures.h"
 #include <map>
 #include <mutex>
+#include <iostream>
 
 #include <QtOpenGL>
 #include <QImage>
@@ -34,15 +35,19 @@ public:
 
   static void freeTexture(const QString& filename, QGLContext* context) {
     std::lock_guard<std::mutex> lg(m);
-    try {
-      textures_list.at(filename).count--;
-      if(textures_list[filename].count==0) {
-        context->deleteTexture(textures_list[filename].info.texture);
-        textures_list.erase(filename);
+    (void)lg;
+    if(filename!="") {
+        try {
+              textures_list.at(filename).count--;
+              if(textures_list[filename].count==0) {
+                context->deleteTexture(textures_list[filename].info.texture);
+              textures_list.erase(filename);
+            }
+        }catch(...) {
+          std::wcerr << L"Trying to release wrong texture:"
+                     << filename.toStdWString() << std::endl;
+        }
       }
-    }catch(...) {
-
-    }
   }
 };
 
