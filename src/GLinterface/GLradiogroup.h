@@ -80,6 +80,7 @@ private:
   WorldPos::COORD_TYPE item_height;
 
   RadioGroupSelectedChangedCallBack selected_changed_call_back;
+
 public:
   static GLTexture2D texture_blurr;
 };

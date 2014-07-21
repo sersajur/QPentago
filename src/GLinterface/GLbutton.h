@@ -21,7 +21,10 @@ public:
          const GLTexture2D& texture = GLTexture2D());
 
   GLButton& setTexture(const GLTexture2D& texture);
+
   GLButton& setCaption(const string& caption);
+  const string& getCaption() const;
+
   GLButton& setClickCallBack(const ButtonClickCallBack& call_back);
 
   GLButton& setSize(const WorldPos &v_size);

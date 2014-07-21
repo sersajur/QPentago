@@ -32,6 +32,10 @@ GLButton& GLButton::setCaption(const string& text) {
   return *this;
 }
 
+const string& GLButton::getCaption() const {
+  return text.getText();
+}
+
 GLButton& GLButton::setClickCallBack(const ButtonClickCallBack &call_back) {
   click_call_back = call_back;
   return *this;
