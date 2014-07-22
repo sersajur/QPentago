@@ -20,7 +20,7 @@ using std::shared_ptr;
 #include "Model/Referee.h"
 #include "Presenter/Player.h"
 #include "iview.h"
-#include "view.h"
+#include "View.h"
 
 class Game : public QObject {
     Q_OBJECT

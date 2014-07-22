@@ -26,7 +26,6 @@ Referee::Referee(short rowCount, short colCount, short minLength) {
 //= Destructor.
  Referee::~Referee() {
 }
-;
 
 //= Return current winner number(first = 1, second = -1), or specific number for "noone is winner (0)" and for the draw (2)
 winstatus Referee::WinnerIs(void) {

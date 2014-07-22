@@ -21,10 +21,10 @@ SOURCES += main.cpp\
     Presenter/Player.cpp \
     View/graphicbutton.cpp \
     View/graphicmenu.cpp \
-    view.cpp \
     View/graphicstone.cpp \
     View/graphicquadrant.cpp \
-    View/graphicboard.cpp
+    View/graphicboard.cpp \
+    View.cpp
 
 HEADERS  += \
     Model/Board.h \
@@ -35,10 +35,10 @@ HEADERS  += \
     iview.h \
     View/graphicbutton.h \
     View/graphicmenu.h \
-    view.h \
     View/graphicstone.h \
     View/graphicquadrant.h \
-    View/graphicboard.h
+    View/graphicboard.h \
+    View.h
 
 RESOURCES += \
     View/source.qrc
