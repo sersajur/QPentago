@@ -1,7 +1,7 @@
 #include "serialization.h"
 #include <QStringList>
 
-GameState::GameState(const vector<vector<short>>& _board, const unsigned num) : width{_board[0].size()}, height{_board.size()}, board{_board}, stepNum{num} {
+GameState::GameState(const vector<vector<short>>& _board, const unsigned num) : width(_board[0].size()), height(_board.size()), board(_board), stepNum(num) {
 }
 
 void GameState::Serialize(QIODevice& f) {
