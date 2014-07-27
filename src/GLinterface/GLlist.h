@@ -23,7 +23,8 @@ public:
 
   GLList& setWidth(WorldPos::COORD_TYPE width);
 
-  GLList& setListTexture(const GLTexture2D &texture);
+  GLList& setItemsTexture(const GLTexture2D &texture);
+  GLList& setNumbersTexture(const GLTexture2D &texture);
 
   GLList& setItems(const str_array& items_list);
 
@@ -33,6 +34,7 @@ public:
 
   int getSelectedItemIndex() const;
   const string& getSelectedItem() const;
+  const string& getItem(unsigned index) const;
 
   GLList& setMaxVisibleItems(unsigned count);
   unsigned getMaxVisibleItems() const;
@@ -73,19 +75,31 @@ private:
   GLRectangleCoord pos;
 
   GLTexture2D texture_item;
+  GLTexture2D texture_number;
 
-  int pressed_index;
-  int selected_index;
-  int hovered_index;
+  int pressed_index = -1;
+  int selected_index = -1;
+  int hovered_index = -1;
 
   unsigned max_visible_cout;
+  unsigned first_visible = 0;
 
   std::vector<GLButton> items;
+  GLButton go_up;
+  GLButton go_down;
+
+  std::vector<GLButton> numbers;//including empty at go_up and go_down
 
   WorldPos::COORD_TYPE item_height;
 
   ListSelectedChangedCallBack selected_changed_call_back;
 
+  //sets correct height for all objects of GLList
+  void resetObjectsHeight();
+  //sets correct width for all namber labels
+  void resetNumbersWidth();
+  //sets correct position for all visible objects
+  void resetObjectsPos();
 public:
   static GLTexture2D texture_blurr;
 };
