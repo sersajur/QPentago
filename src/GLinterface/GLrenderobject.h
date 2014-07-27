@@ -13,6 +13,10 @@
 static const char DEFAULT_FONT_FAMILY[] = "Lobster";
 
 using string = std::wstring;
+template<typename T>
+inline string to_string(T val) {
+  return std::to_wstring(val);
+}
 using str_array = std::vector<string>;
 
 enum KeyboardModifier { MD_NONE = Qt::NoModifier,/*No modifier key is pressed*/
