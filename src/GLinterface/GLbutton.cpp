@@ -16,7 +16,7 @@ GLButton::GLButton(const WorldPos &pos_left_top,
     alpha_color_bak(INT_MAX) {
 
   setFontColor4d(0.0,0.0,0.0,1.0);
-  setFont(QFont("Snap ITC", 1/*whatever*/, 40, false));
+  setFont(QFont(DEFAULT_FONT_FAMILY, 1/*whatever*/, 40, false));
   setSize(vector_size);
   setTexture(texture);
 }

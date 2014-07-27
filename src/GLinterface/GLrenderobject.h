@@ -10,6 +10,8 @@
 #include <GLES/gl.h>
 #endif
 
+static const char DEFAULT_FONT_FAMILY[] = "Lobster";
+
 using string = std::wstring;
 using str_array = std::vector<string>;
 

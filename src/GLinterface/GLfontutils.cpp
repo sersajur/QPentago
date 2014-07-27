@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <unordered_map>
+#include <stdexcept>
 
 #include <cmath>
 #include <iostream>
@@ -10,6 +11,11 @@
 #include <QPainter>
 #include <QPixmap>
 #include <QGLFormat>
+#include <QFile>
+#include <QTextStream>
+#include <QFontDatabase>
+
+#include <QDebug>
 
 #include "GLrectanglecoord.h"
 
@@ -141,9 +147,33 @@ CharData& GLFont::GLfontImpl::createCharacter(QChar c)
     }
     return character;
 }
+//
 
-GLFont::GLFont(const QFont &f) : d(new GLfontImpl(f))
-{
+//one time use class
+class FontsLoader {
+public:
+  FontsLoader() {
+    QFile file(":/fonts/fonts_list.txt");
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+      throw std::logic_error("Can not open :/fonts/fonts_list.txt to load fonts list.");
+    QTextStream list(&file);
+    QString font_file;
+    while(!(list>>font_file).atEnd()) {
+        int id = QFontDatabase::addApplicationFont(":/fonts/"+font_file);
+        if(id==-1) {
+            throw std::logic_error(std::string("Can not load font file :/fonts/")+font_file.toStdString());
+          }
+        QString family = QFontDatabase::applicationFontFamilies(id).at(0);
+        qDebug() << family;
+      }
+
+  }
+};
+
+// GLFont:
+GLFont::GLFont(const QFont &f) : d(new GLfontImpl(f)) {
+  static FontsLoader one_time_use;//once load all fonts
+  (void)one_time_use;
 }
 
 GLFont::~GLFont()

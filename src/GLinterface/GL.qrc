@@ -9,5 +9,7 @@
         <file>graphics/radio.png</file>
         <file>graphics/radio_checked.png</file>
         <file>graphics/radio_pressed.png</file>
+        <file>fonts/lobster.ttf</file>
+        <file>fonts/fonts_list.txt</file>
     </qresource>
 </RCC>

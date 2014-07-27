@@ -45,7 +45,7 @@ HEADERS  += glview.h \
     GLinterface/GLrectanglecoord.h
 
 RESOURCES += \
-    GLinterface/GLgraphics.qrc
+    GLinterface/GL.qrc
 
 CONFIG += c++11
 

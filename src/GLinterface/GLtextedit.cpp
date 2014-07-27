@@ -17,7 +17,7 @@ GLTextEdit::GLTextEdit(const WorldPos &pos_left_top, const WorldPos &vector_size
 
   calcCrop();
   setCurPos(0);
-  text.setFont(QFont("Snap ITC", 1/*whatever*/, 40, false));
+  text.setFont(QFont(DEFAULT_FONT_FAMILY, 1/*whatever*/, 40, false));
   setSize(vector_size);
 }
 

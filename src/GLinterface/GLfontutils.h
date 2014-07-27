@@ -10,8 +10,7 @@ class QFontMetrics;
 namespace glutils
 {
 
-class GLFont final
-{
+class GLFont final {
   class GLfontImpl;
 
 public:
