@@ -534,6 +534,11 @@ protected:
         current_objects = view_history.top();
         view_history.pop();
       }
+      for(auto &i: current_objects) {
+          if(i->canBeActive()) {
+              i->setActive(true);
+            }
+        }
     }
 
     void goToMenu(GLMenu& menu) {
