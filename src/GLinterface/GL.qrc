@@ -11,5 +11,6 @@
         <file>graphics/radio_pressed.png</file>
         <file>fonts/lobster.ttf</file>
         <file>fonts/fonts_list.txt</file>
+        <file>graphics/label_little.jpg</file>
     </qresource>
 </RCC>

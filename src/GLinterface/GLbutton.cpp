@@ -16,8 +16,8 @@ GLButton::GLButton(const WorldPos &pos_left_top,
     alpha_color_bak(INT_MAX) {
 
   setFontColor4d(0.0,0.0,0.0,1.0);
-  setFont(QFont(DEFAULT_FONT_FAMILY, 1/*whatever*/, 40, false));
   setSize(vector_size);
+  setFont(QFont(DEFAULT_FONT_FAMILY, 1/*whatever*/, 40, false));
   setTexture(texture);
 }
 
@@ -49,7 +49,8 @@ GLButton& GLButton::setSize(const WorldPos &v_size) {
   height = std::min(height,150);
   height /= 2;
   font.setPointSize(height==0?1:height);
-  setFont(font);
+  text.setFont(font);
+  resetTextPos();
   return *this;
 }
 
@@ -58,7 +59,7 @@ GLButton& GLButton::setSize(const WorldPos &v_size) {
 //
 GLButton& GLButton::setFont(const QFont& font) {
     text.setFont(font);
-    resetTextPos();
+    setSize({pos.width(),pos.height()});
     return *this;
 }
 

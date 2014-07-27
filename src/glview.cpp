@@ -20,6 +20,7 @@
 #include "GLinterface/GLrenderobject.h"
 #include "GLinterface/GLmenu.h"
 #include "GLinterface/GLradiogroup.h"
+#include "GLinterface/GLlist.h"
 
 #include "GLinterface/pentagoboard.h"
 
@@ -104,6 +105,7 @@ public:
     virtual ~GLviewImpl() {
       GLButton::texture_blurr.release();//kind of bugfix
       GLRadioGroup::texture_blurr.release();
+      GLList::texture_blurr.release();
     }
 
     void setParent(GLView * gl_parent) {
@@ -127,6 +129,8 @@ protected:
 
       GLButton::texture_blurr.load(":/graphics/glass_blurred.jpg");
       GLRadioGroup::texture_blurr.load(":/graphics/glass_blurred.jpg");
+      GLList::texture_blurr.load(":/graphics/glass_blurred.jpg");
+
       texture_background.load(":/graphics/background.jpg");
 
       buildMenus();
@@ -399,6 +403,7 @@ protected:
       GLTexture2D texture_button(":/graphics/background_button.jpg");
       GLTexture2D texture_menu(":/graphics/dots.png");
       GLTexture2D texture_label(":/graphics/background_label.jpg");
+      GLTexture2D texture_numbers(":/graphics/label_little.jpg");
       main_menu.setPos({200,150});
       main_menu.setSize({624,724});
       main_menu
@@ -470,12 +475,26 @@ protected:
                          }))
           .setKeyCallBack(Qt::Key_Escape,MD_NONE,GLMenuItemClicker(3));
 
-      menu_load_game.setPos({200,260});
-      menu_load_game.setSize({624,504});
+      menu_load_game.setPos({100,100});
+      menu_load_game.setSize({824,824});
       menu_load_game
           .setTexture(texture_menu)
-          .addObject(GLButton({0,311},{512,100},L"Autosave",texture_button))
-          .addObject(GLButton({0,631},{512,100},L"Back",texture_button).setClickCallBack(
+          .addObject(GLList({120,120},430,5).
+                     setFont(QFont(DEFAULT_FONT_FAMILY, 30, 40, false))
+                     .setItemsTexture(texture_label)
+                     .setNumbersTexture(texture_numbers)
+                     .setItems({L"test1",
+                                L"test2",
+                                L"test3",
+                                L"test4",
+                                L"test5",
+                                L"test6",
+                                L"test7",
+                                L"test8",
+                                L"test9",
+                                L"test10"}))
+          .addObject(GLButton({600,680},{310,100},L"Autosave",texture_button))
+          .addObject(GLButton({600,790},{310,100},L"Back",texture_button).setClickCallBack(
                        [&]() {
                            this->goMenuBack();
                          }))
