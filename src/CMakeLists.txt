@@ -6,6 +6,9 @@ set (CMAKE_CXX_STANDARD 14)
 # Tell CMake to run moc when necessary:
 set(CMAKE_AUTOMOC ON)
 
+# Tell CMake to run rcc when necessary:
+set(CMAKE_AUTORCC ON)
+
 # As moc files are generated in the binary dir, tell CMake
 # to always look for includes there:
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -52,7 +55,11 @@ set (SOURCE
   View.h
 )
 
-add_executable(${PROJECT_NAME} ${SOURCE})
+set (RESOURCE
+  View/source.qrc
+)
+
+add_executable(${PROJECT_NAME} ${SOURCE} ${RESOURCE})
 
 # The Qt5Widgets_LIBRARIES variable also includes QtGui and QtCore
 target_link_libraries(${PROJECT_NAME} Qt5::Widgets)
