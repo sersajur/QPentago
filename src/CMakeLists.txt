@@ -1,2 +1,2 @@
-add_subdirectory(pentagolib)
-add_subdirectory(widgetapp)
+add_subdirectory(PentagoLib)
+add_subdirectory(WidgetsApp)

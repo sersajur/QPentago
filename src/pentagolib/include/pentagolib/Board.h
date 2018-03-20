@@ -7,7 +7,7 @@
 #ifndef BOARD_H
 #define BOARD_H
 
-#include "Model/serialization.h"
+#include <PentagoLib/serialization.h>
 
 class Board : public IOriginator {
 public:

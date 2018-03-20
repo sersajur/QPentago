@@ -1,5 +1,5 @@
 #include "View.h"
-#include "Presenter/Game.h"
+#include <PentagoLib/Game.h>
 
 #include <QApplication>
 

@@ -1,4 +1,4 @@
-#include "Player.h"
+#include <PentagoLib/Player.h>
 
 Player::Player(std::string _name) : playerType{-1} { SetName(_name); }
 Player::~Player() { }

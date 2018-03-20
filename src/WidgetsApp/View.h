@@ -1,7 +1,7 @@
 #ifndef VIEW_H
 #define VIEW_H
 #include <QGraphicsView>
-#include "iview.h"
+#include <PentagoLib/iview.h>
 #include "View/graphicmenu.h"
 #include "View/graphicboard.h"
 #include "qdebug.h"

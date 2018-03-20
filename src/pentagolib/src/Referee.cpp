@@ -4,7 +4,7 @@
  *  Created on: 13 лист. 2013
  *      Author: sersajur
  */
-#include "Referee.h"
+#include <PentagoLib/Referee.h>
 #include <stdlib.h>
 #include <iostream>
 
