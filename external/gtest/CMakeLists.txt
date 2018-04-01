@@ -1,45 +1,30 @@
-# We need thread support
-find_package(Threads REQUIRED)
+configure_file(CMakeLists.txt.in CMakeLists.txt @ONLY)
 
-# Enable ExternalProject CMake module
-include(ExternalProject)
-
-# Download and install GoogleTest
-ExternalProject_Add(
-  gtest
-  URL https://github.com/google/googletest/archive/master.zip
-  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/gtest
-  # Make gtest link C runtimes dynamically, otherwise our unittest target will fail linking gtest.
-  CMAKE_CACHE_ARGS -DGTEST_FORCE_SHARED_CRT:BOOL=ON
-  # Disable install step
-  INSTALL_COMMAND ""
+configure_file(CMakeLists.txt.in CMakeLists.txt)
+execute_process(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" .
+  RESULT_VARIABLE result
+  WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
 )
-
-# Get GTest source and binary directories from CMake project
-ExternalProject_Get_Property(gtest source_dir binary_dir)
-
-# Create a libgtest target to be used as a dependency by test programs
-add_library(libgtest IMPORTED UNKNOWN GLOBAL)
-add_dependencies(libgtest gtest)
-
-# Set libgtest properties
-set_target_properties(libgtest
-  PROPERTIES
-    INTERFACE_INCLUDE_DIRECTORIES "${source_dir}/googletest/include"
-    IMPORTED_LOCATION_RELEASE "${binary_dir}/googlemock/gtest/Release/gtest.lib"
-    IMPORTED_LOCATION_DEBUG "${binary_dir}/googlemock/gtest/Debug/gtestd.lib"
-    IMPORTED_LINK_INTERFACE_LIBRARIES "${CMAKE_THREAD_LIBS_INIT}"
+if(result)
+  message(FATAL_ERROR "CMake step for googletest failed: ${result}")
+endif()
+execute_process(COMMAND "${CMAKE_COMMAND}" --build .
+  RESULT_VARIABLE result
+  WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
 )
+if(result)
+  message(FATAL_ERROR "Build step for googletest failed: ${result}")
+endif()
 
-# Create a libgmock target to be used as a dependency by test programs
-add_library(libgmock IMPORTED UNKNOWN GLOBAL)
-add_dependencies(libgmock gtest)
+# Prevent GoogleTest from overriding our compiler/linker options
+# when building with Visual Studio
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
-# Set libgmock properties
-set_target_properties(libgmock
-  PROPERTIES
-    INTERFACE_INCLUDE_DIRECTORIES "${source_dir}/googlemock/include"
-    IMPORTED_LOCATION_RELEASE "${binary_dir}/googlemock/Release/gmock.lib"
-    IMPORTED_LOCATION_DEBUG "${binary_dir}/googlemock/Debug/gmockd.lib"
-    IMPORTED_LINK_INTERFACE_LIBRARIES "${CMAKE_THREAD_LIBS_INIT}"
+# Add googletest directly to our build. This adds
+# the following targets: gtest, gtest_main, gmock
+# and gmock_main
+add_subdirectory(
+  "${CMAKE_CURRENT_BINARY_DIR}/googletest-src"
+  "${CMAKE_CURRENT_BINARY_DIR}/googletest-build"
+  EXCLUDE_FROM_ALL
 )
