@@ -8,8 +8,9 @@
 #ifndef REFEREE_H_
 #define REFEREE_H_
 
-#include"Board.h"
-#include<vector>
+#include <pentagolib/Board.h>
+
+#include <vector>
 enum winstatus {
 	Second = -1, NoOne = 0, First = 1, Draw = 2
 };

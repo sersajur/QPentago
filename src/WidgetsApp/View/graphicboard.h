@@ -9,7 +9,7 @@
 #include <QAbstractTransition>
 #include <QSignalTransition>
 #include <QFinalState>
-#include "iview.h"
+#include <PentagoLib/iview.h>
 #include <QTextBrowser>
 #include "graphicbutton.h"
 #include <QGraphicsProxyWidget>

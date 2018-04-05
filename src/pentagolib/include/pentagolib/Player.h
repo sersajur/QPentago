@@ -7,7 +7,7 @@
 using std::string;
 using std::mutex;
 
-#include "Model/Board.h"
+#include <PentagoLib/Board.h>
 
 class Player : public QObject {
     Q_OBJECT

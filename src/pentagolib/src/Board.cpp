@@ -4,7 +4,7 @@
  *  Created on: 10 лист. 2013
  *      Author: Gasper
  */
-#include "Board.h"
+#include <PentagoLib/Board.h>
 
 bool Board::putStone(short row, short column, short player) {
 	if (board[row][column])

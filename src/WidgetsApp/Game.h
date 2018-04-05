@@ -16,10 +16,10 @@ using std::vector;
 #include <memory>
 using std::unique_ptr;
 using std::shared_ptr;
-#include "Model/Board.h"
-#include "Model/Referee.h"
-#include "Presenter/Player.h"
-#include "iview.h"
+#include <PentagoLib/Board.h>
+#include <PentagoLib/Referee.h>
+#include <PentagoLib/Player.h>
+#include <PentagoLib/iview.h>
 #include "View.h"
 
 class Game : public QObject {

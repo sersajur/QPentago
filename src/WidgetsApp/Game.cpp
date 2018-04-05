@@ -1,5 +1,5 @@
 //#include "PentagoServer.h"
-#include "Presenter/Game.h"
+#include <PentagoLib/Game.h>
 
 Game& Game::GetInstance() {
     static Game _instance;
