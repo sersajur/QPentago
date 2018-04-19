@@ -1,7 +1,7 @@
 project(PentagoLibTests)
 
 set (SOURCE
-  DummyTest.cpp
+  BoardTests.cpp
   main.cpp
 )
 
@@ -11,4 +11,5 @@ add_executable(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
   gtest
+  PentagoLib
 )

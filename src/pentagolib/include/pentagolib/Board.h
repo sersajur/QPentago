@@ -23,8 +23,8 @@ public:
     vector<short>& operator[](short);
 	
 	void Clear();
-    unsigned getRowCount() { return rowCount; }
-    unsigned getColCount() { return colCount; }
+    unsigned getRowCount() const { return rowCount; }
+    unsigned getColCount() const { return colCount; }
 
     virtual GameState SaveGame();
     virtual void RestoreGame(GameState&);
