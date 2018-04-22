@@ -57,3 +57,42 @@ TEST(Board, RowColGetters_Return_1x9_When_1x9)
   EXPECT_EQ(row_count, board.getRowCount());
   EXPECT_EQ(col_count, board.getColCount());
   }
+
+TEST(Board, PutStone_Returns_True_When_StoneIsPlacedInVacantPlace)
+  {
+  auto board = Board(6, 6);
+  const Board::TIndex row = 2;
+  const Board::TIndex col = 3;
+  const Board::TStoneId stoneId = 1;
+
+  EXPECT_TRUE(board.putStone(row, col, stoneId));
+  }
+
+TEST(Board, PutStone_Returns_False_When_StoneIsPlacedInOccupiedPlace)
+  {
+  auto board = Board(6, 6);
+  const Board::TIndex row = 2;
+  const Board::TIndex col = 3;
+  const Board::TStoneId stoneId = 1;
+  board.putStone(row, col, stoneId);
+
+  EXPECT_FALSE(board.putStone(row, col, stoneId));
+  }
+
+TEST(Board, Rotate_Yields_0x0_When_0x0nInLeft)
+  {
+  auto board = Board(6, 6);
+  const Board::TIndex row = 0;
+  const Board::TIndex col = 0;
+  const auto q = Board::Quadrant::I;
+  const auto direction = Board::RotateDirection::Left;
+  const Board::TStoneId stone_id = 1;
+  const Board::TIndex expected_row = 0;
+  const Board::TIndex expected_col = 0;
+
+  ASSERT_TRUE(board.putStone(row, col, stone_id));
+  ASSERT_NE(board(expected_row, expected_col), stone_id);
+  board.Rotate(q, direction);
+
+  EXPECT_EQ(board(expected_row, expected_col), stone_id);
+  }

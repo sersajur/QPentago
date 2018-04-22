@@ -6,12 +6,13 @@
  */
 #include <PentagoLib/Board.h>
 
-bool Board::putStone(short row, short column, short player) {
-	if (board[row][column])
-		return false;
+bool Board::putStone(TIndex row, TIndex column, TStoneId player) {
+        if (board[row][column]) {
+            return false;
+        }
 	board[row][column] = player ? -1 * stepNum : stepNum;
 	if (player)
-		stepNum++;
+                stepNum++;
 	return true;
 }
 
