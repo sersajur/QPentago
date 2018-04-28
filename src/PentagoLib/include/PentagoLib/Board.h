@@ -15,11 +15,12 @@ public:
     enum class Quadrant { I = 1, II, III, IV, V, VI, VII, VIII, IX };
 
     using TStoneId = short;
-    using TIndex = short;
-    using TSize = unsigned;
+    using TIndex = unsigned;
+    using TSize = size_t;
 
-    Board(unsigned _rowCount = 6, unsigned _colCount = 6);
-    virtual ~Board() { }
+    static const TStoneId empty_stone_id = 0;
+
+    explicit Board(TSize i_edge_size = 6);
 
     /**
      * @brief Returns true if stone is set.
@@ -33,12 +34,11 @@ public:
      */
     void Rotate(Quadrant, RotateDirection);
 	
-    const TStoneId& operator()(TIndex, TIndex);
+    TStoneId operator()(TIndex i_row, TIndex i_col) const;
     vector<TStoneId>& operator[](TIndex);
 	
-	void Clear();
-    TSize getRowCount() const { return rowCount; }
-    TSize getColCount() const { return colCount; }
+    void Clear();
+    TSize getEdgeSize() const;
 
     virtual GameState SaveGame();
     virtual void RestoreGame(GameState&);
@@ -46,8 +46,6 @@ public:
 private:
     typedef vector<vector<short>> TheBoard;
     TheBoard board;
-    unsigned rowCount, colCount;
-	unsigned stepNum;
 };
 
 #endif /* BOARD_H */

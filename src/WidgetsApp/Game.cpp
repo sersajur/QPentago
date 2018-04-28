@@ -80,7 +80,7 @@ void Game::put_stone(int x, int y){
 }
 
 void Game::rotate(IView::quadrant quadrant, IView::turn direction){
-    // get the sender == currentPlayer
+    // get the sender  == currentPlayer
     board.Rotate((Board::Quadrant)quadrant, (direction == IView::LEFT) ? Board::RotateDirection::Left : Board::RotateDirection::Right);
     if (currentPlayer < decltype(currentPlayer)(players.size()-1))
         currentPlayer++;

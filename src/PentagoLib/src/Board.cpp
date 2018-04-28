@@ -6,13 +6,19 @@
  */
 #include <PentagoLib/Board.h>
 
+#include <cassert>
+
+
+const Board::TStoneId Board::empty_stone_id;
+
 bool Board::putStone(TIndex row, TIndex column, TStoneId player) {
-        if (board[row][column]) {
-            return false;
-        }
-	board[row][column] = player ? -1 * stepNum : stepNum;
-	if (player)
-                stepNum++;
+  assert(player != empty_stone_id);
+  
+  if (board[row][column] != empty_stone_id)
+    {
+    return false;
+    }
+	board[row][column] = player;
 	return true;
 }
 
@@ -51,31 +57,42 @@ void Board::Rotate(Quadrant quadrant, RotateDirection direction) {
 	}
 }
 
-const short& Board::operator()(short i, short j) {
+Board::TStoneId Board::operator()(TIndex i, TIndex j) const {
 	return board[i][j];
 }
 
-vector<short>& Board::operator[](short i) {
+vector<short>& Board::operator[](TIndex i) {
 	return board[i];
 }
 
-void Board::Clear() {
-    board = std::move(vector<vector<short>>(rowCount, vector<short>(colCount, 0)));
-	stepNum = 1;
+Board::TSize Board::getEdgeSize() const
+  {
+  return board.size();
+  }
+
+void Board::Clear()
+{
+  for (auto& col : board)
+    {
+    std::fill(col.begin(), col.end(), empty_stone_id);
+    }
 }
 
-Board::Board(unsigned _rowCount, unsigned _colCount) : rowCount{_rowCount}, colCount{_colCount} {
-	Clear();
+Board::Board(TSize i_edge_size)
+  : board{std::vector<std::vector<TStoneId>>{i_edge_size, std::vector<TStoneId>(i_edge_size, empty_stone_id)}}
+{
 }
 
-GameState Board::SaveGame() { return GameState(board, stepNum); }
+GameState Board::SaveGame() { return GameState(board, -1); }
 
-void Board::RestoreGame(GameState& gs){
-    rowCount = gs.getRowCount();
-    colCount = gs.getColCount();
-    Clear();
-    for (unsigned i = 0; i < rowCount; i++)
-        for (unsigned j = 0; j < colCount; j++)
-            board[i][j] = gs.getBoard()[i][j];
-    stepNum = gs.getStepNum();
-}
+void Board::RestoreGame(GameState& gs)
+  {
+  board.clear();
+  for (unsigned i = 0; i < gs.getRowCount(); i++)
+    {
+    std::vector<TStoneId> row;
+    for (unsigned j = 0; j < gs.getColCount(); j++)
+      row.push_back(gs.getBoard()[i][j]);
+    board.emplace_back(std::move(row));
+    }
+  }
