@@ -1,6 +1,6 @@
 Pentago
 ========
-Game project initially developed on Qt for educational reason.
+Game project developed for educational reason.
 
 CMake configuration should be done via:
 
