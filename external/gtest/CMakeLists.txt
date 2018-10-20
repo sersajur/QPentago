@@ -1,43 +1,41 @@
 cmake_minimum_required(VERSION 3.10)
 project(GoogleTest CXX)
 
+# Warning fixes - borrowed from GTest build scripts
 if(WIN32)
-    set(gtest_cxx_flags -D_UNICODE -DUNICODE -DSTRICT -DWIN32_LEAN_AND_MEAN)
+  set(gtest_cxx_flags -D_UNICODE -DUNICODE -DSTRICT -DWIN32_LEAN_AND_MEAN)
 else()
-    set(gtest_cxx_flags -Wno-unused-parameter -Wno-missing-field-initializers)
+  set(gtest_cxx_flags -Wno-unused-parameter -Wno-missing-field-initializers)
 endif()
 
 # gtest
 
-add_library(gtest STATIC EXCLUDE_FROM_ALL
-    "${CMAKE_CURRENT_LIST_DIR}/googletest/googletest/src/gtest-all.cc"
+add_library(gtest STATIC
+  "${CMAKE_CURRENT_LIST_DIR}/googletest/googletest/src/gtest-all.cc"
 )
 
 target_include_directories(gtest
-    PRIVATE "${CMAKE_CURRENT_LIST_DIR}/googletest/googletest"
-    PUBLIC "${CMAKE_CURRENT_LIST_DIR}/googletest/googletest/include"
+  PRIVATE "${CMAKE_CURRENT_LIST_DIR}/googletest/googletest"
+  PUBLIC "${CMAKE_CURRENT_LIST_DIR}/googletest/googletest/include"
 )
 
-target_compile_options(gtest
-    PRIVATE ${gtest_cxx_flags}
+target_compile_options(gtest PRIVATE ${gtest_cxx_flags}
 )
 
 if (UNIX)
-    target_link_libraries(gtest PRIVATE pthread)
+  target_link_libraries(gtest PRIVATE pthread)
 endif(UNIX)
 
 # gtest_main
 
-add_library(gtest_main STATIC EXCLUDE_FROM_ALL
-    "${CMAKE_CURRENT_LIST_DIR}/googletest/googletest/src/gtest_main.cc"
+add_library(gtest_main STATIC
+  "${CMAKE_CURRENT_LIST_DIR}/googletest/googletest/src/gtest_main.cc"
 )
 
 target_include_directories(gtest_main
-    PRIVATE "${CMAKE_CURRENT_LIST_DIR}/googletest/googletest/include"
+  PRIVATE "${CMAKE_CURRENT_LIST_DIR}/googletest/googletest/include"
 )
 
-target_compile_options(gtest_main
-    PRIVATE ${gtest_cxx_flags}
-)
+target_compile_options(gtest_main  PRIVATE ${gtest_cxx_flags})
 
 #
