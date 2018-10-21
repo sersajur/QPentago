@@ -1,25 +1,48 @@
 #include "View.h"
 
-View::View(QWidget *parent):
-    QGraphicsView(parent)
+#include <QGraphicsView>
+#include <QResizeEvent>
+
+#include "View/graphicmenu.h"
+#include "View/graphicboard.h"
+
+namespace
 {
-    setGeometry(300,300,GS_WIDTH,GS_HEIGHT);
-    menu_scene = new GraphicMenu(-width()/2,-height()/2,width(),height(),this);
-    board_scene = new GraphicBoard(-width()/2,-height()/2,width(),height(),this);
 
-    QIcon icon(QPixmap(":/Graphic_source/icon.png"));
-    setWindowIcon(icon);
+class AutoFittableGraphicsView: public QGraphicsView
+{
+public:
+    using QGraphicsView::QGraphicsView;
 
-    setWindowTitle("Pentago");
-    setFixedSize(this->size());//TODO:equally resize
-    setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
-    setCacheMode(QGraphicsView::CacheBackground);
-    setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
+protected:
+    void resizeEvent(QResizeEvent *event) override
+    {
+        QGraphicsView::resizeEvent(event);
+        fitInView(sceneRect(),Qt::KeepAspectRatio);
+    }
+};
+
+} // anonymous
+
+View::View()
+    : view(new AutoFittableGraphicsView)
+{
+    view->setGeometry(300,300,GS_WIDTH,GS_HEIGHT);
+    menu_scene = new GraphicMenu(-view->width()/2,-view->height()/2,view->width(),view->height(),view);
+    board_scene = new GraphicBoard(-view->width()/2,-view->height()/2,view->width(),view->height(),view);
+
+    view->setWindowIcon(QPixmap(":/Graphic_source/icon.png"));
+
+    view->setWindowTitle("Pentago");
+    view->setFixedSize(view->size());//TODO:equally resize
+    view->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
+    view->setCacheMode(QGraphicsView::CacheBackground);
+    view->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
 
     connect(menu_scene, SIGNAL(New_game_selected(int)), this, SIGNAL(New_game(int)));
     connect(menu_scene, SIGNAL(Join_game_selected(std::string)), this, SIGNAL(Join_game(std::string)));
     connect(menu_scene, SIGNAL(Host_game_selected(std::string)), this, SIGNAL(Host_game(std::string)));
-    connect(menu_scene, SIGNAL(Exit_game_pressed()), this, SLOT(close()));
+    connect(menu_scene, SIGNAL(Exit_game_pressed()), view, SLOT(close()));
     connect(menu_scene, SIGNAL(Load_game_selected(std::string)),this,SIGNAL(Load_game(std::string)));
 
     connect(board_scene, SIGNAL(quadrant_rotated(IView::quadrant,IView::turn)), this, SIGNAL(Rotate(IView::quadrant,IView::turn)));
@@ -34,30 +57,28 @@ View::View(QWidget *parent):
     Set_control_settings(View::MENU);//it must be called in presenter after view constructing
 }
 
-void View::resizeEvent(QResizeEvent *event)// but now size is fixed
+View::~View()
 {
-    QGraphicsView::resizeEvent(event);
-    fitInView(sceneRect(),Qt::KeepAspectRatio);
+    delete view;
 }
 
-
-void View::Set_control_settings(IView::control_setting param)
+void View::Do_Set_control_settings(IView::control_setting param)
 {
     switch(param){
     case View::MENU:{
         QPixmap menu_bg(":/Graphic_source/b_ground.jpg");
-        setBackgroundBrush(menu_bg.scaled(GS_WIDTH/2,GS_HEIGHT/2,Qt::IgnoreAspectRatio,Qt::SmoothTransformation));
-        setScene(menu_scene);
+        view->setBackgroundBrush(menu_bg.scaled(GS_WIDTH/2,GS_HEIGHT/2,Qt::IgnoreAspectRatio,Qt::SmoothTransformation));
+        view->setScene(menu_scene);
         break;}
     case View::LOCAL_GAME:{
-        setScene(board_scene);
+        view->setScene(board_scene);
         board_scene->enable_save(true);
         board_scene->setGamePhase(GraphicBoard::WAIT_STONE);
         break;}
     case View::NETWORK_GAME:{
         QPixmap menu_bg(":/Graphic_source/b_ground_game.jpg");
-        setBackgroundBrush(menu_bg.scaled(GS_WIDTH,GS_HEIGHT,Qt::IgnoreAspectRatio,Qt::SmoothTransformation));
-        setScene(board_scene);
+        view->setBackgroundBrush(menu_bg.scaled(GS_WIDTH,GS_HEIGHT,Qt::IgnoreAspectRatio,Qt::SmoothTransformation));
+        view->setScene(board_scene);
         board_scene->enable_save(false);
         board_scene->setGamePhase(GraphicBoard::WAIT_STONE);//
         break;}
@@ -65,15 +86,20 @@ void View::Set_control_settings(IView::control_setting param)
         break;
     }
 }
-void View::Draw_stone(int row, int col, IView::color c)
+void View::Do_Draw_stone(int row, int col, IView::color c)
 {
     board_scene->show_message("S<" + QString::number(row) + ','+QString::number(col)+'>'+((c==IView::BLACK)?": Black":": White"));
     board_scene->draw_stone(row, col, ((c==IView::BLACK)?Qt::black:Qt::white));
 }
 
-void View::Show_message(std::string text)
+void View::Do_Show_message(std::string text)
 {
     board_scene->show_message(QString::fromStdString(text));
+}
+
+void View::ShowWindow()
+{
+    view->show();
 }
 
 void View::on_msg_sended(QString str)
@@ -86,15 +112,8 @@ void View::on_save_game(QString path)
     emit Save_game(path.toStdString());
 }
 
-
 void View::on_leave_game()
 {
     Set_control_settings(IView::MENU);// ?it must be called in presenter?
     emit Leave();
-}
-
-View::~View()
-{
-    delete menu_scene;
-    delete board_scene;
 }
