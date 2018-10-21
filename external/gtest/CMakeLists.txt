@@ -23,8 +23,10 @@ target_compile_options(gtest PRIVATE ${gtest_cxx_flags}
 )
 
 if (UNIX)
-  target_link_libraries(gtest PRIVATE pthread)
-endif(UNIX)
+  target_link_libraries(gtest
+    PRIVATE pthread
+  )
+endif()
 
 # gtest_main
 
@@ -36,6 +38,8 @@ target_include_directories(gtest_main
   PRIVATE "${CMAKE_CURRENT_LIST_DIR}/googletest/googletest/include"
 )
 
-target_compile_options(gtest_main  PRIVATE ${gtest_cxx_flags})
+target_compile_options(gtest_main
+  PRIVATE ${gtest_cxx_flags}
+)
 
 #
