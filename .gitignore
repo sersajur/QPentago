@@ -27,6 +27,7 @@ Makefile*
 # QtCreator
 
 *.autosave
+CMakeLists.txt.user
 
 # VSCode
 

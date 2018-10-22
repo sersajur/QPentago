@@ -1,30 +1,46 @@
-configure_file(CMakeLists.txt.in CMakeLists.txt @ONLY)
+cmake_minimum_required(VERSION 3.10)
+project(GoogleTest CXX)
 
-configure_file(CMakeLists.txt.in CMakeLists.txt)
-execute_process(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" .
-  RESULT_VARIABLE result
-  WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
-)
-if(result)
-  message(FATAL_ERROR "CMake step for googletest failed: ${result}")
-endif()
-execute_process(COMMAND "${CMAKE_COMMAND}" --build .
-  RESULT_VARIABLE result
-  WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
-)
-if(result)
-  message(FATAL_ERROR "Build step for googletest failed: ${result}")
+# Warning fixes - borrowed from GTest build scripts
+if(WIN32)
+  set(GTEST_CXX_FLAGS -D_UNICODE -DUNICODE -DSTRICT -DWIN32_LEAN_AND_MEAN)
+else()
+  set(GTEST_CXX_FLAGS -Wno-unused-parameter -Wno-missing-field-initializers)
 endif()
 
-# Prevent GoogleTest from overriding our compiler/linker options
-# when building with Visual Studio
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+# gtest
 
-# Add googletest directly to our build. This adds
-# the following targets: gtest, gtest_main, gmock
-# and gmock_main
-add_subdirectory(
-  "${CMAKE_CURRENT_BINARY_DIR}/googletest-src"
-  "${CMAKE_CURRENT_BINARY_DIR}/googletest-build"
-  EXCLUDE_FROM_ALL
+add_library(gtest STATIC
+  "${CMAKE_CURRENT_SOURCE_DIR}/googletest/googletest/src/gtest-all.cc"
 )
+
+target_include_directories(gtest
+  PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/googletest/googletest"
+  PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/googletest/googletest/include"
+)
+
+target_compile_options(gtest
+  PRIVATE ${GTEST_CXX_FLAGS}
+)
+
+if (UNIX)
+  target_link_libraries(gtest
+    PRIVATE pthread
+  )
+endif()
+
+# gtest_main
+
+add_library(gtest_main STATIC
+  "${CMAKE_CURRENT_SOURCE_DIR}/googletest/googletest/src/gtest_main.cc"
+)
+
+target_include_directories(gtest_main
+  PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/googletest/googletest/include"
+)
+
+target_compile_options(gtest_main
+  PRIVATE ${GTEST_CXX_FLAGS}
+)
+
+#

@@ -1,14 +1,12 @@
 project(PentagoLibTests)
 
-set (SOURCE
-  DummyTest.cpp
-  main.cpp
-)
-
 add_executable(${PROJECT_NAME}
-  ${SOURCE}
+  DummyTest.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}
-  gtest
+  gtest gtest_main
 )
+
+include(GoogleTest)
+gtest_discover_tests(${PROJECT_NAME})

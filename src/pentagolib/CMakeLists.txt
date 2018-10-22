@@ -34,7 +34,7 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 set_target_properties(${PROJECT_NAME}
-  PROPERTIES 
+  PROPERTIES
     AUTOMOC ON
 )
 
