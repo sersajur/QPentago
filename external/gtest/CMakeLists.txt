@@ -19,7 +19,8 @@ target_include_directories(gtest
   PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/googletest/googletest/include"
 )
 
-target_compile_options(gtest PRIVATE ${gtest_cxx_flags}
+target_compile_options(gtest
+  PRIVATE ${gtest_cxx_flags}
 )
 
 if (UNIX)
