@@ -3,9 +3,9 @@ project(GoogleTest CXX)
 
 # Warning fixes - borrowed from GTest build scripts
 if(WIN32)
-  set(gtest_cxx_flags -D_UNICODE -DUNICODE -DSTRICT -DWIN32_LEAN_AND_MEAN)
+  set(GTEST_CXX_FLAGS -D_UNICODE -DUNICODE -DSTRICT -DWIN32_LEAN_AND_MEAN)
 else()
-  set(gtest_cxx_flags -Wno-unused-parameter -Wno-missing-field-initializers)
+  set(GTEST_CXX_FLAGS -Wno-unused-parameter -Wno-missing-field-initializers)
 endif()
 
 # gtest
@@ -20,7 +20,7 @@ target_include_directories(gtest
 )
 
 target_compile_options(gtest
-  PRIVATE ${gtest_cxx_flags}
+  PRIVATE ${GTEST_CXX_FLAGS}
 )
 
 if (UNIX)
@@ -40,7 +40,7 @@ target_include_directories(gtest_main
 )
 
 target_compile_options(gtest_main
-  PRIVATE ${gtest_cxx_flags}
+  PRIVATE ${GTEST_CXX_FLAGS}
 )
 
 #
