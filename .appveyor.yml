@@ -38,3 +38,5 @@ build_script:
     - cmake .. -G"%CMAKE_GENERATOR%" -DCMAKE_PREFIX_PATH=%CMAKE_QT_DIR%
     - cmake --build . --config %CONFIGURATION%
 
+test_script:
+    - ctest --output-on-failure
