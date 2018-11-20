@@ -23,7 +23,6 @@ environment:
         - TOOLCHAIN: msvc14
 
 install:
-    - git submodule update --init
     - call ci/appveyor/win-set-cmake_generator.bat %TOOLCHAIN% %PLATFORM%
     - call ci/appveyor/win-set-cmake_qt_dir.bat %TOOLCHAIN% %PLATFORM%
 
