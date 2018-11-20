@@ -1,3 +1,5 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/w57w7o0mqeh4auc4?svg=true)](https://ci.appveyor.com/project/sersajur/qpentago)
+
 Pentago
 =======
 Game project developed for educational purpose.
