@@ -8,11 +8,10 @@ clone_folder: c:\projects\qpentago
 shallow_clone: true
 
 clone_script:
-- cmd: >-
-    git clone -q --branch=%APPVEYOR_REPO_BRANCH% https://github.com/%APPVEYOR_REPO_NAME%.git %APPVEYOR_BUILD_FOLDER%
-    cd %APPVEYOR_BUILD_FOLDER%
-    git -q checkout %APPVEYOR_REPO_COMMIT%
-    git submodule update --init --recursive
+    - git clone -q --branch=%APPVEYOR_REPO_BRANCH% https://github.com/%APPVEYOR_REPO_NAME%.git %APPVEYOR_BUILD_FOLDER%
+    - cd %APPVEYOR_BUILD_FOLDER%
+    - git -q checkout %APPVEYOR_REPO_COMMIT%
+    - git submodule update --init --recursive
 
 matrix:
     fast_finish: false
