@@ -4,7 +4,8 @@ init:
     - git config --global core.autocrlf input
 
 clone_folder: c:\projects\qpentago
-shallow_clone: true                 # git clone --depth 1
+# git clone --depth 1
+shallow_clone: true
 
 matrix:
     fast_finish: false
@@ -21,8 +22,14 @@ environment:
     matrix:
         - TOOLCHAIN: msvc14
 
+install:
+    - git submodule update --init
+    - call ci/appveyor/win-set-cmake_generator.bat %TOOLCHAIN% %PLATFORM%
+    - call ci/appveyor/win-set-cmake_qt_dir.bat %TOOLCHAIN% %PLATFORM%
+
 build_script:
     - mkdir build
     - cd build
-    - cmake .. %CMAKE_CONFIGURE_FLAGS%
-    - cmake --build . %CMAKE_BUILD_FLAGS%
+    - cmake .. -G"%CMAKE_GENERATOR%" -DCMAKE_PREFIX_PATH=%CMAKE_QT_DIR%
+    - cmake --build . --config %CONFIGURATION%
+
