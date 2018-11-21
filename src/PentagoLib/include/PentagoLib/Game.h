@@ -20,18 +20,13 @@ using std::shared_ptr;
 #include <PentagoLib/Referee.h>
 #include <PentagoLib/Player.h>
 #include <PentagoLib/iview.h>
-#include "View.h"
 
 class Game : public QObject {
     Q_OBJECT
 public:
-    shared_ptr<IView> userInterface;
+    Game(shared_ptr<IView> userInterface);
     //Network network;
     //bool mustShutdown;
-
-    virtual ~Game() { }
-    static Game& GetInstance();
-    void Show() { std::dynamic_pointer_cast<View>(userInterface)->show(); }
 
     const unique_ptr<Player>& GetPlayer(unsigned who) const;
     const unique_ptr<Player>& GetCurrentPlayer() const;
@@ -56,14 +51,12 @@ signals:
     void message(string);
 
 private:
+    shared_ptr<IView> userInterface;
     vector<unique_ptr<Player>> players;
     Board board;
     Referee referee;
     unsigned currentPlayer;
     //PentagoServer *server;
-
-    Game();
-    Game(const Game&) = delete;
 };
 
 #endif /* GAME_H */

@@ -8,7 +8,7 @@
 #ifndef REFEREE_H_
 #define REFEREE_H_
 
-#include <pentagolib/Board.h>
+#include <PentagoLib/Board.h>
 
 #include <vector>
 enum winstatus {

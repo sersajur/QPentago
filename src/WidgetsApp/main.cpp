@@ -5,8 +5,11 @@
 
 int main(int argc, char *argv[])
 {
-    QApplication *application = new QApplication(argc, argv);
-    Game::GetInstance().Show();
+    QApplication app(argc, argv);
 
-    return application->exec();
+    auto view { std::make_shared<View>() };
+    Game game(view);
+    view->ShowWindow();
+
+    return app.exec();
 }

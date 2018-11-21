@@ -13,8 +13,6 @@ set (SOURCE
   View/graphicquadrant.h
   View/graphicstone.cpp
   View/graphicstone.h
-  Game.cpp
-  Game.h
   main.cpp
   View.cpp
   View.h
