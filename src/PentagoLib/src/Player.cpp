@@ -1,33 +1,45 @@
 #include <PentagoLib/Player.h>
 
-Player::Player(std::string _name) : playerType{-1} { SetName(_name); }
-Player::~Player() { }
-
-std::string Player::GetName() const{
-	const_cast<mutex*>(&PlayerNameAccessMutex)->lock();
-	string name = this->name;
-	const_cast<mutex*>(&PlayerNameAccessMutex)->unlock();
-	return name;
+Player::Player(std::string name) 
+    : player_type { -1 }
+{
+    setName(name);
 }
 
-void Player::SetName(const string name) {
-	PlayerNameAccessMutex.lock();
-	this->name = name;
-	PlayerNameAccessMutex.unlock();
+Player::~Player()
+{ }
+
+std::string Player::getName() const
+{
+    const_cast<std::mutex*>(&player_name_access_mutex)->lock();
+    std::string name = this->name;
+    const_cast<std::mutex*>(&player_name_access_mutex)->unlock();
+    return name;
 }
 
-int Player::GetPlayerType() {
-	return playerType;
+void Player::setName(const std::string name)
+{
+    player_name_access_mutex.lock();
+    this->name = name;
+    player_name_access_mutex.unlock();
 }
 
-void Player::stone_puted(int x, int y) {
-    emit put_stone(x, y);
+int Player::getPlayerType()
+{
+    return player_type;
 }
 
-void Player::rotated(int direction){
+void Player::stonePuted(int x, int y)
+{
+    emit putStone(x, y);
+}
+
+void Player::rotated(int direction)
+{
     emit rotate(direction);
 }
 
-void Player::leaved(){
+void Player::leaved()
+{
     emit leave();
 }

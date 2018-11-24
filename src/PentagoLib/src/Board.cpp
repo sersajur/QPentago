@@ -6,75 +6,92 @@
  */
 #include <PentagoLib/Board.h>
 
-bool Board::putStone(short row, short column, short player) {
-	if (board[row][column])
-		return false;
-	board[row][column] = player ? -1 * stepNum : stepNum;
-	if (player)
-		stepNum++;
-	return true;
+bool Board::putStone(short row, short column, short player)
+{
+    if (board[row][column])
+    {
+        return false;
+    }
+    board[row][column] = player ? -step_num : step_num;
+    if (player)
+    {
+        step_num++;
+    }
+    return true;
 }
 
-void Board::Rotate(Quadrant quadrant, RotateDirection direction) {
+void Board::rotate(Quadrant quadrant, RotateDirection direction)
+{
     unsigned i = quadrant == Quadrant::I || quadrant == Quadrant::II || quadrant == Quadrant::IX
-            ? 0 : (quadrant == Quadrant::III || quadrant == Quadrant::IV || quadrant == Quadrant::VIII ? 3 : 6);
+        ? 0 : (quadrant == Quadrant::III || quadrant == Quadrant::IV || quadrant == Quadrant::VIII ? 3 : 6);
     unsigned j = quadrant == Quadrant::I || quadrant == Quadrant::IV || quadrant == Quadrant::VI
-            ? 3 : (quadrant == Quadrant::IX || quadrant == Quadrant::VIII || quadrant == Quadrant::VII ? 6 : 0);
-	short tmp;
+        ? 3 : (quadrant == Quadrant::IX || quadrant == Quadrant::VIII || quadrant == Quadrant::VII ? 6 : 0);
+    short tmp;
 
-	switch (direction) {
+    switch (direction)
+    {
     case RotateDirection::Left:
-		tmp = board[i][j];
-		board[i][j] = board[i][j + 2];
-		board[i][j + 2] = board[i + 2][j + 2];
-		board[i + 2][j + 2] = board[i + 2][j];
-		board[i + 2][j] = tmp;
-		tmp = board[i][j + 1];
-		board[i][j + 1] = board[i + 1][j + 2];
-		board[i + 1][j + 2] = board[i + 2][j + 1];
-		board[i + 2][j + 1] = board[i + 1][j];
-		board[i + 1][j] = tmp;
-		break;
+        tmp = board[i][j];
+        board[i][j] = board[i][j + 2];
+        board[i][j + 2] = board[i + 2][j + 2];
+        board[i + 2][j + 2] = board[i + 2][j];
+        board[i + 2][j] = tmp;
+        tmp = board[i][j + 1];
+        board[i][j + 1] = board[i + 1][j + 2];
+        board[i + 1][j + 2] = board[i + 2][j + 1];
+        board[i + 2][j + 1] = board[i + 1][j];
+        board[i + 1][j] = tmp;
+        break;
     case RotateDirection::Right:
-		tmp = board[i][j];
-		board[i][j] = board[i + 2][j];
-		board[i + 2][j] = board[i + 2][j + 2];
-		board[i + 2][j + 2] = board[i][j + 2];
-		board[i][j + 2] = tmp;
-		tmp = board[i][j + 1];
-		board[i][j + 1] = board[i + 1][j];
-		board[i + 1][j] = board[i + 2][j + 1];
-		board[i + 2][j + 1] = board[i + 1][j + 2];
-		board[i + 1][j + 2] = tmp;
-		break;
-	}
+        tmp = board[i][j];
+        board[i][j] = board[i + 2][j];
+        board[i + 2][j] = board[i + 2][j + 2];
+        board[i + 2][j + 2] = board[i][j + 2];
+        board[i][j + 2] = tmp;
+        tmp = board[i][j + 1];
+        board[i][j + 1] = board[i + 1][j];
+        board[i + 1][j] = board[i + 2][j + 1];
+        board[i + 2][j + 1] = board[i + 1][j + 2];
+        board[i + 1][j + 2] = tmp;
+        break;
+    }
 }
 
-const short& Board::operator()(short i, short j) {
-	return board[i][j];
+const short& Board::operator()(short i, short j)
+{
+    return board[i][j];
 }
 
-vector<short>& Board::operator[](short i) {
-	return board[i];
+vector<short>& Board::operator[](short i)
+{
+    return board[i];
 }
 
-void Board::Clear() {
-    board = std::move(vector<vector<short>>(rowCount, vector<short>(colCount, 0)));
-	stepNum = 1;
+void Board::clear()
+{
+    board = std::move(vector<vector<short>>(row_count, vector<short>(col_count, 0)));
+    step_num = 1;
 }
 
-Board::Board(unsigned _rowCount, unsigned _colCount) : rowCount{_rowCount}, colCount{_colCount} {
-	Clear();
+Board::Board(unsigned row_count, unsigned col_count) 
+    : row_count { row_count }
+    , col_count { col_count } 
+{
+    clear();
 }
 
-GameState Board::SaveGame() { return GameState(board, stepNum); }
+GameState Board::saveGame()
+{
+    return GameState(board, step_num);
+}
 
-void Board::RestoreGame(GameState& gs){
-    rowCount = gs.getRowCount();
-    colCount = gs.getColCount();
-    Clear();
-    for (unsigned i = 0; i < rowCount; i++)
-        for (unsigned j = 0; j < colCount; j++)
+void Board::restoreGame(GameState& gs)
+{
+    row_count = gs.getRowCount();
+    col_count = gs.getColCount();
+    clear();
+    for (unsigned i = 0; i < row_count; i++)
+        for (unsigned j = 0; j < col_count; j++)
             board[i][j] = gs.getBoard()[i][j];
-    stepNum = gs.getStepNum();
+    step_num = gs.getStepNum();
 }

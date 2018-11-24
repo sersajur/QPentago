@@ -9,7 +9,7 @@
 #include <QAbstractTransition>
 #include <QSignalTransition>
 #include <QFinalState>
-#include <PentagoLib/iview.h>
+#include <PentagoLib/View.h>
 #include <QTextBrowser>
 #include "graphicbutton.h"
 #include <QGraphicsProxyWidget>
@@ -21,7 +21,7 @@ public:
 public:
     GraphicBoard(qreal x=0, qreal y=0, qreal width=0, qreal height=0, QObject* parent = 0);
     ~GraphicBoard();
-    void draw_stone(int i, int j, QColor col_fill);
+    void drawStone(int i, int j, QColor col_fill);
     void show_message(const QString& text);
     void enable_save(bool b);
     void setGamePhase(GamePhase phase);
@@ -30,11 +30,11 @@ signals:
     void quadrant_clicked_to_rotate(int num, int turn);
     void returned(int);
     void animated();
-    void quadrant_rotated(IView::quadrant num, IView::turn turn);
+    void quadrant_rotated(View::Quadrant num, View::Turn turn);
 
-    void load_game(QString);
+    void loadGame(QString);
     void leave_game();
-    void save_game(QString);
+    void saveGame(QString);
     void message_sended(QString str);
 private slots:
     void on_click_to_rotate(int num, int turn);

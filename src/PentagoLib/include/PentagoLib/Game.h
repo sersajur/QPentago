@@ -1,62 +1,60 @@
 #ifndef GAME_H
 #define GAME_H
 
-//#include "UserInterface.h"
-//#include "PlayerLocal.h"
-//#include "PlayerNetwork.h"
+#include <memory>
+#include <string>
+#include <vector>
+
+#include <QFile>
+#include <QObject>
+
+#include <PentagoLib/Board.h>
+#include <PentagoLib/Player.h>
+#include <PentagoLib/Referee.h>
+#include <PentagoLib/View.h>
+
 //#include "Network.h"
 //#include "PentagoServer.h"
-
-#include <QObject>
-#include <QFile>
-#include <string>
-using std::string;
-#include <vector>
-using std::vector;
-#include <memory>
-using std::unique_ptr;
-using std::shared_ptr;
-#include <PentagoLib/Board.h>
-#include <PentagoLib/Referee.h>
-#include <PentagoLib/Player.h>
-#include <PentagoLib/iview.h>
+//#include "PlayerLocal.h"
+//#include "PlayerNetwork.h"
+//#include "UserInterface.h"
 
 class Game : public QObject {
     Q_OBJECT
 public:
-    Game(shared_ptr<IView> userInterface);
+    Game(std::shared_ptr<View> user_interface);
     //Network network;
-    //bool mustShutdown;
+    //bool must_shutdown;
 
-    const unique_ptr<Player>& GetPlayer(unsigned who) const;
-    const unique_ptr<Player>& GetCurrentPlayer() const;
-    //void SetPlayerName(PlayersNum playerNum, const string& name);
+    const std::unique_ptr<Player>& getPlayer(unsigned) const;
+    const std::unique_ptr<Player>& getCurrentPlayer() const;
+    //void SetPlayerName(PlayersNum player_num, const string& name);
 
 public slots:
     // from View (main menu)
-    void new_game(int);
-    void save_game(std::string);
-    void load_game(std::string);
-    void join_game(std::string);
-    void host_game(std::string);
+    void newGame(int);
+    void saveGame(std::string);
+    void loadGame(std::string);
+    void joinGame(std::string);
+    void hostGame(std::string);
     // from Player presenter
-    void put_stone(int, int);
-    void rotate(IView::quadrant, IView::turn);
+    void putStone(int, int);
+    void rotate(View::Quadrant, View::Turn);
     void leave();
 
 signals:
     // to View
-    void set_control_settings(IView::control_setting);
-    void draw_stone(int, int, IView::color);
-    void message(string);
+    void setControlSettings(View::ControlSetting);
+    void drawStone(int, int, View::Color);
+    void message(std::string);
 
 private:
-    shared_ptr<IView> userInterface;
-    vector<unique_ptr<Player>> players;
+    std::shared_ptr<View> user_interface;
+    std::vector<std::unique_ptr<Player>> players;
     Board board;
     Referee referee;
-    unsigned currentPlayer;
+    unsigned current_player;
     //PentagoServer *server;
 };
 
-#endif /* GAME_H */
+#endif // GAME_H

@@ -7,33 +7,49 @@
 #ifndef BOARD_H
 #define BOARD_H
 
-#include <PentagoLib/serialization.h>
+#include <PentagoLib/GameState.h>
 
-class Board : public IOriginator {
+class Board: public Originator
+{
+    typedef vector<vector<short>> TheBoard;
+
 public:
-    enum class RotateDirection { Left, Right };
-    enum class Quadrant { I = 1, II, III, IV, V, VI, VII, VIII, IX };
+    enum class RotateDirection
+    {
+        Left, Right
+    };
+    enum class Quadrant
+    {
+        I = 1, II, III, IV, V, VI, VII, VIII, IX
+    };
 
-    Board(unsigned _rowCount = 6, unsigned _colCount = 6);
-    virtual ~Board() { }
-	bool putStone(short, short, short);
-    void Rotate(Quadrant, RotateDirection);
-	
+    Board(unsigned row_count = 6, unsigned col_count = 6);
+    virtual ~Board() 
+    { }
+    
+    bool putStone(short, short, short);
+    void rotate(Quadrant, RotateDirection);
+
     const short& operator()(short, short);
     vector<short>& operator[](short);
-	
-	void Clear();
-    unsigned getRowCount() { return rowCount; }
-    unsigned getColCount() { return colCount; }
 
-    virtual GameState SaveGame();
-    virtual void RestoreGame(GameState&);
+    void clear();
+    unsigned getRowCount()
+    {
+        return row_count;
+    }
+    unsigned getColCount()
+    {
+        return col_count;
+    }
+
+    virtual GameState saveGame();
+    virtual void restoreGame(GameState&);
 
 private:
-    typedef vector<vector<short>> TheBoard;
     TheBoard board;
-    unsigned rowCount, colCount;
-	unsigned stepNum;
+    unsigned row_count, col_count;
+    unsigned step_num;
 };
 
-#endif /* BOARD_H */
+#endif // BOARD_H

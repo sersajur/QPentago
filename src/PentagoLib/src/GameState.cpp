@@ -1,10 +1,15 @@
-#include <PentagoLib/serialization.h>
+#include <PentagoLib/GameState.h>
 #include <QStringList>
 
-GameState::GameState(const vector<vector<short>>& _board, const unsigned num) : width(_board[0].size()), height(_board.size()), board(_board), stepNum(num) {
-}
+GameState::GameState(const vector<vector<short>>& _board, const unsigned num) 
+    : width(_board[0].size())
+    , height(_board.size())
+    , board(_board)
+    , step_num(num)
+{ }
 
-void GameState::Serialize(QIODevice& f) {
+void GameState::serialize(QIODevice& f)
+{
     QString serialization;
     QXmlStreamWriter stream(&serialization);
     stream.setAutoFormatting(true);
@@ -14,7 +19,7 @@ void GameState::Serialize(QIODevice& f) {
     stream.writeStartElement("Board");
     stream.writeAttribute("Width", QString::number(this->width));
     stream.writeAttribute("Height", QString::number(this->height));
-    stream.writeAttribute("StepsPerformed", QString::number((this->stepNum)));
+    stream.writeAttribute("StepsPerformed", QString::number((this->step_num)));
     for (uint i = 0; i < height; i++)
     {
         stream.writeCharacters("\n        ");
@@ -33,22 +38,26 @@ void GameState::Serialize(QIODevice& f) {
     f.close();
 }
 
-void GameState::Deserialize(QIODevice& f) {
+void GameState::deserialize(QIODevice& f)
+{
     f.open(QIODevice::ReadOnly);
     QXmlStreamReader stream(&f);
 
-    while (!stream.atEnd()) {
+    while (!stream.atEnd())
+    {
         stream.readNext();
-        if (stream.isStartElement()) {
-            if (stream.name() == "Board") {
+        if (stream.isStartElement())
+        {
+            if (stream.name() == "Board")
+            {
                 this->height = stream.attributes().value("Height").toInt();
                 this->width = stream.attributes().value("Width").toInt();
-                this->stepNum = stream.attributes().value("StepsPerformed").toInt();
+                this->step_num = stream.attributes().value("StepsPerformed").toInt();
                 QStringList tmp = stream.readElementText().simplified().split(" ");
                 board = std::move(vector<vector<short>>(height, vector<short>(width, 0)));
                 for (uint i = 0; i < height; i++)
                     for (uint j = 0; j < width; j++)
-                        this->board[i][j] = QString(tmp[i*height+j]).toShort();
+                        this->board[i][j] = QString(tmp[i*height + j]).toShort();
             }
         }
     }

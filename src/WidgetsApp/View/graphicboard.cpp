@@ -137,11 +137,11 @@ void GraphicBoard::on_save_pressed()
     }else
     {
         show_message("Saving game...");
-        emit save_game(SAVEPATH);
+        emit saveGame(SAVEPATH);
     }
 }
 
-void GraphicBoard::draw_stone(int i, int j, QColor col_fill)
+void GraphicBoard::drawStone(int i, int j, QColor col_fill)
 {
     _stones[i][j]->Fill(col_fill);
     setGamePhase(WAIT_ROTATION);
@@ -192,7 +192,7 @@ void GraphicBoard::on_click_to_rotate(int num, int turn)
            _stones[i0+i][j0+j]->setPos(tmp_pos[i][j]);
     update();
     show_message("Q<"+QString::number(num)+">: "+((turn<0)?"Left":"Right"));
-    emit quadrant_rotated(IView::quadrant(num+1), IView::turn(((turn<0)?0:1)));
+    emit quadrant_rotated(View::Quadrant(num+1), View::Turn(((turn<0)?0:1)));
     setGamePhase(GraphicBoard::WAIT_STONE); //actualy, here must be WAIT_SMTH, and WAIT_STONE must be emited by PRESENTER-->VIEW
 }
 

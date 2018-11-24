@@ -1,42 +1,42 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include <QObject>
-#include <string>
 #include <mutex>
-using std::string;
-using std::mutex;
+#include <string>
+
+#include <QObject>
 
 #include <PentagoLib/Board.h>
 
-class Player : public QObject {
+class Player: public QObject
+{
     Q_OBJECT
 public:
-    Player(std::string _name = "Player");
+    Player(std::string name = "Player");
 	virtual ~Player();
 
-	string GetName() const;
-	void SetName(const string name);
-	int GetPlayerType();
+	std::string getName() const;
+	void setName(const std::string);
+	int getPlayerType();
 
 protected:
-	int playerType;
+	int player_type;
 
 protected slots:
     // retranslate from View
-    virtual void stone_puted(int, int);
+    virtual void stonePuted(int, int);
     virtual void rotated(int);
     virtual void leaved();
 
 signals:
     // to Presenter
-    void put_stone(int, int);
+    void putStone(int, int);
     void rotate(int);
     void leave();
 
 private:
-	string name;
-	mutex PlayerNameAccessMutex;
+	std::string name;
+	std::mutex player_name_access_mutex;
 };
 
-#endif /* PLAYER_H */
+#endif // PLAYER_H

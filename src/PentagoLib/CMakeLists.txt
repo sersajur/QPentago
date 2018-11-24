@@ -5,17 +5,17 @@ find_package(Qt5Core REQUIRED)
 set(HDRS
   include/PentagoLib/Board.h
   include/PentagoLib/Game.h
-  include/PentagoLib/iview.h
+  include/PentagoLib/View.h
   include/PentagoLib/Player.h
   include/PentagoLib/Referee.h
-  include/PentagoLib/serialization.h
+  include/PentagoLib/GameState.h
 )
 
 set(SOURCE
   src/Board.cpp
   src/Game.cpp
   src/Referee.cpp
-  src/serialization.cpp
+  src/GameState.cpp
   src/Player.cpp
 )
 

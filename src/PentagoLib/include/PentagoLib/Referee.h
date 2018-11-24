@@ -5,47 +5,52 @@
  *      Author: sersajur
  */
 
-#ifndef REFEREE_H_
-#define REFEREE_H_
+#ifndef REFEREE_H
+#define REFEREE_H
+
+#include <vector>
 
 #include <PentagoLib/Board.h>
 
-#include <vector>
-enum winstatus {
-	Second = -1, NoOne = 0, First = 1, Draw = 2
+enum class WinStatus
+{
+    Second = -1, NoOne = 0, First = 1, Draw = 2
 };
 
-struct WinCombinationStruct {
-	short beginRow;
-	short beginCol;
-	short endRow;
-	short endCol;
-	short PlayerNum; // -1, 1
+struct WinCombinationStruct
+{
+    short begin_row;
+    short begin_col;
+    short end_row;
+    short end_col;
+    short player_num; // -1, 1
 };
 
-struct ExtWinCombinationStruct {
-	winstatus WinStatus;
-	std::vector<WinCombinationStruct> winCombinations;
+struct ExtWinCombinationStruct
+{
+    WinStatus win_status;
+    std::vector<WinCombinationStruct> win_combinations;
 };
 
-class Referee {
+class Referee
+{
 private:
-	short _rowCount;
-	short _colCount;
-	short _minLength;
-	ExtWinCombinationStruct _winState;
+    short row_count;
+    short col_count;
+    short min_length;
+    ExtWinCombinationStruct win_state;
 
-	short _FindCombFromPoint(Board &b, short i, short j, short fix_i = -1, short fix_j = -1,
-			short player = 0); //
-	void _AddCombination(short, short, short, short, short); //
-	short* __GetDirectStep(short di, short dj, short num); //
+    short findCombFromPoint(Board &b, short i, short j, short fix_i = -1, short fix_j = -1,
+        short player = 0); //
+    void addCombination(short, short, short, short, short); //
+    short* getDirectStep(short, short, short); //
 public:
-	Referee(short rowCount = 6, short colCount = 6, short minLength = 5); //
-	virtual ~Referee(); //
+    Referee(short row_count = 6, short col_count = 6, short min_length = 5); //
+    virtual ~Referee(); //
 
-	winstatus WinnerIs(void); //
-	winstatus UpdateWinState(Board b); //
-	void ShowCombinationsTemp(void); //
+    WinStatus winnerIs(void); //
+    WinStatus updateWinState(Board); //
+    void showCombinationsTemp(void); //
 };
 
-#endif /* REFEREE_H_ */
+#endif // REFEREE_H
