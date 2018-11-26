@@ -1,13 +1,12 @@
 skip_branch_with_pr: true
 
+clone_folder: c:\projects\qpentago
+
 image: Visual Studio 2017
 
 init:
-    - git config --global core.autocrlf input
     - cd %APPVEYOR_BUILD_FOLDER%
     - git submodule update --init --recursive
-
-clone_folder: c:\projects\qpentago
 
 matrix:
     fast_finish: false
