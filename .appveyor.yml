@@ -1,0 +1,36 @@
+skip_branch_with_pr: true
+
+clone_folder: c:\projects\qpentago
+
+image: Visual Studio 2017
+
+init:
+    - git config --global core.autocrlf input
+
+matrix:
+    fast_finish: false
+
+platform:
+    - x64
+
+configuration:
+    - RelWithDebInfo
+
+environment:
+    matrix:
+        - TOOLCHAIN: msvc15
+
+install:
+    - cd %APPVEYOR_BUILD_FOLDER%
+    - git submodule update --init --recursive
+    - call ci/appveyor/win-set-cmake_generator.bat %TOOLCHAIN% %PLATFORM%
+    - call ci/appveyor/win-set-cmake_qt_dir.bat %TOOLCHAIN% %PLATFORM%
+
+build_script:
+    - mkdir build
+    - cd build
+    - cmake .. -G"%CMAKE_GENERATOR%" -DCMAKE_PREFIX_PATH=%CMAKE_QT_DIR%
+    - cmake --build . --config %CONFIGURATION%
+
+test_script:
+    - ctest --output-on-failure
