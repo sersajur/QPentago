@@ -14,7 +14,7 @@ platform:
     - x64
 
 configuration:
-    - Debug
+    - RelWithDebInfo
 
 environment:
     matrix:
