@@ -1,8 +1,8 @@
 @echo off
 
 :set_qt_toolchain_part
-if /i "%1" == "msvc14" (
-  set QT_TOOLCHAIN_PART=msvc2015
+if /i "%1" == "msvc15" (
+  set QT_TOOLCHAIN_PART=msvc2017
   goto :set_qt_platform_part
 )
 
@@ -10,10 +10,6 @@ echo Invalid argument: "%1"
 exit -1
 
 :set_qt_platform_part
-if /i "%2" == "x86" (
-  set QT_PLATFORM_PART=
-  goto :compose_result
-)
 if /i "%2" == "x64" (
   set QT_PLATFORM_PART=_64
   goto :compose_result

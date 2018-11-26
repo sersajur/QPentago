@@ -1,32 +1,26 @@
 skip_branch_with_pr: true
 
-image: Visual Studio 2015
+image: Visual Studio 2017
 
 init:
     - git config --global core.autocrlf input
+    - cd %APPVEYOR_BUILD_FOLDER%
+    - git submodule update --init --recursive
 
 clone_folder: c:\projects\qpentago
-
-clone_script:
-    - git clone -q --branch=%APPVEYOR_REPO_BRANCH% https://github.com/%APPVEYOR_REPO_NAME%.git %APPVEYOR_BUILD_FOLDER%
-    - cd %APPVEYOR_BUILD_FOLDER%
-    - git checkout -q %APPVEYOR_REPO_COMMIT%
-    - git submodule update --init --recursive
 
 matrix:
     fast_finish: false
 
 platform:
     - x64
-    - x86
 
 configuration:
     - Debug
-    - Release
 
 environment:
     matrix:
-        - TOOLCHAIN: msvc14
+        - TOOLCHAIN: msvc15
 
 install:
     - call ci/appveyor/win-set-cmake_generator.bat %TOOLCHAIN% %PLATFORM%
