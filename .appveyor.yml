@@ -5,10 +5,7 @@ clone_folder: c:\projects\qpentago
 image: Visual Studio 2017
 
 init:
-    - echo %APPVEYOR_BUILD_FOLDER%
-    - echo %APPVEYOR_CLONE_FOLDER%
-    - cd %APPVEYOR_BUILD_FOLDER%
-    - git submodule update --init --recursive
+    - git config --global core.autocrlf input
 
 matrix:
     fast_finish: false
@@ -24,6 +21,8 @@ environment:
         - TOOLCHAIN: msvc15
 
 install:
+    - cd %APPVEYOR_BUILD_FOLDER%
+    - git submodule update --init --recursive
     - call ci/appveyor/win-set-cmake_generator.bat %TOOLCHAIN% %PLATFORM%
     - call ci/appveyor/win-set-cmake_qt_dir.bat %TOOLCHAIN% %PLATFORM%
 
